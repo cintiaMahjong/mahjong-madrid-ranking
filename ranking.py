@@ -472,10 +472,6 @@ def mostrar_historial(
 
         return
 
-    # -----------------------------------------------------
-    # ORDENAR PARTIDAS DE MÁS NUEVA A MÁS ANTIGUA
-    # -----------------------------------------------------
-
     partidas_info = (
         partidas_jugador[
             [
@@ -496,10 +492,6 @@ def mostrar_historial(
         "fecha_orden",
         ascending=False
     )
-
-    # -----------------------------------------------------
-    # MOSTRAR CADA PARTIDA
-    # -----------------------------------------------------
 
     for _, partida in partidas_info.iterrows():
 
@@ -530,10 +522,6 @@ def mostrar_historial(
 
             fecha_formateada = str(fecha)
 
-        # -------------------------------------------------
-        # NOMBRE DE LA PARTIDA
-        # -------------------------------------------------
-
         nombre_partida = ""
 
         if "nombre_partida" in datos_partida.columns:
@@ -543,6 +531,7 @@ def mostrar_historial(
             ].dropna()
 
             if not valores.empty:
+
                 nombre_partida = str(
                     valores.iloc[0]
                 )
@@ -572,10 +561,6 @@ def mostrar_historial(
 
             titulo_partida = fecha_formateada
 
-        # -------------------------------------------------
-        # CABECERA VERDE DE PARTIDA
-        # -------------------------------------------------
-
         st.markdown(
             f"""
             <div style="
@@ -594,32 +579,18 @@ def mostrar_historial(
             unsafe_allow_html=True
         )
 
-        # -------------------------------------------------
-        # CABECERA DE JUGADORES
-        # -------------------------------------------------
-
         cab1, cab2, cab3 = st.columns(
             [3, 1, 1]
         )
 
         with cab1:
-            st.markdown(
-                "**Jugador**"
-            )
+            st.markdown("**Jugador**")
 
         with cab2:
-            st.markdown(
-                "**Puntos**"
-            )
+            st.markdown("**Puntos**")
 
         with cab3:
-            st.markdown(
-                "**Pos.**"
-            )
-
-        # -------------------------------------------------
-        # JUGADORES
-        # -------------------------------------------------
+            st.markdown("**Pos.**")
 
         for _, fila in datos_partida.iterrows():
 
@@ -641,17 +612,23 @@ def mostrar_historial(
             )
 
             try:
+
                 puntuacion = int(
                     round(float(puntuacion))
                 )
+
             except Exception:
+
                 puntuacion = 0
 
             try:
+
                 posicion = int(
                     float(posicion)
                 )
+
             except Exception:
+
                 posicion = ""
 
             es_jugador = (
@@ -728,8 +705,6 @@ def mostrar_historial(
                     unsafe_allow_html=True
                 )
 
-        # Separación entre partidas
-
         st.markdown(
             "<div style='height: 8px;'></div>",
             unsafe_allow_html=True
@@ -737,7 +712,7 @@ def mostrar_historial(
 
 
 # =========================================================
-# DISTRIBUCIÓN DE POSICIONES
+# TABLA DE POSICIONES Y NÚMERO DE VECES
 # =========================================================
 
 def mostrar_distribucion_posiciones(
@@ -760,7 +735,7 @@ def mostrar_distribucion_posiciones(
     if "posicion" not in df.columns:
         return
 
-    # Evitar duplicados de una misma partida
+    # Una sola fila por jugador y partida
     df = df.drop_duplicates(
         subset=[
             "partida_id",
@@ -847,7 +822,7 @@ def mostrar_distribucion_posiciones(
 def mostrar_ficha(jugador_id):
 
     # =====================================================
-    # BOTÓN VOLVER ARRIBA DEL TODO
+    # VOLVER AL RANKING - ARRIBA DEL TODO
     # =====================================================
 
     if st.button(
@@ -866,10 +841,6 @@ def mostrar_ficha(jugador_id):
     st.title("🀄 Ficha del jugador")
 
     jugador_id_texto = str(jugador_id)
-
-    # =====================================================
-    # BUSCAR NOMBRE
-    # =====================================================
 
     jugadores_busqueda = df_jugadores[
         df_jugadores["id"].astype(str)
@@ -1072,7 +1043,7 @@ def mostrar_ficha(jugador_id):
             )
 
     # =====================================================
-    # BOTÓN VOLVER ABAJO DEL TODO
+    # VOLVER AL RANKING - ABAJO DEL TODO
     # =====================================================
 
     st.divider()
@@ -1088,7 +1059,7 @@ def mostrar_ficha(jugador_id):
 
 
 # =========================================================
-# SI HAY JUGADOR SELECCIONADO → MOSTRAR FICHA
+# MOSTRAR FICHA SI HAY JUGADOR SELECCIONADO
 # =========================================================
 
 if st.session_state.jugador_seleccionado is not None:
@@ -1108,25 +1079,7 @@ st.title("🀄 Liga Mahjong Madrid")
 
 
 # =========================================================
-# TABS MCR / RIICHI
-# =========================================================
-
-tab_mcr, tab_riichi = st.tabs(
-    [
-        "🀄 MCR",
-        "🀄 RIICHI"
-    ]
-)
-
-
-temporadas = [
-    "Oct 2025 - Sept 2026",
-    "Oct 2026 - Sept 2027"
-]
-
-
-# =========================================================
-# FUNCIÓN PARA MOSTRAR RANKING
+# FUNCIÓN MOSTRAR RANKING
 # =========================================================
 
 def mostrar_ranking(
@@ -1148,19 +1101,7 @@ def mostrar_ranking(
 
         return
 
-    # -----------------------------------------------------
-    # CABECERA
-    # -----------------------------------------------------
-
-    (
-        cab1,
-        cab2,
-        cab3,
-        cab4,
-        cab5,
-        cab6,
-        cab7
-    ) = st.columns(
+    cab1, cab2, cab3, cab4, cab5, cab6, cab7 = st.columns(
         [
             0.6,
             2.8,
@@ -1192,10 +1133,6 @@ def mostrar_ranking(
 
     with cab7:
         st.markdown("**Media pos.**")
-
-    # -----------------------------------------------------
-    # FILAS
-    # -----------------------------------------------------
 
     for _, fila in ranking.iterrows():
 
@@ -1284,8 +1221,21 @@ def mostrar_ranking(
 
 
 # =========================================================
-# TAB MCR
+# MCR
 # =========================================================
+
+tab_mcr, tab_riichi = st.tabs(
+    [
+        "🀄 MCR",
+        "🀄 RIICHI"
+    ]
+)
+
+temporadas = [
+    "Oct 2025 - Sept 2026",
+    "Oct 2026 - Sept 2027"
+]
+
 
 with tab_mcr:
 
@@ -1317,7 +1267,7 @@ with tab_mcr:
 
 
 # =========================================================
-# TAB RIICHI
+# RIICHI
 # =========================================================
 
 with tab_riichi:
