@@ -6,9 +6,9 @@ import json
 from pathlib import Path
 
 
-# ============================================================
+# =========================================================
 # CONFIGURACIÓN
-# ============================================================
+# =========================================================
 
 st.set_page_config(
     page_title="Liga Mahjong Madrid",
@@ -18,128 +18,99 @@ st.set_page_config(
 )
 
 
-# ============================================================
+# =========================================================
 # TEMPORADAS
-# ============================================================
+# =========================================================
 
 TEMPORADA_1 = "Oct 2025 - Sept 2026"
 TEMPORADA_2 = "Oct 2026 - Sept 2027"
 
 
-# ============================================================
-# CSS
-# ============================================================
+# =========================================================
+# ESTILO
+# =========================================================
 
-st.markdown("""
-<style>
+st.markdown(
+    """
+    <style>
 
-/* ============================================================
-   FONDO
-   ============================================================ */
+    /* Fondo general */
+    .stApp {
+        background-color: #0b2118;
+    }
 
-html,
-body,
-[data-testid="stApp"],
-[data-testid="stAppViewContainer"],
-[data-testid="stMain"] {
-    background: #0b2118 !important;
-}
+    [data-testid="stHeader"] {
+        background-color: transparent;
+    }
 
-[data-testid="stHeader"] {
-    background: transparent !important;
-}
+    [data-testid="stMainBlockContainer"] {
+        max-width: 680px;
+        padding-left: 12px;
+        padding-right: 12px;
+        padding-top: 10px;
+    }
 
-[data-testid="stMainBlockContainer"] {
-    max-width: 680px !important;
-    padding-top: 0.7rem !important;
-    padding-left: 0.65rem !important;
-    padding-right: 0.65rem !important;
-    padding-bottom: 2rem !important;
-}
+    /* Ocultar menú y footer */
+    #MainMenu {
+        visibility: hidden;
+    }
 
+    footer {
+        visibility: hidden;
+    }
 
-/* ============================================================
-   OCULTAR ELEMENTOS
-   ============================================================ */
+    /* Texto general */
+    p, label, span {
+        color: #f5e8c5;
+    }
 
-#MainMenu {
-    visibility: hidden;
-}
+    /* Título */
+    .titulo {
+        text-align: center;
+        color: #f5e8c5;
+        font-size: 25px;
+        font-weight: 900;
+        letter-spacing: 1.5px;
+        margin-top: 5px;
+    }
 
-footer {
-    visibility: hidden;
-}
+    .subtitulo {
+        text-align: center;
+        color: #b89445;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        margin-bottom: 18px;
+    }
 
+    /* Botones MCR / RIICHI */
+    button {
+        border-radius: 10px !important;
+    }
 
-/* ============================================================
-   TEXTO
-   ============================================================ */
+    /* Botones principales */
+    div[data-testid="stButton"] button {
+        background-color: #143225 !important;
+        color: #f5e8c5 !important;
+        border: 1px solid #806a35 !important;
+        font-weight: 800 !important;
+    }
 
-body,
-p,
-label,
-span {
-    color: #f5e8c5;
-}
+    div[data-testid="stButton"] button:hover {
+        border-color: #d1ae52 !important;
+        color: #fff0bd !important;
+    }
 
+    /* Título ranking */
+    .ranking-titulo {
+        color: #f5e8c5;
+        font-size: 19px;
+        font-weight: 900;
+        margin-top: 12px;
+        margin-bottom: 8px;
+    }
 
-/* ============================================================
-   CABECERA
-   ============================================================ */
-
-.cabecera {
-    text-align: center;
-    margin-bottom: 16px;
-}
-
-.titulo {
-    color: #f5e8c5 !important;
-    font-size: 1.5rem;
-    font-weight: 900;
-    letter-spacing: 1.4px;
-    line-height: 1.1;
-    margin-top: 5px;
-}
-
-.subtitulo {
-    color: #b89445 !important;
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    margin-top: 5px;
-}
-
-
-/* ============================================================
-   MCR / RIICHI
-   ============================================================ */
-
-button[key="boton_mcr"],
-button[key="boton_riichi"] {
-    min-height: 54px !important;
-    height: 54px !important;
-
-    background: #123125 !important;
-    background-color: #123125 !important;
-
-    border: 2px solid #806a35 !important;
-    border-radius: 12px !important;
-
-    color: #e6d9ad !important;
-
-    font-size: 1rem !important;
-    font-weight: 900 !important;
-
-    box-shadow: none !important;
-}
-
-button[key="boton_mcr"] p,
-button[key="boton_riichi"] p {
-    color: #e6d9ad !important;
-}
-
-
-/* ============================================================
-   PESTAÑAS
-   ============
+    /* Cabecera ranking */
+    .ranking-cabecera {
+        color: #8f815
 ```
