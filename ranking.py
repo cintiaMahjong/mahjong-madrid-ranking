@@ -10,7 +10,7 @@ import json
 
 st.set_page_config(
     page_title="Liga Mahjong Madrid",
-    page_icon="🀄",
+    page_icon="logo_mahjong_madrid.png",
     layout="centered"
 )
 
