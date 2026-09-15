@@ -735,4 +735,3 @@ def mostrar_jugador(
             "puntuacion": "Puntos"
         }
     )
-```
