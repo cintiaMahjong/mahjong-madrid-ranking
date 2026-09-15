@@ -24,258 +24,295 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-    /* ==============================
-       FONDO GENERAL
-       ============================== */
+/* =====================================================
+   FONDO GENERAL
+   ===================================================== */
 
-    .stApp {
-        background:
-            radial-gradient(
-                circle at top,
-                #173d2b 0%,
-                #0c2418 45%,
-                #07150f 100%
-            );
-        color: #f5e8c5;
-    }
+.stApp {
+    background: #0b2418 !important;
+    color: #f5e8c5 !important;
+}
 
-    .block-container {
-        max-width: 1250px;
-        padding-top: 25px;
-        padding-bottom: 40px;
-    }
+.main {
+    background: #0b2418 !important;
+}
 
+.block-container {
+    background: #0b2418 !important;
+    max-width: 1250px;
+    padding-top: 25px;
+    padding-bottom: 40px;
+}
 
-    /* ==============================
-       CABECERA
-       ============================== */
+[data-testid="stAppViewContainer"] {
+    background: #0b2418 !important;
+}
 
-    .cabecera {
-        padding: 10px 0 20px 0;
-    }
+[data-testid="stMain"] {
+    background: #0b2418 !important;
+}
 
-    .titulo-principal {
-        color: #e2c36c;
-        font-size: 3rem;
-        font-weight: 900;
-        letter-spacing: 4px;
-        margin: 0;
-        line-height: 1.1;
-    }
+header[data-testid="stHeader"] {
+    background: #0b2418 !important;
+}
 
-    .subtitulo {
-        color: #d9cfae;
-        font-size: 1rem;
-        letter-spacing: 2px;
-        margin-top: 8px;
-    }
+footer {
+    background: #0b2418 !important;
+}
 
 
-    /* ==============================
-       SELECTOR MCR / RIICHI
-       ============================== */
+/* =====================================================
+   CABECERA
+   ===================================================== */
 
-    .selector-juego {
-        margin-top: 20px;
-        margin-bottom: 25px;
-    }
+.cabecera {
+    padding: 10px 0 20px 0;
+}
 
-    .selector-juego button {
-        width: 100%;
-        min-height: 90px !important;
-        height: 90px !important;
+.titulo-principal {
+    color: #e2c36c;
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: 4px;
+    margin: 0;
+    line-height: 1.1;
+}
 
-        border-radius: 16px !important;
-
-        font-size: 1.9rem !important;
-        font-weight: 900 !important;
-        letter-spacing: 3px !important;
-
-        transition: all 0.2s ease;
-    }
-
-    /* NO seleccionado */
-
-    .selector-normal button {
-        background-color: #173629 !important;
-        color: #f5e8c5 !important;
-
-        border: 3px solid #b89445 !important;
-    }
-
-    .selector-normal button:hover {
-        background-color: #234c39 !important;
-        border-color: #e2c36c !important;
-        color: #ffffff !important;
-    }
-
-    /* SELECCIONADO */
-
-    .selector-activo button {
-        background-color: #e2c36c !important;
-        color: #17271e !important;
-
-        border: 3px solid #e2c36c !important;
-    }
-
-    .selector-activo button:hover {
-        background-color: #efd47f !important;
-        color: #17271e !important;
-    }
+.subtitulo {
+    color: #d9cfae;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    margin-top: 8px;
+}
 
 
-    /* ==============================
-       TABLA RANKING
-       ============================== */
+/* =====================================================
+   BOTONES MCR / RIICHI
+   ===================================================== */
 
-    .ranking-cabecera {
-        background: #10291d;
-        border: 1px solid #8f7538;
-        border-radius: 12px;
-        padding: 14px 18px;
-        margin-bottom: 8px;
-        color: #e2c36c;
-        font-weight: 800;
-        letter-spacing: 1px;
-    }
+.selector-juego {
+    margin-top: 20px;
+    margin-bottom: 25px;
+}
 
-    .ranking-fila {
-        background: rgba(19, 49, 35, 0.88);
-        border: 1px solid rgba(184, 148, 69, 0.45);
-        border-radius: 12px;
-        padding: 8px 12px;
-        margin-bottom: 7px;
-        align-items: center;
-    }
+.selector-juego button {
+    width: 100%;
+    min-height: 90px !important;
+    height: 90px !important;
 
-    .ranking-fila:hover {
-        background: #1c4734;
-    }
+    border-radius: 16px !important;
 
-    .numero-posicion {
-        color: #e2c36c;
-        font-size: 1.2rem;
-        font-weight: 800;
-        text-align: center;
-    }
+    font-size: 1.9rem !important;
+    font-weight: 900 !important;
+    letter-spacing: 3px !important;
 
-    .valor-ranking {
-        color: #f5e8c5;
-        font-size: 1.1rem;
-        font-weight: 700;
-        text-align: center;
-    }
+    transition: all 0.2s ease;
+}
 
 
-    /* ==============================
-       BOTÓN DEL NOMBRE DEL JUGADOR
-       ============================== */
+/* NO SELECCIONADO */
 
-    .jugador-boton button {
-        background: transparent !important;
-        border: none !important;
-        color: #f5e8c5 !important;
-        font-size: 1.15rem !important;
-        font-weight: 700 !important;
-        text-align: left !important;
-        padding: 8px 4px !important;
-    }
+.selector-normal button {
+    background-color: #173629 !important;
+    color: #f5e8c5 !important;
 
-    .jugador-boton button:hover {
-        color: #e2c36c !important;
-        background: transparent !important;
-    }
+    border: 3px solid #b89445 !important;
+}
+
+.selector-normal button:hover {
+    background-color: #234c39 !important;
+    border-color: #e2c36c !important;
+    color: #ffffff !important;
+}
 
 
-    /* ==============================
-       PANEL DEL JUGADOR
-       ============================== */
+/* SELECCIONADO */
 
-    .panel-jugador {
-        background: #10291d;
-        border: 2px solid #b89445;
-        border-radius: 18px;
-        padding: 25px;
-        margin-top: 25px;
-        margin-bottom: 30px;
-    }
+.selector-activo button {
+    background-color: #e2c36c !important;
+    color: #17271e !important;
 
-    .nombre-jugador {
-        color: #e2c36c;
-        font-size: 2.2rem;
-        font-weight: 900;
-        letter-spacing: 2px;
-        margin-bottom: 5px;
-    }
+    border: 3px solid #e2c36c !important;
+}
 
-    .tipo-jugador {
-        color: #d9cfae;
-        font-size: 1rem;
-        letter-spacing: 2px;
-        margin-bottom: 20px;
-    }
+.selector-activo button:hover {
+    background-color: #efd47f !important;
+    color: #17271e !important;
+}
 
 
-    /* ==============================
-       MÉTRICAS
-       ============================== */
+/* =====================================================
+   CABECERA DEL RANKING
+   ===================================================== */
 
-    [data-testid="stMetric"] {
-        background: #173629;
-        border: 1px solid #8f7538;
-        border-radius: 12px;
-        padding: 16px;
-    }
-
-    [data-testid="stMetricLabel"] {
-        color: #d9cfae !important;
-        font-weight: 700 !important;
-    }
-
-    [data-testid="stMetricValue"] {
-        color: #e2c36c !important;
-        font-weight: 900 !important;
-    }
+.ranking-cabecera {
+    background: #10291d;
+    border: 1px solid #8f7538;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 8px;
+    color: #e2c36c;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
 
 
-    /* ==============================
-       TÍTULOS
-       ============================== */
+/* =====================================================
+   FILAS DEL RANKING
+   ===================================================== */
 
-    h2, h3 {
-        color: #e2c36c !important;
-    }
+.ranking-fila {
+    background: #133123;
+    border: 1px solid rgba(184, 148, 69, 0.45);
+    border-radius: 12px;
+    padding: 8px 12px;
+    margin-bottom: 7px;
+    align-items: center;
+}
 
-
-    /* ==============================
-       BOTÓN CERRAR
-       ============================== */
-
-    .cerrar button {
-        border: 1px solid #b89445 !important;
-        color: #f5e8c5 !important;
-        background: #173629 !important;
-        border-radius: 10px !important;
-    }
-
-    .cerrar button:hover {
-        background: #b89445 !important;
-        color: #17271e !important;
-    }
+.ranking-fila:hover {
+    background: #1c4734;
+}
 
 
-    /* ==============================
-       FOOTER
-       ============================== */
+/* =====================================================
+   POSICIONES Y VALORES
+   ===================================================== */
 
-    .footer {
-        text-align: center;
-        color: #8f9d91;
-        font-size: 0.8rem;
-        margin-top: 40px;
-        padding-top: 20px;
-        border-top: 1px solid rgba(184, 148, 69, 0.25);
-    }
+.numero-posicion {
+    color: #e2c36c;
+    font-size: 1.2rem;
+    font-weight: 800;
+    text-align: center;
+}
+
+.valor-ranking {
+    color: #f5e8c5;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+
+/* =====================================================
+   NOMBRE DEL JUGADOR
+   ===================================================== */
+
+.jugador-boton button {
+    background: transparent !important;
+    border: none !important;
+    color: #f5e8c5 !important;
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    text-align: left !important;
+    padding: 8px 4px !important;
+}
+
+.jugador-boton button:hover {
+    color: #e2c36c !important;
+    background: transparent !important;
+}
+
+
+/* =====================================================
+   PANEL DEL JUGADOR
+   ===================================================== */
+
+.panel-jugador {
+    background: #10291d;
+    border: 2px solid #b89445;
+    border-radius: 18px;
+    padding: 25px;
+    margin-top: 25px;
+    margin-bottom: 30px;
+}
+
+.nombre-jugador {
+    color: #e2c36c;
+    font-size: 2.2rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+}
+
+.tipo-jugador {
+    color: #d9cfae;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+}
+
+
+/* =====================================================
+   MÉTRICAS
+   ===================================================== */
+
+[data-testid="stMetric"] {
+    background: #173629 !important;
+    border: 1px solid #8f7538 !important;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+[data-testid="stMetricLabel"] {
+    color: #d9cfae !important;
+    font-weight: 700 !important;
+}
+
+[data-testid="stMetricValue"] {
+    color: #e2c36c !important;
+    font-weight: 900 !important;
+}
+
+
+/* =====================================================
+   TÍTULOS
+   ===================================================== */
+
+h1, h2, h3 {
+    color: #e2c36c !important;
+}
+
+
+/* =====================================================
+   BOTÓN CERRAR
+   ===================================================== */
+
+.cerrar button {
+    border: 1px solid #b89445 !important;
+    color: #f5e8c5 !important;
+    background: #173629 !important;
+    border-radius: 10px !important;
+}
+
+.cerrar button:hover {
+    background: #b89445 !important;
+    color: #17271e !important;
+}
+
+
+/* =====================================================
+   TABLA HISTORIAL
+   ===================================================== */
+
+[data-testid="stDataFrame"] {
+    border: 1px solid #8f7538 !important;
+    border-radius: 10px !important;
+}
+
+
+/* =====================================================
+   FOOTER
+   ===================================================== */
+
+.footer {
+    text-align: center;
+    color: #8f9d91;
+    font-size: 0.8rem;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(184, 148, 69, 0.25);
+}
 
 </style>
 """, unsafe_allow_html=True)
@@ -304,9 +341,6 @@ def buscar_logo():
 
         if ruta.exists():
             return ruta
-
-    # Buscar cualquier imagen que contenga
-    # mahjong + madrid
 
     for ruta in BASE_DIR.iterdir():
 
@@ -347,11 +381,16 @@ SUPABASE_URL = (
 
 
 try:
+
     SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
+
 except Exception:
+
     st.error(
-        "No se ha encontrado SUPABASE_KEY en los secretos de Streamlit."
+        "No se ha encontrado SUPABASE_KEY "
+        "en los secretos de Streamlit."
     )
+
     st.stop()
 
 
@@ -382,7 +421,8 @@ def supabase_get(tabla):
     except Exception as e:
 
         st.error(
-            f"Error al conectar con Supabase ({tabla}): {e}"
+            f"Error al conectar con Supabase "
+            f"({tabla}): {e}"
         )
 
         st.stop()
@@ -403,7 +443,7 @@ resultados = pd.DataFrame(resultados_data)
 
 
 # =========================================================
-# COMPROBAR TABLAS
+# COMPROBAR COLUMNAS
 # =========================================================
 
 columnas_jugadores = [
@@ -431,7 +471,8 @@ for columna in columnas_jugadores:
     if columna not in jugadores.columns:
 
         st.error(
-            f"Falta la columna '{columna}' en jugadores."
+            f"Falta la columna '{columna}' "
+            f"en jugadores."
         )
 
         st.stop()
@@ -442,7 +483,8 @@ for columna in columnas_partidas:
     if columna not in partidas.columns:
 
         st.error(
-            f"Falta la columna '{columna}' en partidas."
+            f"Falta la columna '{columna}' "
+            f"en partidas."
         )
 
         st.stop()
@@ -453,7 +495,8 @@ for columna in columnas_resultados:
     if columna not in resultados.columns:
 
         st.error(
-            f"Falta la columna '{columna}' en resultados_partidas."
+            f"Falta la columna '{columna}' "
+            f"en resultados_partidas."
         )
 
         st.stop()
@@ -496,7 +539,13 @@ datos = resultados.merge(
 
 
 datos = datos.merge(
-    partidas[["id", "fecha", "tipo_juego"]],
+    partidas[
+        [
+            "id",
+            "fecha",
+            "tipo_juego"
+        ]
+    ],
     left_on="partida_id",
     right_on="id",
     how="left",
@@ -520,7 +569,6 @@ def crear_ranking(tipo):
     ].copy()
 
     if datos_tipo.empty:
-
         return pd.DataFrame()
 
     ranking = (
@@ -536,7 +584,6 @@ def crear_ranking(tipo):
         )
     )
 
-    # Número de victorias
     primeros = (
         datos_tipo[
             datos_tipo["posicion"] == 1
@@ -632,39 +679,44 @@ def mostrar_jugador(
 
     st.markdown(
         f'<div class="tipo-jugador">'
-        f'RANKING {tipo} · POSICIÓN #{posicion_ranking}'
+        f'RANKING {tipo} · '
+        f'POSICIÓN #{posicion_ranking}'
         f'</div>',
         unsafe_allow_html=True
     )
 
-    # =============================================
-    # MÉTRICAS PRINCIPALES
-    # =============================================
+
+    # =====================================================
+    # MÉTRICAS
+    # =====================================================
 
     c1, c2, c3 = st.columns(3)
 
     with c1:
+
         st.metric(
             "PUNTOS",
             int(jugador["Puntos"])
         )
 
     with c2:
+
         st.metric(
             "PARTIDAS",
             int(jugador["Partidas"])
         )
 
     with c3:
+
         st.metric(
             "MEDIA",
             f'{jugador["Media"]:.1f}'
         )
 
 
-    # =============================================
-    # POSICIONES
-    # =============================================
+    # =====================================================
+    # RESULTADOS
+    # =====================================================
 
     st.markdown("### RESULTADOS")
 
@@ -673,6 +725,7 @@ def mostrar_jugador(
         &
         (datos["tipo_juego"] == tipo)
     ].copy()
+
 
     posiciones = {}
 
@@ -684,9 +737,10 @@ def mostrar_jugador(
             ).sum()
         )
 
+
     c1, c2, c3, c4, c5 = st.columns(5)
 
-    columnas_posiciones = [
+    resultados_posiciones = [
         (c1, "🥇", 1, "Primeros"),
         (c2, "🥈", 2, "Segundos"),
         (c3, "🥉", 3, "Terceros"),
@@ -694,7 +748,8 @@ def mostrar_jugador(
         (c5, "5º", 5, "Quintos")
     ]
 
-    for columna, icono, numero, texto in columnas_posiciones:
+
+    for columna, icono, numero, texto in resultados_posiciones:
 
         with columna:
 
@@ -709,9 +764,9 @@ def mostrar_jugador(
             st.caption(texto)
 
 
-    # =============================================
+    # =====================================================
     # HISTORIAL
-    # =============================================
+    # =====================================================
 
     st.markdown("### HISTORIAL DE PARTIDAS")
 
@@ -723,10 +778,12 @@ def mostrar_jugador(
         ]
     ].copy()
 
+
     historial = historial.sort_values(
         "fecha",
         ascending=False
     )
+
 
     historial = historial.rename(
         columns={
@@ -736,16 +793,19 @@ def mostrar_jugador(
         }
     )
 
+
     historial["Puntos"] = (
         historial["Puntos"]
         .round(0)
         .astype(int)
     )
 
+
     historial["Posición"] = (
         historial["Posición"]
         .fillna("-")
     )
+
 
     st.dataframe(
         historial,
@@ -754,14 +814,15 @@ def mostrar_jugador(
     )
 
 
-    # =============================================
+    # =====================================================
     # CERRAR
-    # =============================================
+    # =====================================================
 
     st.markdown(
         '<div class="cerrar">',
         unsafe_allow_html=True
     )
+
 
     if st.button(
         "✕  Cerrar estadísticas",
@@ -775,10 +836,12 @@ def mostrar_jugador(
 
         st.rerun()
 
+
     st.markdown(
         "</div>",
         unsafe_allow_html=True
     )
+
 
     st.markdown(
         "</div>",
@@ -803,42 +866,37 @@ def mostrar_ranking(tipo):
         return
 
 
-    # =============================================
+    # =====================================================
     # CABECERA
-    # =============================================
+    # =====================================================
 
     cabecera = st.columns(
         [0.7, 3, 1.2, 1.2, 1.2, 0.8]
     )
 
-    cabecera[0].markdown(
-        "**POS.**"
-    )
 
-    cabecera[1].markdown(
-        "**JUGADOR**"
-    )
+    with cabecera[0]:
+        st.markdown("**POS.**")
 
-    cabecera[2].markdown(
-        "**PUNTOS**"
-    )
+    with cabecera[1]:
+        st.markdown("**JUGADOR**")
 
-    cabecera[3].markdown(
-        "**PARTIDAS**"
-    )
+    with cabecera[2]:
+        st.markdown("**PUNTOS**")
 
-    cabecera[4].markdown(
-        "**MEDIA**"
-    )
+    with cabecera[3]:
+        st.markdown("**PARTIDAS**")
 
-    cabecera[5].markdown(
-        "**🥇**"
-    )
+    with cabecera[4]:
+        st.markdown("**MEDIA**")
+
+    with cabecera[5]:
+        st.markdown("**🥇**")
 
 
-    # =============================================
+    # =====================================================
     # FILAS
-    # =============================================
+    # =====================================================
 
     for _, jugador in ranking.iterrows():
 
@@ -849,7 +907,7 @@ def mostrar_ranking(tipo):
         )
 
 
-        # Posición
+        # POSICIÓN
 
         with fila[0]:
 
@@ -861,7 +919,7 @@ def mostrar_ranking(tipo):
             )
 
 
-        # Jugador
+        # JUGADOR
 
         with fila[1]:
 
@@ -869,6 +927,7 @@ def mostrar_ranking(tipo):
                 '<div class="jugador-boton">',
                 unsafe_allow_html=True
             )
+
 
             if st.button(
                 str(jugador["Jugador"]),
@@ -886,13 +945,14 @@ def mostrar_ranking(tipo):
 
                 st.rerun()
 
+
             st.markdown(
                 "</div>",
                 unsafe_allow_html=True
             )
 
 
-        # Puntos
+        # PUNTOS
 
         with fila[2]:
 
@@ -904,7 +964,7 @@ def mostrar_ranking(tipo):
             )
 
 
-        # Partidas
+        # PARTIDAS
 
         with fila[3]:
 
@@ -916,7 +976,7 @@ def mostrar_ranking(tipo):
             )
 
 
-        # Media
+        # MEDIA
 
         with fila[4]:
 
@@ -928,7 +988,7 @@ def mostrar_ranking(tipo):
             )
 
 
-        # Primeros
+        # PRIMEROS
 
         with fila[5]:
 
@@ -941,7 +1001,7 @@ def mostrar_ranking(tipo):
 
 
 # =========================================================
-# CABECERA DE LA WEB
+# CABECERA
 # =========================================================
 
 col_logo, col_titulo = st.columns(
@@ -962,8 +1022,7 @@ with col_logo:
     else:
 
         st.markdown(
-            "🀄",
-            unsafe_allow_html=True
+            "🀄"
         )
 
 
@@ -995,7 +1054,7 @@ with col_titulo:
 
 
 # =========================================================
-# ESTADO DEL JUEGO
+# ESTADO
 # =========================================================
 
 if "tipo_juego" not in st.session_state:
@@ -1022,9 +1081,9 @@ col_mcr, col_riichi = st.columns(
 )
 
 
-# ---------------------------------------------------------
+# =========================================================
 # MCR
-# ---------------------------------------------------------
+# =========================================================
 
 with col_mcr:
 
@@ -1042,6 +1101,7 @@ with col_mcr:
             unsafe_allow_html=True
         )
 
+
     if st.button(
         "🀄   MCR",
         key="boton_mcr",
@@ -1058,15 +1118,16 @@ with col_mcr:
 
         st.rerun()
 
+
     st.markdown(
         "</div>",
         unsafe_allow_html=True
     )
 
 
-# ---------------------------------------------------------
+# =========================================================
 # RIICHI
-# ---------------------------------------------------------
+# =========================================================
 
 with col_riichi:
 
@@ -1084,6 +1145,7 @@ with col_riichi:
             unsafe_allow_html=True
         )
 
+
     if st.button(
         "🎴   RIICHI",
         key="boton_riichi",
@@ -1100,6 +1162,7 @@ with col_riichi:
 
         st.rerun()
 
+
     st.markdown(
         "</div>",
         unsafe_allow_html=True
@@ -1107,7 +1170,7 @@ with col_riichi:
 
 
 # =========================================================
-# RANKING ACTUAL
+# RANKING
 # =========================================================
 
 tipo_actual = st.session_state[
@@ -1120,7 +1183,7 @@ mostrar_ranking(
 
 
 # =========================================================
-# ESTADÍSTICAS DEL JUGADOR SELECCIONADO
+# JUGADOR SELECCIONADO
 # =========================================================
 
 jugador_seleccionado = st.session_state.get(
