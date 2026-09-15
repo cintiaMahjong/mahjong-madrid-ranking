@@ -155,6 +155,7 @@ else:
     st.error(
         "No encuentro la columna nombre/name en la tabla jugadores."
     )
+
     st.stop()
 
 
@@ -191,7 +192,7 @@ datos["nombre_jugador"] = (
 
 
 # ============================================================
-# FUNCIÓN CREAR RANKING
+# CREAR RANKING
 # ============================================================
 
 def crear_ranking(tipo_juego, temporada):
@@ -206,6 +207,11 @@ def crear_ranking(tipo_juego, temporada):
     if df.empty:
         return pd.DataFrame()
 
+
+    # --------------------------------------------------------
+    # PUNTOS Y PARTIDAS
+    # --------------------------------------------------------
+
     ranking = (
         df.groupby(
             [
@@ -219,6 +225,7 @@ def crear_ranking(tipo_juego, temporada):
             Partidas=("partida_id", "nunique")
         )
     )
+
 
     # --------------------------------------------------------
     # PARTIDAS GANADAS
@@ -292,7 +299,7 @@ def crear_ranking(tipo_juego, temporada):
 
 
     # --------------------------------------------------------
-    # ORDEN DEL RANKING
+    # ORDENAR POR PUNTOS
     # --------------------------------------------------------
 
     ranking = ranking.sort_values(
@@ -371,9 +378,9 @@ def mostrar_ficha(jugador_id):
         )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # TÍTULO
-    # --------------------------------------------------------
+    # ========================================================
 
     st.title("🀄 Ficha del jugador")
 
@@ -557,7 +564,7 @@ def mostrar_ficha(jugador_id):
 
 
     # ========================================================
-    # HISTORIAL COMPLETO
+    # HISTORIAL DE PARTIDAS
     # ========================================================
 
     st.divider()
@@ -573,12 +580,14 @@ def mostrar_ficha(jugador_id):
 
     if datos_jugador.empty:
 
-        st.info("Este jugador todavía no tiene partidas.")
+        st.info(
+            "Este jugador todavía no tiene partidas."
+        )
 
     else:
 
         # ----------------------------------------------------
-        # OBTENER LAS PARTIDAS EN LAS QUE HA PARTICIPADO
+        # OBTENER IDS DE LAS PARTIDAS
         # ----------------------------------------------------
 
         ids_partidas_jugador = (
@@ -589,10 +598,59 @@ def mostrar_ficha(jugador_id):
 
 
         # ----------------------------------------------------
+        # TODAS LAS PARTIDAS DEL JUGADOR
+        # ----------------------------------------------------
+
+        partidas_jugador = datos[
+            datos["partida_id"].isin(
+                ids_partidas_jugador
+            )
+        ].copy()
+
+
+        # ----------------------------------------------------
+        # UNA FILA POR PARTIDA PARA ORDENAR
+        # ----------------------------------------------------
+
+        partidas_jugador = (
+            partidas_jugador
+            .drop_duplicates("partida_id")
+            .copy()
+        )
+
+
+        # ----------------------------------------------------
+        # ORDENAR POR FECHA
+        # ----------------------------------------------------
+
+        if "fecha" in partidas_jugador.columns:
+
+            partidas_jugador["_fecha_orden"] = (
+                pd.to_datetime(
+                    partidas_jugador["fecha"],
+                    errors="coerce"
+                )
+            )
+
+            partidas_jugador = (
+                partidas_jugador
+                .sort_values(
+                    "_fecha_orden",
+                    ascending=False
+                )
+            )
+
+
+        # ----------------------------------------------------
         # RECORRER CADA PARTIDA
         # ----------------------------------------------------
 
-        for partida_id in ids_partidas_jugador:
+        for _, info_partida in partidas_jugador.iterrows():
+
+            partida_id = info_partida[
+                "partida_id"
+            ]
+
 
             partida_completa = datos[
                 datos["partida_id"] == partida_id
@@ -604,14 +662,17 @@ def mostrar_ficha(jugador_id):
 
 
             # ------------------------------------------------
-            # ORDENAR POR POSICIÓN
+            # ORDENAR JUGADORES POR POSICIÓN
             # ------------------------------------------------
 
             if "posicion" in partida_completa.columns:
 
-                partida_completa = partida_completa.sort_values(
-                    "posicion",
-                    ascending=True
+                partida_completa = (
+                    partida_completa
+                    .sort_values(
+                        "posicion",
+                        ascending=True
+                    )
                 )
 
 
@@ -622,10 +683,16 @@ def mostrar_ficha(jugador_id):
             fila_partida = partida_completa.iloc[0]
 
 
-            fecha = fila_partida.get("fecha", "")
+            fecha = fila_partida.get(
+                "fecha",
+                ""
+            )
 
 
-            # Intentar obtener el nombre de la partida
+            # ------------------------------------------------
+            # NOMBRE DE LA PARTIDA
+            # ------------------------------------------------
+
             if "nombre" in partida_completa.columns:
 
                 nombre_partida = fila_partida.get(
@@ -661,39 +728,79 @@ def mostrar_ficha(jugador_id):
 
 
             # ------------------------------------------------
-            # CABECERA DE LA PARTIDA
+            # CABECERA VERDE DE LA PARTIDA
             # ------------------------------------------------
 
             if nombre_partida:
 
                 st.markdown(
-                    f"**{fecha_formateada} — "
-                    f"{nombre_partida}**"
+                    f"""
+                    <div style="
+                        background-color: #e8f5e9;
+                        padding: 9px 12px;
+                        border-radius: 8px;
+                        margin-top: 12px;
+                        margin-bottom: 6px;
+                        font-weight: 600;
+                        color: #2e7d32;
+                    ">
+                        {fecha_formateada} — {nombre_partida}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
                 )
 
             else:
 
                 st.markdown(
-                    f"**{fecha_formateada}**"
+                    f"""
+                    <div style="
+                        background-color: #e8f5e9;
+                        padding: 9px 12px;
+                        border-radius: 8px;
+                        margin-top: 12px;
+                        margin-bottom: 6px;
+                        font-weight: 600;
+                        color: #2e7d32;
+                    ">
+                        {fecha_formateada}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
                 )
 
 
             # ------------------------------------------------
-            # CREAR TABLA DE JUGADORES
+            # CREAR TABLA DE LA PARTIDA
             # ------------------------------------------------
 
             filas_tabla = []
 
 
-            for _, fila in partida_completa.iterrows():
+            for indice, fila in partida_completa.iterrows():
 
                 filas_tabla.append(
                     {
+                        "_indice_original": indice,
+
                         "Jugador": fila[
                             "nombre_jugador"
                         ],
+
+                        "Puntos": (
+                            int(
+                                fila["puntuacion"]
+                            )
+                            if pd.notna(
+                                fila["puntuacion"]
+                            )
+                            else 0
+                        ),
+
                         "Posición": (
-                            int(fila["posicion"])
+                            int(
+                                fila["posicion"]
+                            )
                             if pd.notna(
                                 fila["posicion"]
                             )
@@ -709,34 +816,60 @@ def mostrar_ficha(jugador_id):
 
 
             # ------------------------------------------------
-            # MARCAR AL JUGADOR SELECCIONADO
+            # MARCAR AL JUGADOR DE LA FICHA
             # ------------------------------------------------
 
             def marcar_jugador(row):
 
-                if str(
-                    partida_completa.iloc[
-                        row.name
-                    ]["jugador_id"]
-                ) == jugador_id_texto:
+                indice_original = row[
+                    "_indice_original"
+                ]
+
+
+                jugador_fila = partida_completa.loc[
+                    indice_original,
+                    "jugador_id"
+                ]
+
+
+                if str(jugador_fila) == jugador_id_texto:
 
                     return [
                         "background-color: #eeeeee; "
                         "font-weight: 600;"
-                    ] * len(row)
+                    ] * 3
 
-                return [""] * len(row)
+
+                return [
+                    ""
+                ] * 3
 
 
             # ------------------------------------------------
-            # MOSTRAR TABLA
+            # TABLA FINAL
             # ------------------------------------------------
+
+            tabla_estilo = (
+                tabla_partida[
+                    [
+                        "_indice_original",
+                        "Jugador",
+                        "Puntos",
+                        "Posición"
+                    ]
+                ]
+                .set_index("_indice_original")
+            )
+
+
+            tabla_estilo = tabla_estilo.style.apply(
+                marcar_jugador,
+                axis=1
+            )
+
 
             st.dataframe(
-                tabla_partida.style.apply(
-                    marcar_jugador,
-                    axis=1
-                ),
+                tabla_estilo,
                 use_container_width=True,
                 hide_index=True
             )
@@ -750,7 +883,7 @@ def mostrar_ficha(jugador_id):
 
 
     # ========================================================
-    # VOLVER
+    # BOTÓN VOLVER
     # ========================================================
 
     st.divider()
@@ -762,6 +895,7 @@ def mostrar_ficha(jugador_id):
     ):
 
         st.session_state.jugador_seleccionado = None
+
         st.rerun()
 
 
@@ -775,7 +909,7 @@ if "jugador_seleccionado" not in st.session_state:
 
 
 # ============================================================
-# SI HAY JUGADOR SELECCIONADO
+# MOSTRAR FICHA SI HAY JUGADOR SELECCIONADO
 # ============================================================
 
 if st.session_state.jugador_seleccionado is not None:
@@ -798,7 +932,9 @@ def mostrar_ranking(tipo_juego):
     )
 
 
-    pestañas = st.tabs(TEMPORADAS)
+    pestañas = st.tabs(
+        TEMPORADAS
+    )
 
 
     for i, temporada in enumerate(TEMPORADAS):
@@ -840,27 +976,33 @@ def mostrar_ranking(tipo_juego):
             with cab1:
                 st.write("**Pos.**")
 
+
             with cab2:
                 st.write("**Jugador**")
+
 
             with cab3:
                 st.write("**Puntos**")
 
+
             with cab4:
                 st.write("**Partidas**")
+
 
             with cab5:
                 st.write("**Ganadas**")
 
+
             with cab6:
                 st.write("**Media**")
+
 
             with cab7:
                 st.write("**Media pos.**")
 
 
             # ------------------------------------------------
-            # FILAS
+            # FILAS DEL RANKING
             # ------------------------------------------------
 
             for _, fila in ranking.iterrows():
