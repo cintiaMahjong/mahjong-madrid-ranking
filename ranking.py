@@ -2,15 +2,21 @@ import streamlit as st
 import pandas as pd
 import urllib.request
 import json
+import os
 
 
 # ============================================================
 # CONFIGURACIÓN
 # ============================================================
 
+RUTA_LOGO = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "logo.png"
+)
+
 st.set_page_config(
     page_title="Liga Mahjong Madrid",
-    page_icon="logo_mahjong_madrid.png",
+    page_icon=RUTA_LOGO,
     layout="centered"
 )
 
