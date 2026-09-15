@@ -16,13 +16,17 @@ st.set_page_config(
 
 SUPABASE_URL = "https://gauqwlrsmxynqcokblaw.supabase.co/rest/v1"
 
+TEMPORADAS = [
+    "Oct 2025 - Sept 2026",
+    "Oct 2026 - Sept 2027"
+]
+
 
 # ============================================================
 # CONEXIÓN SUPABASE
 # ============================================================
 
 def supabase_get(tabla):
-
     key = st.secrets["SUPABASE_KEY"]
 
     url = f"{SUPABASE_URL}/{tabla}"
@@ -37,7 +41,6 @@ def supabase_get(tabla):
     )
 
     with urllib.request.urlopen(request) as response:
-
         contenido = response.read().decode("utf-8")
 
     return json.loads(contenido)
@@ -48,70 +51,63 @@ def supabase_get(tabla):
 # ============================================================
 
 try:
-
-    jugadores = supabase_get("jugadores")
-    partidas = supabase_get("partidas")
-    resultados = supabase_get("resultados_partidas")
+    jugadores_data = supabase_get("jugadores")
+    partidas_data = supabase_get("partidas")
+    resultados_data = supabase_get("resultados_partidas")
 
 except Exception as e:
-
     st.error("Error conectando con Supabase")
+    st.code(str(e))
+    st.stop()
 
-    st.exception(e)
 
+df_jugadores = pd.DataFrame(jugadores_data)
+df_partidas = pd.DataFrame(partidas_data)
+df_resultados = pd.DataFrame(resultados_data)
+
+
+# ============================================================
+# COMPROBAR COLUMNAS
+# ============================================================
+
+if df_jugadores.empty:
+    st.error("La tabla jugadores está vacía.")
+    st.stop()
+
+if df_partidas.empty:
+    st.error("La tabla partidas está vacía.")
+    st.stop()
+
+if df_resultados.empty:
+    st.error("La tabla resultados_partidas está vacía.")
     st.stop()
 
 
 # ============================================================
-# DATAFRAMES
+# NORMALIZAR DATOS
 # ============================================================
 
-df_jugadores = pd.DataFrame(jugadores)
+df_partidas["tipo_juego"] = (
+    df_partidas["tipo_juego"]
+    .fillna("")
+    .astype(str)
+    .str.upper()
+    .str.strip()
+)
 
-df_partidas = pd.DataFrame(partidas)
+df_partidas["temporada"] = (
+    df_partidas["temporada"]
+    .fillna("")
+    .astype(str)
+    .str.strip()
+)
 
-df_resultados = pd.DataFrame(resultados)
-
-
-# ============================================================
-# NORMALIZAR PARTIDAS
-# ============================================================
-
-if "tipo_juego" in df_partidas.columns:
-
-    df_partidas["tipo_juego"] = (
-        df_partidas["tipo_juego"]
-        .fillna("")
-        .astype(str)
-        .str.upper()
-        .str.strip()
-    )
-
-
-if "temporada" in df_partidas.columns:
-
-    df_partidas["temporada"] = (
-        df_partidas["temporada"]
-        .fillna("")
-        .astype(str)
-        .str.strip()
-    )
-
-
-# ============================================================
-# NORMALIZAR RESULTADOS
-# ============================================================
-
-if "puntuacion" in df_resultados.columns:
-
-    df_resultados["puntuacion"] = pd.to_numeric(
-        df_resultados["puntuacion"],
-        errors="coerce"
-    ).fillna(0)
-
+df_resultados["puntuacion"] = pd.to_numeric(
+    df_resultados["puntuacion"],
+    errors="coerce"
+).fillna(0)
 
 if "posicion" in df_resultados.columns:
-
     df_resultados["posicion"] = pd.to_numeric(
         df_resultados["posicion"],
         errors="coerce"
@@ -119,110 +115,72 @@ if "posicion" in df_resultados.columns:
 
 
 # ============================================================
-# UNIR RESULTADOS + JUGADORES
+# NOMBRE DEL JUGADOR
+# ============================================================
+
+if "nombre" in df_jugadores.columns:
+    columna_nombre = "nombre"
+elif "name" in df_jugadores.columns:
+    columna_nombre = "name"
+else:
+    columna_nombre = None
+
+
+# ============================================================
+# CREAR DATOS COMPLETOS
 # ============================================================
 
 datos = df_resultados.copy()
 
+datos = datos.merge(
+    df_jugadores,
+    left_on="jugador_id",
+    right_on="id",
+    how="left",
+    suffixes=("", "_jugador")
+)
 
-if (
-    "jugador_id" in datos.columns
-    and "id" in df_jugadores.columns
-):
-
-    datos = datos.merge(
-        df_jugadores,
-        left_on="jugador_id",
-        right_on="id",
-        how="left",
-        suffixes=("", "_jugador")
-    )
-
-
-# ============================================================
-# UNIR RESULTADOS + PARTIDAS
-# ============================================================
-
-if (
-    "partida_id" in datos.columns
-    and "id" in df_partidas.columns
-):
-
-    columnas_partida = ["id"]
-
-    if "fecha" in df_partidas.columns:
-        columnas_partida.append("fecha")
-
-    if "tipo_juego" in df_partidas.columns:
-        columnas_partida.append("tipo_juego")
-
-    if "temporada" in df_partidas.columns:
-        columnas_partida.append("temporada")
-
-    datos = datos.merge(
-        df_partidas[columnas_partida],
-        left_on="partida_id",
-        right_on="id",
-        how="left",
-        suffixes=("", "_partida")
-    )
-
-
-# ============================================================
-# ASEGURAR NOMBRE
-# ============================================================
-
-if "nombre" not in datos.columns:
-
-    posibles_nombres = [
-        "nombre_jugador",
-        "name",
-        "jugador"
-    ]
-
-    columna_nombre = None
-
-    for columna in posibles_nombres:
-
-        if columna in datos.columns:
-
-            columna_nombre = columna
-
-            break
-
-
-    if columna_nombre:
-
-        datos["nombre"] = datos[columna_nombre]
-
-    else:
-
-        datos["nombre"] = (
-            datos["jugador_id"]
-            .astype(str)
-        )
-
-
-datos["nombre"] = (
-    datos["nombre"]
-    .fillna("Jugador")
-    .astype(str)
-    .str.strip()
+datos = datos.merge(
+    df_partidas[
+        ["id", "fecha", "tipo_juego", "temporada"]
+    ],
+    left_on="partida_id",
+    right_on="id",
+    how="left",
+    suffixes=("", "_partida")
 )
 
 
 # ============================================================
-# TEMPORADAS
+# CREAR COLUMNA NOMBRE
 # ============================================================
 
-TEMPORADAS = [
-    "Oct 2025 - Sept 2026",
-    "Oct 2026 - Sept 2027"
-]
+if columna_nombre is not None:
+
+    if columna_nombre in datos.columns:
+        datos["nombre_jugador"] = datos[columna_nombre]
+
+    elif f"{columna_nombre}_jugador" in datos.columns:
+        datos["nombre_jugador"] = datos[
+            f"{columna_nombre}_jugador"
+        ]
+
+    else:
+        datos["nombre_jugador"] = datos["jugador_id"].astype(str)
+
+else:
+    datos["nombre_jugador"] = datos["jugador_id"].astype(str)
+
+
+datos["nombre_jugador"] = (
+    datos["nombre_jugador"]
+    .fillna(datos["jugador_id"].astype(str))
+    .astype(str)
+)
 
 
 # ============================================================
-# FUNCIÓN CREAR RANKING
+# FUNCIÓN RANKING
 # ============================================================
 
 def crear_ranking(tipo_juego, temporada):
@@ -230,20 +188,16 @@ def crear_ranking(tipo_juego, temporada):
     df = datos.copy()
 
     df = df[
-        df["tipo_juego"] == tipo_juego
-    ]
-
-    df = df[
-        df["temporada"] == temporada
+        (df["tipo_juego"] == tipo_juego) &
+        (df["temporada"] == temporada)
     ]
 
     if df.empty:
-
         return pd.DataFrame()
 
     ranking = (
         df.groupby(
-            ["jugador_id", "nombre"],
+            ["jugador_id", "nombre_jugador"],
             as_index=False
         )
         .agg(
@@ -257,9 +211,7 @@ def crear_ranking(tipo_juego, temporada):
         ascending=False
     ).reset_index(drop=True)
 
-    ranking["Posición"] = (
-        ranking.index + 1
-    )
+    ranking["Posición"] = ranking.index + 1
 
     ranking["Puntos"] = (
         ranking["Puntos"]
@@ -271,7 +223,7 @@ def crear_ranking(tipo_juego, temporada):
         [
             "Posición",
             "jugador_id",
-            "nombre",
+            "nombre_jugador",
             "Puntos",
             "Partidas"
         ]
@@ -279,395 +231,259 @@ def crear_ranking(tipo_juego, temporada):
 
 
 # ============================================================
-# FUNCIÓN MOSTRAR FICHA
+# FUNCIÓN FICHA DEL JUGADOR
 # ============================================================
 
 def mostrar_ficha(jugador_id):
 
     # --------------------------------------------------------
-    # BUSCAR INFORMACIÓN DEL JUGADOR
+    # Convertimos ambos IDs a texto para evitar problemas
+    # de tipo UUID / int / str
     # --------------------------------------------------------
 
-    jugador = df_jugadores[
-        df_jugadores["id"].astype(str)
-        == str(jugador_id)
+    jugador_id_texto = str(jugador_id)
+
+    jugadores_busqueda = df_jugadores[
+        df_jugadores["id"].astype(str) == jugador_id_texto
     ]
 
-    if jugador.empty:
-
-        st.error(
-            "No se ha encontrado el jugador."
-        )
-
-        return
-
-
-    jugador = jugador.iloc[0]
-
-
     # --------------------------------------------------------
-    # NOMBRE
+    # Si no lo encuentra en jugadores, intentamos buscarlo
+    # directamente en los datos completos
     # --------------------------------------------------------
 
-    if "nombre" in jugador.index:
+    if jugadores_busqueda.empty:
 
-        nombre = jugador["nombre"]
+        datos_jugador = datos[
+            datos["jugador_id"].astype(str) == jugador_id_texto
+        ]
 
-    elif "name" in jugador.index:
+        if datos_jugador.empty:
+            st.error(
+                f"No se encuentra el jugador con ID: {jugador_id_texto}"
+            )
+            return
 
-        nombre = jugador["name"]
+        nombre = datos_jugador.iloc[0]["nombre_jugador"]
 
     else:
 
-        nombre = "Jugador"
+        jugador = jugadores_busqueda.iloc[0]
 
+        if columna_nombre is not None:
+            nombre = jugador[columna_nombre]
+        else:
+            nombre = jugador_id_texto
 
     # --------------------------------------------------------
     # CABECERA
     # --------------------------------------------------------
 
+    if st.button("← Volver al ranking"):
+        st.session_state.jugador_seleccionado = None
+        st.rerun()
+
     st.title("🀄 Ficha del jugador")
 
-    st.header(
-        str(nombre)
-    )
+    st.header(str(nombre))
 
-    st.divider()
-
-
-    # --------------------------------------------------------
-    # DATOS DEL JUGADOR
-    # --------------------------------------------------------
-
-    datos_jugador = datos[
-        datos["jugador_id"].astype(str)
-        == str(jugador_id)
-    ].copy()
-
-
-    if datos_jugador.empty:
-
-        st.info(
-            "Este jugador no tiene partidas registradas."
-        )
-
-        return
-
+    st.write("")
 
     # ========================================================
     # MCR
     # ========================================================
 
-    st.header("MCR")
+    st.subheader("🀄 MCR")
 
+    pestañas_mcr = st.tabs(TEMPORADAS)
 
-    pestañas_mcr = st.tabs(
-        TEMPORADAS
-    )
-
-
-    for i, temporada in enumerate(
-        TEMPORADAS
-    ):
+    for i, temporada in enumerate(TEMPORADAS):
 
         with pestañas_mcr[i]:
 
-            df = datos_jugador[
-                (datos_jugador["tipo_juego"] == "MCR")
-                &
-                (datos_jugador["temporada"] == temporada)
+            df_mcr = datos[
+                (datos["jugador_id"].astype(str) == jugador_id_texto) &
+                (datos["tipo_juego"] == "MCR") &
+                (datos["temporada"] == temporada)
             ].copy()
 
-
-            if df.empty:
+            if df_mcr.empty:
 
                 st.info(
-                    "No tiene partidas en esta temporada."
+                    "No hay partidas MCR en esta temporada."
                 )
 
                 continue
 
+            total_puntos = df_mcr["puntuacion"].sum()
+            numero_partidas = df_mcr["partida_id"].nunique()
 
-            # --------------------------------------------
-            # ESTADÍSTICAS
-            # --------------------------------------------
-
-            puntos = int(
-                df["puntuacion"].sum()
+            media = (
+                total_puntos / numero_partidas
+                if numero_partidas > 0
+                else 0
             )
 
-            partidas_jugadas = int(
-                df["partida_id"].nunique()
-            )
-
-            media = round(
-                puntos / partidas_jugadas,
-                1
-            ) if partidas_jugadas else 0
-
-
-            col1, col2, col3 = st.columns(3)
-
-
-            with col1:
-
-                st.metric(
-                    "Puntos",
-                    puntos
-                )
-
-
-            with col2:
-
-                st.metric(
-                    "Partidas",
-                    partidas_jugadas
-                )
-
-
-            with col3:
-
-                st.metric(
-                    "Media",
-                    media
-                )
-
-
-            # --------------------------------------------
-            # POSICIÓN EN RANKING
-            # --------------------------------------------
-
-            ranking = crear_ranking(
+            ranking_mcr = crear_ranking(
                 "MCR",
                 temporada
             )
 
-
-            jugador_ranking = ranking[
-                ranking["jugador_id"].astype(str)
-                == str(jugador_id)
+            fila_ranking = ranking_mcr[
+                ranking_mcr["jugador_id"].astype(str)
+                == jugador_id_texto
             ]
 
+            st.metric(
+                "Puntos totales",
+                int(round(total_puntos))
+            )
 
-            if not jugador_ranking.empty:
+            col1, col2 = st.columns(2)
+
+            with col1:
+                st.metric(
+                    "Partidas",
+                    numero_partidas
+                )
+
+            with col2:
+                st.metric(
+                    "Media",
+                    round(media, 1)
+                )
+
+            if not fila_ranking.empty:
 
                 posicion = int(
-                    jugador_ranking.iloc[0]["Posición"]
+                    fila_ranking.iloc[0]["Posición"]
                 )
 
                 st.write(
-                    f"**Posición en el ranking: {posicion}**"
+                    f"**Posición en el ranking: {posicion}º**"
                 )
 
+            st.write("### Historial")
 
-            # --------------------------------------------
-            # HISTORIAL
-            # --------------------------------------------
-
-            st.subheader(
-                "Partidas"
-            )
-
-
-            columnas = []
-
-
-            if "fecha" in df.columns:
-
-                columnas.append("fecha")
-
-
-            columnas.append(
-                "puntuacion"
-            )
-
-
-            if "posicion" in df.columns:
-
-                columnas.append(
-                    "posicion"
-                )
-
-
-            historial = df[
+            historial = df_mcr[
                 [
-                    columna
-                    for columna in columnas
-                    if columna in df.columns
+                    "fecha",
+                    "puntuacion"
                 ]
             ].copy()
 
+            if "posicion" in df_mcr.columns:
+                historial["Posición"] = df_mcr[
+                    "posicion"
+                ]
 
             historial = historial.rename(
                 columns={
                     "fecha": "Fecha",
-                    "puntuacion": "Puntuación",
-                    "posicion": "Posición"
+                    "puntuacion": "Puntos"
                 }
             )
-
 
             st.dataframe(
                 historial,
                 use_container_width=True,
                 hide_index=True
             )
-
 
     # ========================================================
     # RIICHI
     # ========================================================
 
-    st.divider()
+    st.subheader("🀄 RIICHI")
 
-    st.header("RIICHI")
+    pestañas_riichi = st.tabs(TEMPORADAS)
 
-
-    pestañas_riichi = st.tabs(
-        TEMPORADAS
-    )
-
-
-    for i, temporada in enumerate(
-        TEMPORADAS
-    ):
+    for i, temporada in enumerate(TEMPORADAS):
 
         with pestañas_riichi[i]:
 
-            df = datos_jugador[
-                (datos_jugador["tipo_juego"] == "RIICHI")
-                &
-                (datos_jugador["temporada"] == temporada)
+            df_riichi = datos[
+                (datos["jugador_id"].astype(str) == jugador_id_texto) &
+                (datos["tipo_juego"] == "RIICHI") &
+                (datos["temporada"] == temporada)
             ].copy()
 
-
-            if df.empty:
+            if df_riichi.empty:
 
                 st.info(
-                    "No tiene partidas en esta temporada."
+                    "No hay partidas RIICHI en esta temporada."
                 )
 
                 continue
 
+            total_puntos = df_riichi["puntuacion"].sum()
+            numero_partidas = df_riichi["partida_id"].nunique()
 
-            # --------------------------------------------
-            # ESTADÍSTICAS
-            # --------------------------------------------
-
-            puntos = int(
-                df["puntuacion"].sum()
+            media = (
+                total_puntos / numero_partidas
+                if numero_partidas > 0
+                else 0
             )
 
-            partidas_jugadas = int(
-                df["partida_id"].nunique()
-            )
-
-            media = round(
-                puntos / partidas_jugadas,
-                1
-            ) if partidas_jugadas else 0
-
-
-            col1, col2, col3 = st.columns(3)
-
-
-            with col1:
-
-                st.metric(
-                    "Puntos",
-                    puntos
-                )
-
-
-            with col2:
-
-                st.metric(
-                    "Partidas",
-                    partidas_jugadas
-                )
-
-
-            with col3:
-
-                st.metric(
-                    "Media",
-                    media
-                )
-
-
-            # --------------------------------------------
-            # POSICIÓN EN RANKING
-            # --------------------------------------------
-
-            ranking = crear_ranking(
+            ranking_riichi = crear_ranking(
                 "RIICHI",
                 temporada
             )
 
-
-            jugador_ranking = ranking[
-                ranking["jugador_id"].astype(str)
-                == str(jugador_id)
+            fila_ranking = ranking_riichi[
+                ranking_riichi["jugador_id"].astype(str)
+                == jugador_id_texto
             ]
 
+            st.metric(
+                "Puntos totales",
+                int(round(total_puntos))
+            )
 
-            if not jugador_ranking.empty:
+            col1, col2 = st.columns(2)
+
+            with col1:
+                st.metric(
+                    "Partidas",
+                    numero_partidas
+                )
+
+            with col2:
+                st.metric(
+                    "Media",
+                    round(media, 1)
+                )
+
+            if not fila_ranking.empty:
 
                 posicion = int(
-                    jugador_ranking.iloc[0]["Posición"]
+                    fila_ranking.iloc[0]["Posición"]
                 )
 
                 st.write(
-                    f"**Posición en el ranking: {posicion}**"
+                    f"**Posición en el ranking: {posicion}º**"
                 )
 
+            st.write("### Historial")
 
-            # --------------------------------------------
-            # HISTORIAL
-            # --------------------------------------------
-
-            st.subheader(
-                "Partidas"
-            )
-
-
-            columnas = []
-
-
-            if "fecha" in df.columns:
-
-                columnas.append("fecha")
-
-
-            columnas.append(
-                "puntuacion"
-            )
-
-
-            if "posicion" in df.columns:
-
-                columnas.append(
-                    "posicion"
-                )
-
-
-            historial = df[
+            historial = df_riichi[
                 [
-                    columna
-                    for columna in columnas
-                    if columna in df.columns
+                    "fecha",
+                    "puntuacion"
                 ]
             ].copy()
 
+            if "posicion" in df_riichi.columns:
+                historial["Posición"] = df_riichi[
+                    "posicion"
+                ]
 
             historial = historial.rename(
                 columns={
                     "fecha": "Fecha",
-                    "puntuacion": "Puntuación",
-                    "posicion": "Posición"
+                    "puntuacion": "Puntos"
                 }
             )
-
 
             st.dataframe(
                 historial,
@@ -677,28 +493,18 @@ def mostrar_ficha(jugador_id):
 
 
 # ============================================================
-# ESTADO DEL JUGADOR SELECCIONADO
+# ESTADO DE LA APLICACIÓN
 # ============================================================
 
 if "jugador_seleccionado" not in st.session_state:
-
     st.session_state.jugador_seleccionado = None
 
 
 # ============================================================
-# SI HAY JUGADOR SELECCIONADO
+# SI HAY JUGADOR SELECCIONADO → MOSTRAR FICHA
 # ============================================================
 
 if st.session_state.jugador_seleccionado is not None:
-
-    if st.button(
-        "← Volver al ranking"
-    ):
-
-        st.session_state.jugador_seleccionado = None
-
-        st.rerun()
-
 
     mostrar_ficha(
         st.session_state.jugador_seleccionado
@@ -713,188 +519,154 @@ if st.session_state.jugador_seleccionado is not None:
 
 st.title("🀄 Liga Mahjong Madrid")
 
-st.write(
-    "Ranking de jugadores"
+st.write("")
+
+tabs_juego = st.tabs(
+    ["MCR", "RIICHI"]
 )
-
-
-# ============================================================
-# PESTAÑAS MCR / RIICHI
-# ============================================================
-
-tab_mcr, tab_riichi = st.tabs(
-    [
-        "MCR",
-        "RIICHI"
-    ]
-)
-
-
-# ============================================================
-# FUNCIÓN MOSTRAR RANKING
-# ============================================================
-
-def mostrar_modalidad(tipo_juego):
-
-    st.subheader(
-        f"Ranking {tipo_juego}"
-    )
-
-
-    pestañas = st.tabs(
-        TEMPORADAS
-    )
-
-
-    for i, temporada in enumerate(
-        TEMPORADAS
-    ):
-
-        with pestañas[i]:
-
-            ranking = crear_ranking(
-                tipo_juego,
-                temporada
-            )
-
-
-            if ranking.empty:
-
-                st.info(
-                    f"No hay partidas de "
-                    f"{tipo_juego} para "
-                    f"{temporada}."
-                )
-
-                continue
-
-
-            # ------------------------------------------------
-            # ENCABEZADOS
-            # ------------------------------------------------
-
-            cab1, cab2, cab3, cab4 = st.columns(
-                [0.7, 3, 1.2, 1]
-            )
-
-
-            with cab1:
-
-                st.write(
-                    "**Pos.**"
-                )
-
-
-            with cab2:
-
-                st.write(
-                    "**Jugador**"
-                )
-
-
-            with cab3:
-
-                st.write(
-                    "**Puntos**"
-                )
-
-
-            with cab4:
-
-                st.write(
-                    "**Partidas**"
-                )
-
-
-            # ------------------------------------------------
-            # JUGADORES
-            # ------------------------------------------------
-
-            for _, fila in ranking.iterrows():
-
-                jugador_id = fila[
-                    "jugador_id"
-                ]
-
-                nombre = fila[
-                    "nombre"
-                ]
-
-                posicion = int(
-                    fila["Posición"]
-                )
-
-                puntos = int(
-                    fila["Puntos"]
-                )
-
-                numero_partidas = int(
-                    fila["Partidas"]
-                )
-
-
-                col1, col2, col3, col4 = st.columns(
-                    [0.7, 3, 1.2, 1]
-                )
-
-
-                with col1:
-
-                    st.write(
-                        posicion
-                    )
-
-
-                with col2:
-
-                    if st.button(
-                        nombre,
-                        key=(
-                            f"{tipo_juego}_"
-                            f"{temporada}_"
-                            f"{jugador_id}"
-                        ),
-                        use_container_width=True
-                    ):
-
-                        st.session_state.jugador_seleccionado = (
-                            jugador_id
-                        )
-
-                        st.rerun()
-
-
-                with col3:
-
-                    st.write(
-                        puntos
-                    )
-
-
-                with col4:
-
-                    st.write(
-                        numero_partidas
-                    )
 
 
 # ============================================================
 # MCR
 # ============================================================
 
-with tab_mcr:
+with tabs_juego[0]:
 
-    mostrar_modalidad(
-        "MCR"
-    )
+    tabs_temporadas = st.tabs(TEMPORADAS)
+
+    for i, temporada in enumerate(TEMPORADAS):
+
+        with tabs_temporadas[i]:
+
+            ranking = crear_ranking(
+                "MCR",
+                temporada
+            )
+
+            if ranking.empty:
+
+                st.info(
+                    "No hay partidas MCR en esta temporada."
+                )
+
+            else:
+
+                st.subheader(
+                    f"Ranking MCR — {temporada}"
+                )
+
+                for _, fila in ranking.iterrows():
+
+                    jugador_id = fila["jugador_id"]
+                    nombre = fila["nombre_jugador"]
+                    posicion = fila["Posición"]
+                    puntos = fila["Puntos"]
+                    partidas = fila["Partidas"]
+
+                    col1, col2, col3, col4 = st.columns(
+                        [0.5, 3, 1.2, 1.2]
+                    )
+
+                    with col1:
+                        st.write(
+                            f"**{posicion}**"
+                        )
+
+                    with col2:
+
+                        if st.button(
+                            str(nombre),
+                            key=f"MCR_{temporada}_{str(jugador_id)}",
+                            use_container_width=True
+                        ):
+
+                            # IMPORTANTE:
+                            # Guardamos el ID como texto
+                            st.session_state.jugador_seleccionado = str(
+                                jugador_id
+                            )
+
+                            st.rerun()
+
+                    with col3:
+                        st.write(
+                            f"**{puntos}**"
+                        )
+
+                    with col4:
+                        st.write(
+                            f"{partidas} partidas"
+                        )
 
 
 # ============================================================
 # RIICHI
 # ============================================================
 
-with tab_riichi:
+with tabs_juego[1]:
 
-    mostrar_modalidad(
-        "RIICHI"
-    )
+    tabs_temporadas = st.tabs(TEMPORADAS)
+
+    for i, temporada in enumerate(TEMPORADAS):
+
+        with tabs_temporadas[i]:
+
+            ranking = crear_ranking(
+                "RIICHI",
+                temporada
+            )
+
+            if ranking.empty:
+
+                st.info(
+                    "No hay partidas RIICHI en esta temporada."
+                )
+
+            else:
+
+                st.subheader(
+                    f"Ranking RIICHI — {temporada}"
+                )
+
+                for _, fila in ranking.iterrows():
+
+                    jugador_id = fila["jugador_id"]
+                    nombre = fila["nombre_jugador"]
+                    posicion = fila["Posición"]
+                    puntos = fila["Puntos"]
+                    partidas = fila["Partidas"]
+
+                    col1, col2, col3, col4 = st.columns(
+                        [0.5, 3, 1.2, 1.2]
+                    )
+
+                    with col1:
+                        st.write(
+                            f"**{posicion}**"
+                        )
+
+                    with col2:
+
+                        if st.button(
+                            str(nombre),
+                            key=f"RIICHI_{temporada}_{str(jugador_id)}",
+                            use_container_width=True
+                        ):
+
+                            # IMPORTANTE:
+                            # Guardamos el ID como texto
+                            st.session_state.jugador_seleccionado = str(
+                                jugador_id
+                            )
+
+                            st.rerun()
+
+                    with col3:
+                        st.write(
+                            f"**{puntos}**"
+                        )
+
+                    with col4:
+                        st.write(
+                            f"{partidas} partidas"
+                        )
