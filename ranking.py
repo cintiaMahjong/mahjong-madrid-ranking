@@ -11,7 +11,7 @@ import os
 
 RUTA_LOGO = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
-    "logo.png"
+    "logo_mahjong_madrid.png"
 )
 
 st.set_page_config(
