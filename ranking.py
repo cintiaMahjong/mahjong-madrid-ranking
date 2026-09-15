@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import urllib.request
+import urllib.parse
 import json
 
 st.set_page_config(
@@ -61,7 +62,7 @@ df_resultados = pd.DataFrame(resultados)
 
 
 # ============================================================
-# NORMALIZAR DATOS
+# NORMALIZAR
 # ============================================================
 
 if "tipo_juego" in df_partidas.columns:
@@ -96,7 +97,6 @@ if "puntuacion" in df_resultados.columns:
 
 datos = df_resultados.copy()
 
-
 if (
     "jugador_id" in datos.columns
     and "id" in df_jugadores.columns
@@ -120,9 +120,7 @@ if (
     and "id" in df_partidas.columns
 ):
 
-    columnas_partida = [
-        "id"
-    ]
+    columnas_partida = ["id"]
 
     if "fecha" in df_partidas.columns:
         columnas_partida.append("fecha")
@@ -132,7 +130,6 @@ if (
 
     if "temporada" in df_partidas.columns:
         columnas_partida.append("temporada")
-
 
     datos = datos.merge(
         df_partidas[columnas_partida],
@@ -144,7 +141,7 @@ if (
 
 
 # ============================================================
-# ASEGURAR NOMBRE DEL JUGADOR
+# NOMBRE
 # ============================================================
 
 if "nombre" not in datos.columns:
@@ -158,22 +155,14 @@ if "nombre" not in datos.columns:
     columna_nombre = None
 
     for columna in posibles_nombres:
-
         if columna in datos.columns:
             columna_nombre = columna
             break
 
-
     if columna_nombre is not None:
-
         datos["nombre"] = datos[columna_nombre]
-
     else:
-
-        datos["nombre"] = (
-            datos["jugador_id"]
-            .astype(str)
-        )
+        datos["nombre"] = datos["jugador_id"].astype(str)
 
 
 datos["nombre"] = (
@@ -185,57 +174,30 @@ datos["nombre"] = (
 
 
 # ============================================================
-# FUNCIÓN PARA CREAR EL RANKING
+# CREAR RANKING
 # ============================================================
 
 def crear_ranking(tipo_juego, temporada):
 
     df = datos.copy()
 
-
-    # --------------------------------------------------------
-    # FILTRAR MODALIDAD
-    # --------------------------------------------------------
-
     if "tipo_juego" in df.columns:
-
         df = df[
             df["tipo_juego"] == tipo_juego
         ]
 
-
-    # --------------------------------------------------------
-    # FILTRAR TEMPORADA
-    # --------------------------------------------------------
-
     if "temporada" in df.columns:
-
         df = df[
             df["temporada"] == temporada
         ]
 
-
-    # --------------------------------------------------------
-    # SI NO HAY DATOS
-    # --------------------------------------------------------
-
     if df.empty:
         return pd.DataFrame()
-
-
-    # --------------------------------------------------------
-    # ASEGURAR PUNTUACIÓN NUMÉRICA
-    # --------------------------------------------------------
 
     df["puntuacion"] = pd.to_numeric(
         df["puntuacion"],
         errors="coerce"
     ).fillna(0)
-
-
-    # --------------------------------------------------------
-    # CREAR RANKING
-    # --------------------------------------------------------
 
     ranking = (
         df.groupby(
@@ -248,29 +210,12 @@ def crear_ranking(tipo_juego, temporada):
         )
     )
 
-
-    # --------------------------------------------------------
-    # ORDENAR POR PUNTOS
-    # --------------------------------------------------------
-
     ranking = ranking.sort_values(
         by="Puntos",
         ascending=False
     ).reset_index(drop=True)
 
-
-    # --------------------------------------------------------
-    # POSICIÓN
-    # --------------------------------------------------------
-
-    ranking["Posición"] = (
-        ranking.index + 1
-    )
-
-
-    # --------------------------------------------------------
-    # REDONDEAR PUNTOS
-    # --------------------------------------------------------
+    ranking["Posición"] = ranking.index + 1
 
     ranking["Puntos"] = (
         ranking["Puntos"]
@@ -278,54 +223,37 @@ def crear_ranking(tipo_juego, temporada):
         .astype(int)
     )
 
-
-    # --------------------------------------------------------
-    # ORDEN FINAL DE COLUMNAS
-    # --------------------------------------------------------
-
     ranking = ranking[
         [
             "Posición",
+            "jugador_id",
             "nombre",
             "Puntos",
             "Partidas"
         ]
     ]
 
-
-    ranking = ranking.rename(
-        columns={
-            "nombre": "Jugador"
-        }
-    )
-
-
     return ranking
 
 
 # ============================================================
-# TÍTULO
+# FUNCIÓN PARA CREAR ENLACE AL JUGADOR
 # ============================================================
 
-st.title("🀄 Liga Mahjong Madrid")
+def enlace_jugador(jugador_id, nombre):
 
-st.write("Ranking de jugadores")
+    parametro = urllib.parse.quote(
+        str(jugador_id)
+    )
 
-
-# ============================================================
-# PESTAÑAS MCR / RIICHI
-# ============================================================
-
-tab_mcr, tab_riichi = st.tabs(
-    [
-        "MCR",
-        "RIICHI"
-    ]
-)
+    return (
+        f'<a href="/jugador?jugador={parametro}" '
+        f'target="_blank">{nombre}</a>'
+    )
 
 
 # ============================================================
-# FUNCIÓN PARA MOSTRAR UNA MODALIDAD
+# FUNCIÓN PARA MOSTRAR MODALIDAD
 # ============================================================
 
 def mostrar_modalidad(tipo_juego):
@@ -334,19 +262,10 @@ def mostrar_modalidad(tipo_juego):
         f"Ranking {tipo_juego}"
     )
 
-
-    # --------------------------------------------------------
-    # TEMPORADAS
-    # --------------------------------------------------------
-
     temporadas = [
         "Oct 2025 - Sept 2026",
         "Oct 2026 - Sept 2027"
     ]
-
-
-    # Si existen otras temporadas en Supabase,
-    # también las añadimos.
 
     if "temporada" in df_partidas.columns:
 
@@ -362,22 +281,11 @@ def mostrar_modalidad(tipo_juego):
         for temporada in temporadas_bd:
 
             if temporada and temporada not in temporadas:
-
                 temporadas.append(temporada)
-
-
-    # --------------------------------------------------------
-    # CREAR PESTAÑAS DE TEMPORADA
-    # --------------------------------------------------------
 
     pestañas_temporadas = st.tabs(
         temporadas
     )
-
-
-    # --------------------------------------------------------
-    # MOSTRAR CADA TEMPORADA
-    # --------------------------------------------------------
 
     for i, temporada in enumerate(temporadas):
 
@@ -388,11 +296,6 @@ def mostrar_modalidad(tipo_juego):
                 temporada
             )
 
-
-            # ------------------------------------------------
-            # SIN DATOS
-            # ------------------------------------------------
-
             if ranking.empty:
 
                 st.info(
@@ -402,38 +305,63 @@ def mostrar_modalidad(tipo_juego):
 
                 continue
 
+            # Crear tabla visual con nombres clicables
 
-            # ------------------------------------------------
-            # MOSTRAR TABLA
-            # ------------------------------------------------
+            tabla = ranking.copy()
 
-            st.dataframe(
-                ranking,
-                use_container_width=True,
-                hide_index=True,
-                column_config={
-                    "Posición": st.column_config.NumberColumn(
-                        "Pos.",
-                        width="small"
-                    ),
-                    "Jugador": st.column_config.TextColumn(
-                        "Jugador",
-                        width="medium"
-                    ),
-                    "Puntos": st.column_config.NumberColumn(
-                        "Puntos",
-                        format="%d"
-                    ),
-                    "Partidas": st.column_config.NumberColumn(
-                        "Partidas",
-                        format="%d"
-                    )
-                }
+            tabla["Jugador"] = tabla.apply(
+                lambda fila: enlace_jugador(
+                    fila["jugador_id"],
+                    fila["nombre"]
+                ),
+                axis=1
+            )
+
+            tabla = tabla[
+                [
+                    "Posición",
+                    "Jugador",
+                    "Puntos",
+                    "Partidas"
+                ]
+            ]
+
+            html_tabla = tabla.to_html(
+                index=False,
+                escape=False
+            )
+
+            st.markdown(
+                html_tabla,
+                unsafe_allow_html=True
             )
 
 
 # ============================================================
-# PESTAÑA MCR
+# TÍTULO
+# ============================================================
+
+st.title("🀄 Liga Mahjong Madrid")
+
+st.write(
+    "Ranking de jugadores"
+)
+
+
+# ============================================================
+# MCR / RIICHI
+# ============================================================
+
+tab_mcr, tab_riichi = st.tabs(
+    [
+        "MCR",
+        "RIICHI"
+    ]
+)
+
+
+# ============================================================
+# MCR
 # ============================================================
 
 with tab_mcr:
@@ -442,7 +370,7 @@ with tab_mcr:
 
 
 # ============================================================
-# PESTAÑA RIICHI
+# RIICHI
 # ============================================================
 
 with tab_riichi:
