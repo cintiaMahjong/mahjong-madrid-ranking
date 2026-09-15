@@ -27,7 +27,7 @@ st.markdown("""
 <style>
 
     /* ========================================================
-       FONDO GENERAL
+       GENERAL
        ======================================================== */
 
     .stApp {
@@ -81,26 +81,29 @@ st.markdown("""
 
 
     /* ========================================================
-       PESTAÑAS MCR / RIICHI
+       PESTAÑAS GRANDES
        ======================================================== */
 
     div[data-baseweb="tab-list"] {
-        background: #0b2118;
-        border: 1px solid #8f7538;
-        border-radius: 10px;
-        padding: 5px;
-        gap: 6px;
-        margin-top: 25px;
-        margin-bottom: 25px;
+        width: 100%;
+        background: #091b14;
+        border: 2px solid #8f7538;
+        border-radius: 14px;
+        padding: 7px;
+        gap: 8px;
+        margin-top: 20px;
+        margin-bottom: 30px;
     }
 
     button[data-baseweb="tab"] {
-        color: #e5dfcf !important;
-        font-size: 1.15rem !important;
+        flex: 1;
+        color: #eee5d0 !important;
+        font-size: 1.45rem !important;
         font-weight: 700 !important;
-        letter-spacing: 2px;
-        padding: 10px 35px !important;
-        border-radius: 7px !important;
+        letter-spacing: 3px;
+        padding: 16px 25px !important;
+        min-height: 62px !important;
+        border-radius: 10px !important;
         background: transparent !important;
     }
 
@@ -124,7 +127,7 @@ st.markdown("""
 
 
     /* ========================================================
-       TÍTULO MCR / RIICHI
+       TÍTULO DEL JUEGO
        ======================================================== */
 
     .titulo-juego {
@@ -133,13 +136,13 @@ st.markdown("""
         font-size: 1.8rem;
         font-weight: 700;
         letter-spacing: 3px;
-        margin-top: 10px;
+        margin-top: 5px;
         margin-bottom: 20px;
     }
 
 
     /* ========================================================
-       CABECERA TABLA
+       TABLA
        ======================================================== */
 
     .cabecera-tabla {
@@ -194,15 +197,16 @@ st.markdown("""
 
 
     /* ========================================================
-       PANEL DEL JUGADOR
+       PANEL JUGADOR
        ======================================================== */
 
     .panel-jugador {
         background: #0b2118;
         border: 1px solid #9f833d;
-        border-radius: 10px;
+        border-radius: 12px;
         padding: 22px;
         margin-top: 25px;
+        margin-bottom: 20px;
     }
 
     .nombre-jugador {
@@ -215,7 +219,6 @@ st.markdown("""
     .posicion-jugador {
         color: #cfc6af;
         font-size: 0.9rem;
-        margin-bottom: 20px;
     }
 
 
@@ -223,24 +226,25 @@ st.markdown("""
        ESTADÍSTICAS
        ======================================================== */
 
-    .estadistica {
+    .estadistica-box {
         background: #143528;
-        border: 1px solid #5f663f;
-        border-radius: 7px;
-        padding: 12px 8px;
+        border: 1px solid #6f7046;
+        border-radius: 9px;
+        padding: 15px 8px;
         text-align: center;
+        min-height: 75px;
     }
 
     .estadistica-numero {
         color: #e2c36c;
-        font-size: 1.35rem;
+        font-size: 1.5rem;
         font-weight: 700;
     }
 
     .estadistica-label {
         color: #ddd4bf;
-        font-size: 0.72rem;
-        margin-top: 3px;
+        font-size: 0.75rem;
+        margin-top: 4px;
     }
 
 
@@ -254,15 +258,6 @@ st.markdown("""
         font-weight: 600;
         margin-top: 25px;
         margin-bottom: 10px;
-    }
-
-
-    /* ========================================================
-       TABLA STREAMLIT
-       ======================================================== */
-
-    [data-testid="stDataFrame"] {
-        border-radius: 8px;
     }
 
 </style>
@@ -290,7 +285,6 @@ def buscar_logo():
         if ruta.exists():
             return ruta
 
-    # Búsqueda automática
     for ruta in BASE_DIR.iterdir():
 
         if not ruta.is_file():
@@ -393,22 +387,18 @@ resultados = supabase_get("resultados_partidas")
 for columna in ["id", "nombre"]:
 
     if columna not in jugadores.columns:
-
         st.error(
             f"Falta la columna '{columna}' en jugadores."
         )
-
         st.stop()
 
 
 for columna in ["id", "fecha", "tipo_juego"]:
 
     if columna not in partidas.columns:
-
         st.error(
             f"Falta la columna '{columna}' en partidas."
         )
-
         st.stop()
 
 
@@ -420,12 +410,10 @@ for columna in [
 ]:
 
     if columna not in resultados.columns:
-
         st.error(
             f"Falta la columna '{columna}' "
             "en resultados_partidas."
         )
-
         st.stop()
 
 
@@ -574,7 +562,7 @@ def crear_ranking(tipo):
 
 
 # ============================================================
-# MOSTRAR JUGADOR
+# MOSTRAR ESTADÍSTICAS DEL JUGADOR
 # ============================================================
 
 def mostrar_jugador(
@@ -593,7 +581,7 @@ def mostrar_jugador(
     jugador = fila.iloc[0]
 
     # --------------------------------------------------------
-    # CABECERA DEL JUGADOR
+    # NOMBRE
     # --------------------------------------------------------
 
     st.markdown(
@@ -629,48 +617,78 @@ def mostrar_jugador(
     with c1:
 
         st.markdown(
-            f"""
-            <div class="estadistica">
-                <div class="estadistica-numero">
-                    {int(jugador["Puntos"])}
-                </div>
-                <div class="estadistica-label">
-                    PUNTOS
-                </div>
-            </div>
-            """,
+            '<div class="estadistica-box">',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            f'<div class="estadistica-numero">'
+            f'{int(jugador["Puntos"])}'
+            f'</div>',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            '<div class="estadistica-label">'
+            'PUNTOS'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            '</div>',
             unsafe_allow_html=True
         )
 
     with c2:
 
         st.markdown(
-            f"""
-            <div class="estadistica">
-                <div class="estadistica-numero">
-                    {int(jugador["Partidas"])}
-                </div>
-                <div class="estadistica-label">
-                    PARTIDAS
-                </div>
-            </div>
-            """,
+            '<div class="estadistica-box">',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            f'<div class="estadistica-numero">'
+            f'{int(jugador["Partidas"])}'
+            f'</div>',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            '<div class="estadistica-label">'
+            'PARTIDAS'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            '</div>',
             unsafe_allow_html=True
         )
 
     with c3:
 
         st.markdown(
-            f"""
-            <div class="estadistica">
-                <div class="estadistica-numero">
-                    {jugador["Media"]:.1f}
-                </div>
-                <div class="estadistica-label">
-                    MEDIA
-                </div>
-            </div>
-            """,
+            '<div class="estadistica-box">',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            f'<div class="estadistica-numero">'
+            f'{jugador["Media"]:.1f}'
+            f'</div>',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            '<div class="estadistica-label">'
+            'MEDIA'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            '</div>',
             unsafe_allow_html=True
         )
 
@@ -687,7 +705,7 @@ def mostrar_jugador(
 
     c1, c2, c3, c4, c5 = st.columns(5)
 
-    posiciones = [
+    resultados_posicion = [
         ("🥇", jugador["1º"]),
         ("🥈", jugador["2º"]),
         ("🥉", jugador["3º"]),
@@ -695,26 +713,30 @@ def mostrar_jugador(
         ("5º", jugador["5º"])
     ]
 
-    for col, (nombre, cantidad) in zip(
+    for col, (posicion, cantidad) in zip(
         [c1, c2, c3, c4, c5],
-        posiciones
+        resultados_posicion
     ):
 
         with col:
 
+            # IMPORTANTE:
+            # No usamos HTML para el número.
+            # Streamlit lo muestra directamente.
+
             st.markdown(
                 f"""
-                <div class="estadistica">
+                <div class="estadistica-box">
                     <div style="font-size:1.15rem;">
-                        {nombre}
-                    </div>
-
-                    <div class="estadistica-numero">
-                        {int(cantidad)}
+                        {posicion}
                     </div>
                 </div>
                 """,
                 unsafe_allow_html=True
+            )
+
+            st.markdown(
+                f"### {int(cantidad)}",
             )
 
     # --------------------------------------------------------
@@ -739,46 +761,46 @@ def mostrar_jugador(
             "No hay partidas registradas."
         )
 
-        return
+    else:
 
-    historial = historial.sort_values(
-        by="fecha",
-        ascending=False
-    )
-
-    historial["Fecha"] = (
-        historial["fecha"]
-        .astype(str)
-    )
-
-    historial["Posición"] = (
-        historial["posicion"]
-        .apply(
-            lambda x:
-            f"{int(x)}º"
-            if pd.notna(x)
-            else "-"
+        historial = historial.sort_values(
+            by="fecha",
+            ascending=False
         )
-    )
 
-    historial["Puntos"] = (
-        historial["puntuacion"]
-        .astype(int)
-    )
+        historial["Fecha"] = (
+            historial["fecha"]
+            .astype(str)
+        )
 
-    historial = historial[
-        [
-            "Fecha",
-            "Posición",
-            "Puntos"
+        historial["Posición"] = (
+            historial["posicion"]
+            .apply(
+                lambda x:
+                f"{int(x)}º"
+                if pd.notna(x)
+                else "-"
+            )
+        )
+
+        historial["Puntos"] = (
+            historial["puntuacion"]
+            .astype(int)
+        )
+
+        historial = historial[
+            [
+                "Fecha",
+                "Posición",
+                "Puntos"
+            ]
         ]
-    ]
 
-    st.dataframe(
-        historial,
-        use_container_width=True,
-        hide_index=True
-    )
+        st.dataframe(
+            historial,
+            use_container_width=True,
+            hide_index=True
+        )
 
     # --------------------------------------------------------
     # CERRAR
@@ -818,10 +840,6 @@ def mostrar_ranking(tipo):
 
         return
 
-    # ========================================================
-    # TÍTULO
-    # ========================================================
-
     icono = "🀄" if tipo == "MCR" else "🎴"
 
     st.markdown(
@@ -831,9 +849,9 @@ def mostrar_ranking(tipo):
         unsafe_allow_html=True
     )
 
-    # ========================================================
+    # --------------------------------------------------------
     # CABECERA
-    # ========================================================
+    # --------------------------------------------------------
 
     columnas = st.columns(
         [0.7, 3.5, 1.3, 1.3, 1.3, 0.8]
@@ -862,9 +880,9 @@ def mostrar_ranking(tipo):
                 unsafe_allow_html=True
             )
 
-    # ========================================================
+    # --------------------------------------------------------
     # FILAS
-    # ========================================================
+    # --------------------------------------------------------
 
     for _, jugador in ranking.iterrows():
 
@@ -874,12 +892,10 @@ def mostrar_ranking(tipo):
             [0.7, 3.5, 1.3, 1.3, 1.3, 0.8]
         )
 
-        # Posición
+        # POSICIÓN
         with columnas[0]:
 
-            posicion = int(
-                jugador["Pos."]
-            )
+            posicion = int(jugador["Pos."])
 
             if posicion == 1:
                 texto = "🥇"
@@ -897,7 +913,7 @@ def mostrar_ranking(tipo):
                 unsafe_allow_html=True
             )
 
-        # Jugador
+        # JUGADOR
         with columnas[1]:
 
             if st.button(
@@ -916,7 +932,7 @@ def mostrar_ranking(tipo):
 
                 st.rerun()
 
-        # Puntos
+        # PUNTOS
         with columnas[2]:
 
             st.markdown(
@@ -926,7 +942,7 @@ def mostrar_ranking(tipo):
                 unsafe_allow_html=True
             )
 
-        # Partidas
+        # PARTIDAS
         with columnas[3]:
 
             st.markdown(
@@ -936,7 +952,7 @@ def mostrar_ranking(tipo):
                 unsafe_allow_html=True
             )
 
-        # Media
+        # MEDIA
         with columnas[4]:
 
             st.markdown(
@@ -946,7 +962,7 @@ def mostrar_ranking(tipo):
                 unsafe_allow_html=True
             )
 
-        # Primeros puestos
+        # PRIMEROS
         with columnas[5]:
 
             st.markdown(
@@ -956,9 +972,9 @@ def mostrar_ranking(tipo):
                 unsafe_allow_html=True
             )
 
-    # ========================================================
+    # --------------------------------------------------------
     # JUGADOR SELECCIONADO
-    # ========================================================
+    # --------------------------------------------------------
 
     if (
         "jugador_seleccionado" in st.session_state
@@ -1026,7 +1042,7 @@ st.markdown(
 # ============================================================
 
 tab_mcr, tab_riichi = st.tabs(
-    ["🀄  MCR", "🎴  RIICHI"]
+    ["🀄   MCR", "🎴   RIICHI"]
 )
 
 with tab_mcr:
