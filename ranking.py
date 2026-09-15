@@ -25,6 +25,86 @@ SUPABASE_URL = "https://gauqwlrsmxynqcokblaw.supabase.co/rest/v1"
 
 
 # =========================================================
+# ESTILOS
+# =========================================================
+
+st.markdown(
+    """
+    <style>
+
+    .block-container {
+        max-width: 900px;
+        padding-top: 1.5rem;
+        padding-bottom: 2rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    h1 {
+        font-size: 2rem !important;
+    }
+
+    h2 {
+        font-size: 1.5rem !important;
+    }
+
+    h3 {
+        font-size: 1.15rem !important;
+    }
+
+    .stButton > button {
+        border-radius: 8px;
+    }
+
+    [data-testid="stMetric"] {
+        padding: 5px 2px;
+    }
+
+    [data-testid="stMetricLabel"] {
+        font-size: 0.8rem;
+    }
+
+    [data-testid="stMetricValue"] {
+        font-size: 1.3rem;
+    }
+
+    @media (max-width: 600px) {
+
+        .block-container {
+            padding-left: 0.6rem;
+            padding-right: 0.6rem;
+            padding-top: 1rem;
+        }
+
+        h1 {
+            font-size: 1.55rem !important;
+        }
+
+        h2 {
+            font-size: 1.3rem !important;
+        }
+
+        h3 {
+            font-size: 1.05rem !important;
+        }
+
+        [data-testid="stMetricLabel"] {
+            font-size: 0.7rem;
+        }
+
+        [data-testid="stMetricValue"] {
+            font-size: 1.1rem;
+        }
+
+    }
+
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+
+# =========================================================
 # CONEXIÓN SUPABASE
 # =========================================================
 
@@ -48,6 +128,7 @@ def supabase_get(tabla, parametros=None):
     )
 
     with urllib.request.urlopen(request) as response:
+
         contenido = response.read().decode("utf-8")
 
     return json.loads(contenido)
@@ -102,8 +183,12 @@ try:
 
 except Exception as e:
 
-    st.error("No se han podido cargar los datos de Supabase.")
+    st.error(
+        "No se han podido cargar los datos de Supabase."
+    )
+
     st.exception(e)
+
     st.stop()
 
 
@@ -112,6 +197,7 @@ except Exception as e:
 # =========================================================
 
 datos = df_resultados.copy()
+
 
 if not df_partidas.empty:
 
@@ -128,12 +214,17 @@ if not df_partidas.empty:
         if columna in df_partidas.columns
     ]
 
-    df_partidas_merge = df_partidas[columnas_partidas].copy()
+    df_partidas_merge = (
+        df_partidas[columnas_partidas]
+        .copy()
+    )
 
-    df_partidas_merge = df_partidas_merge.rename(
-        columns={
-            "id": "partida_id"
-        }
+    df_partidas_merge = (
+        df_partidas_merge.rename(
+            columns={
+                "id": "partida_id"
+            }
+        )
     )
 
     datos = datos.merge(
@@ -155,11 +246,15 @@ if not df_jugadores.empty:
         if columna in df_jugadores.columns
     ]
 
-    df_jugadores_merge = df_jugadores[columnas_jugadores].copy()
+    df_jugadores_merge = (
+        df_jugadores[columnas_jugadores]
+        .copy()
+    )
 
     if "nombre" not in df_jugadores_merge.columns:
 
         if "name" in df_jugadores_merge.columns:
+
             df_jugadores_merge["nombre"] = (
                 df_jugadores_merge["name"]
             )
@@ -168,11 +263,13 @@ if not df_jugadores.empty:
         ["id", "nombre"]
     ]
 
-    df_jugadores_merge = df_jugadores_merge.rename(
-        columns={
-            "id": "jugador_id",
-            "nombre": "nombre_jugador"
-        }
+    df_jugadores_merge = (
+        df_jugadores_merge.rename(
+            columns={
+                "id": "jugador_id",
+                "nombre": "nombre_jugador"
+            }
+        )
     )
 
     datos = datos.merge(
@@ -239,7 +336,8 @@ def crear_ranking(tipo_juego, temporada):
     df = datos.copy()
 
     df = df[
-        (df["tipo_juego"] == tipo_juego) &
+        (df["tipo_juego"] == tipo_juego)
+        &
         (df["temporada"] == temporada)
     ]
 
@@ -260,6 +358,10 @@ def crear_ranking(tipo_juego, temporada):
         )
     )
 
+    # -----------------------------------------------------
+    # GANADAS
+    # -----------------------------------------------------
+
     if "posicion" in df.columns:
 
         ganadas = (
@@ -279,16 +381,28 @@ def crear_ranking(tipo_juego, temporada):
 
         ranking["Ganadas"] = 0
 
+
     ranking["Ganadas"] = (
         ranking["Ganadas"]
         .fillna(0)
         .astype(int)
     )
 
+
+    # -----------------------------------------------------
+    # MEDIA
+    # -----------------------------------------------------
+
     ranking["Media"] = (
-        ranking["Puntos"] /
+        ranking["Puntos"]
+        /
         ranking["Partidas"]
     ).round(1)
+
+
+    # -----------------------------------------------------
+    # MEDIA POSICIÓN
+    # -----------------------------------------------------
 
     if "posicion" in df.columns:
 
@@ -307,7 +421,8 @@ def crear_ranking(tipo_juego, temporada):
         )
 
         ranking["MediaPosicion"] = (
-            ranking["SumaPosiciones"] /
+            ranking["SumaPosiciones"]
+            /
             ranking["Partidas"]
         ).round(2)
 
@@ -315,12 +430,19 @@ def crear_ranking(tipo_juego, temporada):
 
         ranking["MediaPosicion"] = 0
 
+
+    # -----------------------------------------------------
+    # ORDENAR
+    # -----------------------------------------------------
+
     ranking = ranking.sort_values(
         "Puntos",
         ascending=False
     ).reset_index(drop=True)
 
-    ranking["Posición"] = ranking.index + 1
+    ranking["Posición"] = (
+        ranking.index + 1
+    )
 
     ranking["Puntos"] = (
         ranking["Puntos"]
@@ -369,7 +491,8 @@ def mostrar_indicadores(
 
     jugador_ranking = ranking[
         ranking["jugador_id"].astype(str)
-        == jugador_id_texto
+        ==
+        jugador_id_texto
     ]
 
     if jugador_ranking.empty:
@@ -383,41 +506,57 @@ def mostrar_indicadores(
 
     fila = jugador_ranking.iloc[0]
 
+
+    # -----------------------------------------------------
+    # PRIMERA FILA
+    # -----------------------------------------------------
+
     col1, col2, col3 = st.columns(3)
 
     with col1:
+
         st.metric(
             "Puntos",
             int(fila["Puntos"])
         )
 
     with col2:
+
         st.metric(
             "Partidas",
             int(fila["Partidas"])
         )
 
     with col3:
+
         st.metric(
             "Posición",
             int(fila["Posición"])
         )
 
+
+    # -----------------------------------------------------
+    # SEGUNDA FILA
+    # -----------------------------------------------------
+
     col4, col5, col6 = st.columns(3)
 
     with col4:
+
         st.metric(
             "Media",
             f"{fila['Media']:.1f}"
         )
 
     with col5:
+
         st.metric(
             "Ganadas",
             int(fila["Ganadas"])
         )
 
     with col6:
+
         st.metric(
             "Media posición",
             f"{fila['MediaPosicion']:.2f}"
@@ -425,294 +564,7 @@ def mostrar_indicadores(
 
 
 # =========================================================
-# HISTORIAL
-# =========================================================
-
-def mostrar_historial(
-    jugador_id,
-    tipo_juego,
-    temporada
-):
-
-    jugador_id_texto = str(jugador_id)
-
-    datos_jugador = datos[
-        (datos["jugador_id"].astype(str) == jugador_id_texto) &
-        (datos["tipo_juego"] == tipo_juego) &
-        (datos["temporada"] == temporada)
-    ].copy()
-
-    if datos_jugador.empty:
-
-        st.info(
-            f"Este jugador no tiene partidas de {tipo_juego} "
-            f"en esta temporada."
-        )
-
-        return
-
-    ids_partidas = (
-        datos_jugador["partida_id"]
-        .dropna()
-        .unique()
-    )
-
-    partidas_jugador = datos[
-        datos["partida_id"].isin(ids_partidas)
-    ].copy()
-
-    partidas_jugador = partidas_jugador[
-        (partidas_jugador["tipo_juego"] == tipo_juego) &
-        (partidas_jugador["temporada"] == temporada)
-    ].copy()
-
-    if partidas_jugador.empty:
-
-        st.info("No hay historial.")
-
-        return
-
-    partidas_info = (
-        partidas_jugador[
-            [
-                "partida_id",
-                "fecha"
-            ]
-        ]
-        .drop_duplicates()
-        .copy()
-    )
-
-    partidas_info["fecha_orden"] = pd.to_datetime(
-        partidas_info["fecha"],
-        errors="coerce"
-    )
-
-    partidas_info = partidas_info.sort_values(
-        "fecha_orden",
-        ascending=False
-    )
-
-    for _, partida in partidas_info.iterrows():
-
-        partida_id = partida["partida_id"]
-
-        datos_partida = partidas_jugador[
-            partidas_jugador["partida_id"] == partida_id
-        ].copy()
-
-        if datos_partida.empty:
-            continue
-
-        datos_partida = datos_partida.sort_values(
-            "posicion",
-            ascending=True,
-            na_position="last"
-        )
-
-        fecha = partida["fecha"]
-
-        try:
-
-            fecha_formateada = pd.to_datetime(
-                fecha
-            ).strftime("%d/%m/%Y")
-
-        except Exception:
-
-            fecha_formateada = str(fecha)
-
-        nombre_partida = ""
-
-        if "nombre_partida" in datos_partida.columns:
-
-            valores = datos_partida[
-                "nombre_partida"
-            ].dropna()
-
-            if not valores.empty:
-
-                nombre_partida = str(
-                    valores.iloc[0]
-                )
-
-        if not nombre_partida:
-
-            if "nombre" in datos_partida.columns:
-
-                valores = datos_partida[
-                    "nombre"
-                ].dropna()
-
-                if not valores.empty:
-
-                    nombre_partida = str(
-                        valores.iloc[0]
-                    )
-
-        if nombre_partida:
-
-            titulo_partida = (
-                f"{fecha_formateada} · "
-                f"{nombre_partida}"
-            )
-
-        else:
-
-            titulo_partida = fecha_formateada
-
-        st.markdown(
-            f"""
-            <div style="
-                background-color: #e8f5e9;
-                padding: 10px 14px;
-                border-radius: 8px;
-                margin-top: 14px;
-                margin-bottom: 6px;
-                color: #2e7d32;
-                font-weight: 600;
-                font-size: 16px;
-            ">
-                {titulo_partida}
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-        cab1, cab2, cab3 = st.columns(
-            [3, 1, 1]
-        )
-
-        with cab1:
-            st.markdown("**Jugador**")
-
-        with cab2:
-            st.markdown("**Puntos**")
-
-        with cab3:
-            st.markdown("**Pos.**")
-
-        for _, fila in datos_partida.iterrows():
-
-            nombre = str(
-                fila.get(
-                    "nombre_jugador",
-                    "Jugador"
-                )
-            )
-
-            puntuacion = fila.get(
-                "puntuacion",
-                0
-            )
-
-            posicion = fila.get(
-                "posicion",
-                ""
-            )
-
-            try:
-
-                puntuacion = int(
-                    round(float(puntuacion))
-                )
-
-            except Exception:
-
-                puntuacion = 0
-
-            try:
-
-                posicion = int(
-                    float(posicion)
-                )
-
-            except Exception:
-
-                posicion = ""
-
-            es_jugador = (
-                str(
-                    fila["jugador_id"]
-                )
-                == jugador_id_texto
-            )
-
-            if es_jugador:
-
-                fondo = "#eeeeee"
-                peso = "600"
-
-            else:
-
-                fondo = "#ffffff"
-                peso = "400"
-
-            c1, c2, c3 = st.columns(
-                [3, 1, 1]
-            )
-
-            with c1:
-
-                st.markdown(
-                    f"""
-                    <div style="
-                        background-color: {fondo};
-                        padding: 7px 6px;
-                        font-weight: {peso};
-                        border-radius: 5px;
-                        margin-bottom: 3px;
-                    ">
-                        {nombre}
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-            with c2:
-
-                st.markdown(
-                    f"""
-                    <div style="
-                        background-color: {fondo};
-                        padding: 7px 6px;
-                        font-weight: {peso};
-                        border-radius: 5px;
-                        margin-bottom: 3px;
-                        text-align: center;
-                    ">
-                        {puntuacion}
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-            with c3:
-
-                st.markdown(
-                    f"""
-                    <div style="
-                        background-color: {fondo};
-                        padding: 7px 6px;
-                        font-weight: {peso};
-                        border-radius: 5px;
-                        margin-bottom: 3px;
-                        text-align: center;
-                    ">
-                        {posicion}
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-        st.markdown(
-            "<div style='height: 8px;'></div>",
-            unsafe_allow_html=True
-        )
-
-
-# =========================================================
-# TABLA DE POSICIONES Y NÚMERO DE VECES
+# TABLA DE POSICIONES
 # =========================================================
 
 def mostrar_distribucion_posiciones(
@@ -724,8 +576,10 @@ def mostrar_distribucion_posiciones(
     jugador_id_texto = str(jugador_id)
 
     df = datos[
-        (datos["jugador_id"].astype(str) == jugador_id_texto) &
-        (datos["tipo_juego"] == tipo_juego) &
+        (datos["jugador_id"].astype(str) == jugador_id_texto)
+        &
+        (datos["tipo_juego"] == tipo_juego)
+        &
         (datos["temporada"] == temporada)
     ].copy()
 
@@ -735,7 +589,11 @@ def mostrar_distribucion_posiciones(
     if "posicion" not in df.columns:
         return
 
-    # Una sola fila por jugador y partida
+
+    # -----------------------------------------------------
+    # UNA FILA POR PARTIDA
+    # -----------------------------------------------------
+
     df = df.drop_duplicates(
         subset=[
             "partida_id",
@@ -747,6 +605,11 @@ def mostrar_distribucion_posiciones(
         df["posicion"],
         errors="coerce"
     )
+
+
+    # -----------------------------------------------------
+    # CONTAR POSICIONES
+    # -----------------------------------------------------
 
     posicion_1 = int(
         (df["posicion"] == 1).sum()
@@ -768,51 +631,374 @@ def mostrar_distribucion_posiciones(
         (df["posicion"] == 5).sum()
     )
 
+
+    # -----------------------------------------------------
+    # TÍTULO
+    # -----------------------------------------------------
+
     st.subheader("📊 Posiciones")
 
-    c1, c2, c3, c4, c5 = st.columns(5)
 
-    posiciones = [
-        (c1, "🥇 1ª", posicion_1),
-        (c2, "🥈 2ª", posicion_2),
-        (c3, "🥉 3ª", posicion_3),
-        (c4, "4ª", posicion_4),
-        (c5, "5ª", posicion_5)
-    ]
+    # -----------------------------------------------------
+    # TABLA HORIZONTAL
+    # -----------------------------------------------------
 
-    for columna, titulo, cantidad in posiciones:
+    tabla_posiciones = pd.DataFrame(
+        {
+            "🥇 1ª": [posicion_1],
+            "🥈 2ª": [posicion_2],
+            "🥉 3ª": [posicion_3],
+            "4ª": [posicion_4],
+            "5ª": [posicion_5]
+        }
+    )
 
-        with columna:
+    st.table(tabla_posiciones)
 
-            st.markdown(
-                f"""
-                <div style="
-                    border: 1px solid #dddddd;
-                    border-radius: 8px;
-                    padding: 8px 3px;
-                    text-align: center;
-                    margin: 0 2px;
-                ">
 
-                    <div style="
-                        font-size: 14px;
-                        font-weight: 600;
-                    ">
-                        {titulo}
-                    </div>
+# =========================================================
+# HISTORIAL
+# =========================================================
 
-                    <div style="
-                        font-size: 21px;
-                        font-weight: 700;
-                        margin-top: 3px;
-                    ">
-                        {cantidad}
-                    </div>
+def mostrar_historial(
+    jugador_id,
+    tipo_juego,
+    temporada
+):
 
-                </div>
-                """,
-                unsafe_allow_html=True
+    jugador_id_texto = str(jugador_id)
+
+    datos_jugador = datos[
+        (datos["jugador_id"].astype(str) == jugador_id_texto)
+        &
+        (datos["tipo_juego"] == tipo_juego)
+        &
+        (datos["temporada"] == temporada)
+    ].copy()
+
+    if datos_jugador.empty:
+
+        st.info(
+            f"Este jugador no tiene partidas de {tipo_juego} "
+            f"en esta temporada."
+        )
+
+        return
+
+
+    ids_partidas = (
+        datos_jugador["partida_id"]
+        .dropna()
+        .unique()
+    )
+
+
+    partidas_jugador = datos[
+        datos["partida_id"].isin(ids_partidas)
+    ].copy()
+
+
+    partidas_jugador = partidas_jugador[
+        (partidas_jugador["tipo_juego"] == tipo_juego)
+        &
+        (partidas_jugador["temporada"] == temporada)
+    ].copy()
+
+
+    if partidas_jugador.empty:
+
+        st.info("No hay historial.")
+
+        return
+
+
+    # -----------------------------------------------------
+    # INFORMACIÓN DE PARTIDAS
+    # -----------------------------------------------------
+
+    partidas_info = (
+        partidas_jugador[
+            [
+                "partida_id",
+                "fecha"
+            ]
+        ]
+        .drop_duplicates()
+        .copy()
+    )
+
+
+    partidas_info["fecha_orden"] = pd.to_datetime(
+        partidas_info["fecha"],
+        errors="coerce"
+    )
+
+
+    partidas_info = partidas_info.sort_values(
+        "fecha_orden",
+        ascending=False
+    )
+
+
+    # -----------------------------------------------------
+    # CADA PARTIDA
+    # -----------------------------------------------------
+
+    for _, partida in partidas_info.iterrows():
+
+        partida_id = partida["partida_id"]
+
+        datos_partida = partidas_jugador[
+            partidas_jugador["partida_id"] == partida_id
+        ].copy()
+
+        if datos_partida.empty:
+            continue
+
+
+        datos_partida = datos_partida.sort_values(
+            "posicion",
+            ascending=True,
+            na_position="last"
+        )
+
+
+        # -------------------------------------------------
+        # FECHA
+        # -------------------------------------------------
+
+        fecha = partida["fecha"]
+
+        try:
+
+            fecha_formateada = pd.to_datetime(
+                fecha
+            ).strftime("%d/%m/%Y")
+
+        except Exception:
+
+            fecha_formateada = str(fecha)
+
+
+        # -------------------------------------------------
+        # NOMBRE PARTIDA
+        # -------------------------------------------------
+
+        nombre_partida = ""
+
+
+        if "nombre_partida" in datos_partida.columns:
+
+            valores = datos_partida[
+                "nombre_partida"
+            ].dropna()
+
+            if not valores.empty:
+
+                nombre_partida = str(
+                    valores.iloc[0]
+                )
+
+
+        if not nombre_partida:
+
+            if "nombre" in datos_partida.columns:
+
+                valores = datos_partida[
+                    "nombre"
+                ].dropna()
+
+                if not valores.empty:
+
+                    nombre_partida = str(
+                        valores.iloc[0]
+                    )
+
+
+        if nombre_partida:
+
+            titulo_partida = (
+                f"{fecha_formateada} · "
+                f"{nombre_partida}"
             )
+
+        else:
+
+            titulo_partida = fecha_formateada
+
+
+        # -------------------------------------------------
+        # CABECERA PARTIDA
+        # -------------------------------------------------
+
+        st.markdown(
+            f"""
+            <div style="
+                background-color: #e8f5e9;
+                padding: 10px 14px;
+                border-radius: 8px;
+                margin-top: 14px;
+                margin-bottom: 6px;
+                color: #2e7d32;
+                font-weight: 600;
+                font-size: 16px;
+            ">
+                {titulo_partida}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+
+        # -------------------------------------------------
+        # CABECERA JUGADORES
+        # -------------------------------------------------
+
+        cab1, cab2, cab3 = st.columns(
+            [3, 1, 1]
+        )
+
+        with cab1:
+            st.markdown("**Jugador**")
+
+        with cab2:
+            st.markdown("**Puntos**")
+
+        with cab3:
+            st.markdown("**Pos.**")
+
+
+        # -------------------------------------------------
+        # JUGADORES
+        # -------------------------------------------------
+
+        for _, fila in datos_partida.iterrows():
+
+            nombre = str(
+                fila.get(
+                    "nombre_jugador",
+                    "Jugador"
+                )
+            )
+
+            puntuacion = fila.get(
+                "puntuacion",
+                0
+            )
+
+            posicion = fila.get(
+                "posicion",
+                ""
+            )
+
+
+            try:
+
+                puntuacion = int(
+                    round(float(puntuacion))
+                )
+
+            except Exception:
+
+                puntuacion = 0
+
+
+            try:
+
+                posicion = int(
+                    float(posicion)
+                )
+
+            except Exception:
+
+                posicion = ""
+
+
+            es_jugador = (
+                str(
+                    fila["jugador_id"]
+                )
+                ==
+                jugador_id_texto
+            )
+
+
+            if es_jugador:
+
+                fondo = "#eeeeee"
+                peso = "600"
+
+            else:
+
+                fondo = "#ffffff"
+                peso = "400"
+
+
+            c1, c2, c3 = st.columns(
+                [3, 1, 1]
+            )
+
+
+            with c1:
+
+                st.markdown(
+                    f"""
+                    <div style="
+                        background-color: {fondo};
+                        padding: 7px 6px;
+                        font-weight: {peso};
+                        border-radius: 5px;
+                        margin-bottom: 3px;
+                    ">
+                        {nombre}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+
+            with c2:
+
+                st.markdown(
+                    f"""
+                    <div style="
+                        background-color: {fondo};
+                        padding: 7px 6px;
+                        font-weight: {peso};
+                        border-radius: 5px;
+                        margin-bottom: 3px;
+                        text-align: center;
+                    ">
+                        {puntuacion}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+
+            with c3:
+
+                st.markdown(
+                    f"""
+                    <div style="
+                        background-color: {fondo};
+                        padding: 7px 6px;
+                        font-weight: {peso};
+                        border-radius: 5px;
+                        margin-bottom: 3px;
+                        text-align: center;
+                    ">
+                        {posicion}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+
+        st.markdown(
+            "<div style='height: 8px;'></div>",
+            unsafe_allow_html=True
+        )
 
 
 # =========================================================
@@ -822,7 +1008,7 @@ def mostrar_distribucion_posiciones(
 def mostrar_ficha(jugador_id):
 
     # =====================================================
-    # VOLVER AL RANKING - ARRIBA DEL TODO
+    # VOLVER AL RANKING - ARRIBA
     # =====================================================
 
     if st.button(
@@ -834,6 +1020,7 @@ def mostrar_ficha(jugador_id):
         st.session_state.jugador_seleccionado = None
         st.rerun()
 
+
     # =====================================================
     # TÍTULO
     # =====================================================
@@ -842,10 +1029,13 @@ def mostrar_ficha(jugador_id):
 
     jugador_id_texto = str(jugador_id)
 
+
     jugadores_busqueda = df_jugadores[
         df_jugadores["id"].astype(str)
-        == jugador_id_texto
+        ==
+        jugador_id_texto
     ]
+
 
     if not jugadores_busqueda.empty:
 
@@ -865,12 +1055,15 @@ def mostrar_ficha(jugador_id):
 
             nombre_jugador = "Jugador"
 
+
     else:
 
         datos_busqueda = datos[
             datos["jugador_id"].astype(str)
-            == jugador_id_texto
+            ==
+            jugador_id_texto
         ]
+
 
         if datos_busqueda.empty:
 
@@ -880,11 +1073,14 @@ def mostrar_ficha(jugador_id):
 
             return
 
+
         nombre_jugador = str(
             datos_busqueda.iloc[0]["nombre_jugador"]
         )
 
+
     st.subheader(nombre_jugador)
+
 
     # =====================================================
     # MCR / RIICHI
@@ -897,10 +1093,12 @@ def mostrar_ficha(jugador_id):
         ]
     )
 
+
     temporadas = [
         "Oct 2025 - Sept 2026",
         "Oct 2026 - Sept 2027"
     ]
+
 
     # =====================================================
     # MCR
@@ -912,17 +1110,39 @@ def mostrar_ficha(jugador_id):
             temporadas
         )
 
+
+        # -------------------------------------------------
+        # MCR 2025-2026
+        # -------------------------------------------------
+
         with temporada_mcr_1:
 
             st.subheader(
                 "Oct 2025 - Sept 2026"
             )
 
+
+            # INDICADORES
+
             mostrar_indicadores(
                 jugador_id,
                 "MCR",
                 "Oct 2025 - Sept 2026"
             )
+
+
+            # POSICIONES
+
+            st.divider()
+
+            mostrar_distribucion_posiciones(
+                jugador_id,
+                "MCR",
+                "Oct 2025 - Sept 2026"
+            )
+
+
+            # HISTORIAL
 
             st.divider()
 
@@ -934,13 +1154,10 @@ def mostrar_ficha(jugador_id):
                 "Oct 2025 - Sept 2026"
             )
 
-            st.divider()
 
-            mostrar_distribucion_posiciones(
-                jugador_id,
-                "MCR",
-                "Oct 2025 - Sept 2026"
-            )
+        # -------------------------------------------------
+        # MCR 2026-2027
+        # -------------------------------------------------
 
         with temporada_mcr_2:
 
@@ -948,11 +1165,28 @@ def mostrar_ficha(jugador_id):
                 "Oct 2026 - Sept 2027"
             )
 
+
+            # INDICADORES
+
             mostrar_indicadores(
                 jugador_id,
                 "MCR",
                 "Oct 2026 - Sept 2027"
             )
+
+
+            # POSICIONES
+
+            st.divider()
+
+            mostrar_distribucion_posiciones(
+                jugador_id,
+                "MCR",
+                "Oct 2026 - Sept 2027"
+            )
+
+
+            # HISTORIAL
 
             st.divider()
 
@@ -964,13 +1198,6 @@ def mostrar_ficha(jugador_id):
                 "Oct 2026 - Sept 2027"
             )
 
-            st.divider()
-
-            mostrar_distribucion_posiciones(
-                jugador_id,
-                "MCR",
-                "Oct 2026 - Sept 2027"
-            )
 
     # =====================================================
     # RIICHI
@@ -982,17 +1209,39 @@ def mostrar_ficha(jugador_id):
             temporadas
         )
 
+
+        # -------------------------------------------------
+        # RIICHI 2025-2026
+        # -------------------------------------------------
+
         with temporada_riichi_1:
 
             st.subheader(
                 "Oct 2025 - Sept 2026"
             )
 
+
+            # INDICADORES
+
             mostrar_indicadores(
                 jugador_id,
                 "RIICHI",
                 "Oct 2025 - Sept 2026"
             )
+
+
+            # POSICIONES
+
+            st.divider()
+
+            mostrar_distribucion_posiciones(
+                jugador_id,
+                "RIICHI",
+                "Oct 2025 - Sept 2026"
+            )
+
+
+            # HISTORIAL
 
             st.divider()
 
@@ -1004,13 +1253,10 @@ def mostrar_ficha(jugador_id):
                 "Oct 2025 - Sept 2026"
             )
 
-            st.divider()
 
-            mostrar_distribucion_posiciones(
-                jugador_id,
-                "RIICHI",
-                "Oct 2025 - Sept 2026"
-            )
+        # -------------------------------------------------
+        # RIICHI 2026-2027
+        # -------------------------------------------------
 
         with temporada_riichi_2:
 
@@ -1018,11 +1264,28 @@ def mostrar_ficha(jugador_id):
                 "Oct 2026 - Sept 2027"
             )
 
+
+            # INDICADORES
+
             mostrar_indicadores(
                 jugador_id,
                 "RIICHI",
                 "Oct 2026 - Sept 2027"
             )
+
+
+            # POSICIONES
+
+            st.divider()
+
+            mostrar_distribucion_posiciones(
+                jugador_id,
+                "RIICHI",
+                "Oct 2026 - Sept 2027"
+            )
+
+
+            # HISTORIAL
 
             st.divider()
 
@@ -1034,19 +1297,13 @@ def mostrar_ficha(jugador_id):
                 "Oct 2026 - Sept 2027"
             )
 
-            st.divider()
-
-            mostrar_distribucion_posiciones(
-                jugador_id,
-                "RIICHI",
-                "Oct 2026 - Sept 2027"
-            )
 
     # =====================================================
-    # VOLVER AL RANKING - ABAJO DEL TODO
+    # VOLVER AL RANKING - ABAJO
     # =====================================================
 
     st.divider()
+
 
     if st.button(
         "← Volver al ranking",
@@ -1092,6 +1349,7 @@ def mostrar_ranking(
         temporada
     )
 
+
     if ranking.empty:
 
         st.info(
@@ -1100,6 +1358,11 @@ def mostrar_ranking(
         )
 
         return
+
+
+    # -----------------------------------------------------
+    # CABECERA
+    # -----------------------------------------------------
 
     cab1, cab2, cab3, cab4, cab5, cab6, cab7 = st.columns(
         [
@@ -1112,6 +1375,7 @@ def mostrar_ranking(
             1.4
         ]
     )
+
 
     with cab1:
         st.markdown("**Pos.**")
@@ -1134,6 +1398,11 @@ def mostrar_ranking(
     with cab7:
         st.markdown("**Media pos.**")
 
+
+    # -----------------------------------------------------
+    # FILAS
+    # -----------------------------------------------------
+
     for _, fila in ranking.iterrows():
 
         posicion = fila["Posición"]
@@ -1144,6 +1413,7 @@ def mostrar_ranking(
         ganadas = fila["Ganadas"]
         media = fila["Media"]
         media_posicion = fila["MediaPosicion"]
+
 
         (
             col1,
@@ -1165,11 +1435,13 @@ def mostrar_ranking(
             ]
         )
 
+
         with col1:
 
             st.write(
                 int(posicion)
             )
+
 
         with col2:
 
@@ -1189,11 +1461,13 @@ def mostrar_ranking(
 
                 st.rerun()
 
+
         with col3:
 
             st.write(
                 int(puntos)
             )
+
 
         with col4:
 
@@ -1201,17 +1475,20 @@ def mostrar_ranking(
                 int(partidas)
             )
 
+
         with col5:
 
             st.write(
                 int(ganadas)
             )
 
+
         with col6:
 
             st.write(
                 f"{float(media):.1f}"
             )
+
 
         with col7:
 
@@ -1221,7 +1498,7 @@ def mostrar_ranking(
 
 
 # =========================================================
-# MCR
+# TABS PRINCIPALES
 # =========================================================
 
 tab_mcr, tab_riichi = st.tabs(
@@ -1231,17 +1508,23 @@ tab_mcr, tab_riichi = st.tabs(
     ]
 )
 
+
 temporadas = [
     "Oct 2025 - Sept 2026",
     "Oct 2026 - Sept 2027"
 ]
 
 
+# =========================================================
+# MCR
+# =========================================================
+
 with tab_mcr:
 
     temporada_1, temporada_2 = st.tabs(
         temporadas
     )
+
 
     with temporada_1:
 
@@ -1253,6 +1536,7 @@ with tab_mcr:
             "MCR",
             "Oct 2025 - Sept 2026"
         )
+
 
     with temporada_2:
 
@@ -1276,6 +1560,7 @@ with tab_riichi:
         temporadas
     )
 
+
     with temporada_1:
 
         st.subheader(
@@ -1286,6 +1571,7 @@ with tab_riichi:
             "RIICHI",
             "Oct 2025 - Sept 2026"
         )
+
 
     with temporada_2:
 
