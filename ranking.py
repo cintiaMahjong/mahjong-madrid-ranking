@@ -1068,7 +1068,7 @@ st.markdown(
         margin-top:40px;
         letter-spacing:1px;
     ">
-        MAHJONG MADRID
+        @C. HORCAJO
     </div>
     """,
     unsafe_allow_html=True
