@@ -26,14 +26,21 @@ BASE_DIR = Path(__file__).parent
 st.markdown("""
 <style>
 
-    /* Fondo general */
+    /* ========================================================
+       FONDO GENERAL
+       ======================================================== */
+
     .stApp {
-        background:
-            radial-gradient(circle at top, #234d3b 0%, #102b21 45%, #081812 100%);
-        color: #f4ead0;
+        background: #102b21;
+        color: #f5edd9;
     }
 
-    /* Ocultar elementos innecesarios de Streamlit */
+    .block-container {
+        max-width: 1150px;
+        padding-top: 1.5rem;
+        padding-bottom: 3rem;
+    }
+
     #MainMenu {
         visibility: hidden;
     }
@@ -42,207 +49,220 @@ st.markdown("""
         visibility: hidden;
     }
 
-    header {
-        background: transparent !important;
-    }
 
-    /* Contenedor principal */
-    .block-container {
-        max-width: 1250px;
-        padding-top: 2rem;
-        padding-bottom: 3rem;
-    }
+    /* ========================================================
+       CABECERA
+       ======================================================== */
 
-    /* Cabecera */
     .titulo-principal {
-        text-align: center;
-        font-size: 3rem;
+        text-align: left;
+        color: #e2c36c;
+        font-size: 2.5rem;
         font-weight: 700;
-        letter-spacing: 5px;
-        color: #e8c978;
-        text-shadow: 2px 2px 8px #000000;
-        margin-bottom: 0.2rem;
+        letter-spacing: 4px;
+        margin-top: 0;
+        margin-bottom: 4px;
+        text-shadow: 0 2px 5px rgba(0,0,0,0.5);
     }
 
     .subtitulo {
-        text-align: center;
-        color: #d8d0b8;
-        font-size: 1.05rem;
+        text-align: left;
+        color: #d8d0bd;
+        font-size: 0.9rem;
         letter-spacing: 2px;
-        margin-bottom: 1.8rem;
+        margin-bottom: 0;
     }
 
     .linea-dorada {
-        height: 2px;
-        background: linear-gradient(
-            90deg,
-            transparent,
-            #caa84e,
-            #f0d88a,
-            #caa84e,
-            transparent
-        );
-        margin: 10px 0 25px 0;
+        height: 1px;
+        background: #b99a48;
+        margin: 15px 0 25px 0;
     }
 
-    /* Logo */
-    .logo-container {
-        text-align: center;
-        margin-bottom: 5px;
+
+    /* ========================================================
+       PESTAÑAS MCR / RIICHI
+       ======================================================== */
+
+    div[data-baseweb="tab-list"] {
+        background: #0b2118;
+        border: 1px solid #8f7538;
+        border-radius: 10px;
+        padding: 5px;
+        gap: 6px;
+        margin-top: 25px;
+        margin-bottom: 25px;
     }
 
-    /* Títulos MCR / RIICHI */
-    .seccion-titulo {
+    button[data-baseweb="tab"] {
+        color: #e5dfcf !important;
+        font-size: 1.15rem !important;
+        font-weight: 700 !important;
+        letter-spacing: 2px;
+        padding: 10px 35px !important;
+        border-radius: 7px !important;
+        background: transparent !important;
+    }
+
+    button[data-baseweb="tab"]:hover {
+        color: #ffffff !important;
+        background: #214936 !important;
+    }
+
+    button[data-baseweb="tab"][aria-selected="true"] {
+        color: #17271e !important;
+        background: #e2c36c !important;
+    }
+
+    div[data-baseweb="tab-highlight"] {
+        background: transparent !important;
+    }
+
+    div[data-baseweb="tab-border"] {
+        background: transparent !important;
+    }
+
+
+    /* ========================================================
+       TÍTULO MCR / RIICHI
+       ======================================================== */
+
+    .titulo-juego {
         text-align: center;
-        font-size: 2rem;
+        color: #e2c36c;
+        font-size: 1.8rem;
         font-weight: 700;
-        color: #e6c76a;
         letter-spacing: 3px;
         margin-top: 10px;
-        margin-bottom: 4px;
-    }
-
-    .seccion-subtitulo {
-        text-align: center;
-        color: #cfc7ad;
         margin-bottom: 20px;
     }
 
-    /* Tarjetas métricas */
-    div[data-testid="stMetric"] {
-        background: rgba(15, 42, 31, 0.82);
-        border: 1px solid rgba(214, 180, 85, 0.45);
-        border-radius: 12px;
-        padding: 12px 15px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+
+    /* ========================================================
+       CABECERA TABLA
+       ======================================================== */
+
+    .cabecera-tabla {
+        background: #0b2118;
+        border-top: 1px solid #9f833d;
+        border-bottom: 1px solid #9f833d;
+        border-radius: 6px;
+        padding: 10px 5px;
+        color: #e2c36c;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-align: center;
     }
 
-    div[data-testid="stMetricLabel"] {
-        color: #cfc7ad !important;
+    .dato-tabla {
+        color: #f3ead5;
+        text-align: center;
+        padding-top: 9px;
+        font-size: 0.95rem;
     }
 
-    div[data-testid="stMetricValue"] {
-        color: #e8c978 !important;
+    .posicion-tabla {
+        color: #e2c36c;
+        font-weight: 700;
+        text-align: center;
+        padding-top: 8px;
+        font-size: 1rem;
     }
 
-    /* Botones de jugadores */
+
+    /* ========================================================
+       BOTÓN JUGADOR
+       ======================================================== */
+
     .stButton > button {
-        background: rgba(27, 65, 49, 0.95);
-        color: #f2df9c;
-        border: 1px solid #a9893c;
-        border-radius: 8px;
+        background: #183b2c;
+        color: #f4e5b6;
+        border: 1px solid #8e7538;
+        border-radius: 6px;
+        font-size: 0.95rem;
         font-weight: 600;
         text-align: left;
-        transition: all 0.2s ease;
+        padding: 6px 12px;
+        min-height: 38px;
     }
 
     .stButton > button:hover {
-        background: #315e47;
-        border-color: #e8c978;
-        color: white;
-        transform: translateY(-1px);
+        background: #24543e;
+        color: #ffffff;
+        border-color: #d9ba62;
     }
 
-    /* Cabecera de tabla */
-    .tabla-header {
-        background: rgba(8, 25, 18, 0.9);
-        border-top: 1px solid #a9893c;
-        border-bottom: 1px solid #a9893c;
-        border-radius: 8px;
-        padding: 10px 8px;
-        color: #e5ca79;
+
+    /* ========================================================
+       PANEL DEL JUGADOR
+       ======================================================== */
+
+    .panel-jugador {
+        background: #0b2118;
+        border: 1px solid #9f833d;
+        border-radius: 10px;
+        padding: 22px;
+        margin-top: 25px;
+    }
+
+    .nombre-jugador {
+        color: #e2c36c;
+        font-size: 1.7rem;
         font-weight: 700;
-        font-size: 0.85rem;
-        margin-bottom: 6px;
-    }
-
-    /* Fila */
-    .fila-ranking {
-        background: rgba(20, 53, 40, 0.75);
-        border-bottom: 1px solid rgba(202,168,78,0.15);
-        padding: 5px;
-        border-radius: 6px;
         margin-bottom: 3px;
     }
 
-    /* Posición */
-    .posicion {
-        color: #e8c978;
-        font-weight: 700;
-        font-size: 1.1rem;
-        padding-top: 7px;
-        text-align: center;
-    }
-
-    .dato {
-        color: #eee5cd;
-        padding-top: 8px;
-        text-align: center;
-    }
-
-    /* Panel jugador */
-    .jugador-panel {
-        background:
-            linear-gradient(
-                135deg,
-                rgba(29,70,51,0.96),
-                rgba(10,31,22,0.98)
-            );
-        border: 1px solid #b49343;
-        border-radius: 16px;
-        padding: 25px;
-        margin-top: 25px;
-        box-shadow: 0 8px 30px rgba(0,0,0,0.35);
-    }
-
-    .jugador-nombre {
-        color: #edcf76;
-        font-size: 2rem;
-        font-weight: 700;
-        letter-spacing: 2px;
-        margin-bottom: 4px;
-    }
-
-    .jugador-posicion {
-        color: #d7ceb4;
-        font-size: 1rem;
+    .posicion-jugador {
+        color: #cfc6af;
+        font-size: 0.9rem;
         margin-bottom: 20px;
     }
 
+
+    /* ========================================================
+       ESTADÍSTICAS
+       ======================================================== */
+
     .estadistica {
-        background: rgba(7, 25, 18, 0.65);
-        border: 1px solid rgba(202,168,78,0.35);
-        border-radius: 10px;
-        padding: 13px;
+        background: #143528;
+        border: 1px solid #5f663f;
+        border-radius: 7px;
+        padding: 12px 8px;
         text-align: center;
-        margin-bottom: 10px;
     }
 
     .estadistica-numero {
-        color: #e8c978;
-        font-size: 1.5rem;
+        color: #e2c36c;
+        font-size: 1.35rem;
         font-weight: 700;
     }
 
-    .estadistica-texto {
-        color: #cfc7ad;
-        font-size: 0.8rem;
+    .estadistica-label {
+        color: #ddd4bf;
+        font-size: 0.72rem;
+        margin-top: 3px;
     }
 
-    /* Separadores */
-    hr {
-        border-color: rgba(202,168,78,0.3);
+
+    /* ========================================================
+       HISTORIAL
+       ======================================================== */
+
+    .titulo-historial {
+        color: #e2c36c;
+        font-size: 1.15rem;
+        font-weight: 600;
+        margin-top: 25px;
+        margin-bottom: 10px;
     }
 
-    /* Dataframe */
+
+    /* ========================================================
+       TABLA STREAMLIT
+       ======================================================== */
+
     [data-testid="stDataFrame"] {
-        border-radius: 10px;
-    }
-
-    /* Info */
-    .stAlert {
-        background: rgba(20, 55, 41, 0.8);
-        border: 1px solid rgba(202,168,78,0.3);
+        border-radius: 8px;
     }
 
 </style>
@@ -260,28 +280,37 @@ def buscar_logo():
         "logo_mahjong_madrid.PNG",
         "Logo_Mahjong_Madrid.png",
         "Logo Mahjong Madrid.png",
-        "logo mahjong madrid.png",
+        "logo mahjong madrid.png"
     ]
 
     for nombre in nombres:
+
         ruta = BASE_DIR / nombre
+
         if ruta.exists():
             return ruta
 
-    # Buscar automáticamente cualquier imagen que contenga
-    # mahjong y madrid en el nombre
+    # Búsqueda automática
     for ruta in BASE_DIR.iterdir():
 
         if not ruta.is_file():
             continue
 
-        if ruta.suffix.lower() not in [".png", ".jpg", ".jpeg", ".webp"]:
+        if ruta.suffix.lower() not in [
+            ".png",
+            ".jpg",
+            ".jpeg",
+            ".webp"
+        ]:
             continue
 
-        nombre = ruta.stem.lower()
-        nombre = nombre.replace("_", "")
-        nombre = nombre.replace("-", "")
-        nombre = nombre.replace(" ", "")
+        nombre = (
+            ruta.stem
+            .lower()
+            .replace("_", "")
+            .replace("-", "")
+            .replace(" ", "")
+        )
 
         if "mahjong" in nombre and "madrid" in nombre:
             return ruta
@@ -296,12 +325,20 @@ LOGO = buscar_logo()
 # SUPABASE
 # ============================================================
 
-SUPABASE_URL = "https://gauqwlrsmxynqcokblaw.supabase.co/rest/v1"
+SUPABASE_URL = (
+    "https://gauqwlrsmxynqcokblaw.supabase.co/rest/v1"
+)
 
 try:
+
     SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
+
 except Exception:
-    st.error("No se encuentra SUPABASE_KEY en los Secrets de Streamlit.")
+
+    st.error(
+        "No se encuentra SUPABASE_KEY en los Secrets de Streamlit."
+    )
+
     st.stop()
 
 
@@ -324,13 +361,19 @@ def supabase_get(tabla):
     try:
 
         with urllib.request.urlopen(request) as response:
-            datos = json.loads(response.read().decode("utf-8"))
+
+            datos = json.loads(
+                response.read().decode("utf-8")
+            )
 
         return pd.DataFrame(datos)
 
     except Exception as e:
 
-        st.error(f"Error al conectar con Supabase: {e}")
+        st.error(
+            f"Error al conectar con Supabase: {e}"
+        )
+
         st.stop()
 
 
@@ -343,34 +386,51 @@ partidas = supabase_get("partidas")
 resultados = supabase_get("resultados_partidas")
 
 
-# Comprobar columnas
-columnas_jugadores = ["id", "nombre"]
-columnas_partidas = ["id", "fecha", "tipo_juego"]
-columnas_resultados = [
+# ============================================================
+# COMPROBAR COLUMNAS
+# ============================================================
+
+for columna in ["id", "nombre"]:
+
+    if columna not in jugadores.columns:
+
+        st.error(
+            f"Falta la columna '{columna}' en jugadores."
+        )
+
+        st.stop()
+
+
+for columna in ["id", "fecha", "tipo_juego"]:
+
+    if columna not in partidas.columns:
+
+        st.error(
+            f"Falta la columna '{columna}' en partidas."
+        )
+
+        st.stop()
+
+
+for columna in [
     "partida_id",
     "jugador_id",
     "posicion",
     "puntuacion"
-]
+]:
 
-for columna in columnas_jugadores:
-    if columna not in jugadores.columns:
-        st.error(f"Falta la columna '{columna}' en jugadores.")
-        st.stop()
-
-for columna in columnas_partidas:
-    if columna not in partidas.columns:
-        st.error(f"Falta la columna '{columna}' en partidas.")
-        st.stop()
-
-for columna in columnas_resultados:
     if columna not in resultados.columns:
-        st.error(f"Falta la columna '{columna}' en resultados_partidas.")
+
+        st.error(
+            f"Falta la columna '{columna}' "
+            "en resultados_partidas."
+        )
+
         st.stop()
 
 
 # ============================================================
-# LIMPIEZA
+# CONVERSIÓN
 # ============================================================
 
 jugadores["id"] = pd.to_numeric(
@@ -450,13 +510,38 @@ def crear_ranking(tipo):
         )
         .agg(
             Partidas=("partida_id", "nunique"),
+
             Puntos=("puntuacion", "sum"),
-            Primero=("posicion", lambda x: (x == 1).sum()),
-            Segundo=("posicion", lambda x: (x == 2).sum()),
-            Tercero=("posicion", lambda x: (x == 3).sum()),
-            Cuarto=("posicion", lambda x: (x == 4).sum()),
-            Quinto=("posicion", lambda x: (x == 5).sum()),
-            MejorPosicion=("posicion", "min")
+
+            Primero=(
+                "posicion",
+                lambda x: (x == 1).sum()
+            ),
+
+            Segundo=(
+                "posicion",
+                lambda x: (x == 2).sum()
+            ),
+
+            Tercero=(
+                "posicion",
+                lambda x: (x == 3).sum()
+            ),
+
+            Cuarto=(
+                "posicion",
+                lambda x: (x == 4).sum()
+            ),
+
+            Quinto=(
+                "posicion",
+                lambda x: (x == 5).sum()
+            ),
+
+            MejorPosicion=(
+                "posicion",
+                "min"
+            )
         )
         .reset_index()
     )
@@ -489,10 +574,14 @@ def crear_ranking(tipo):
 
 
 # ============================================================
-# ESTADÍSTICAS DEL JUGADOR
+# MOSTRAR JUGADOR
 # ============================================================
 
-def mostrar_jugador(jugador_id, tipo, ranking):
+def mostrar_jugador(
+    jugador_id,
+    tipo,
+    ranking
+):
 
     fila = ranking[
         ranking["jugador_id"] == jugador_id
@@ -503,49 +592,49 @@ def mostrar_jugador(jugador_id, tipo, ranking):
 
     jugador = fila.iloc[0]
 
+    # --------------------------------------------------------
+    # CABECERA DEL JUGADOR
+    # --------------------------------------------------------
+
     st.markdown(
-        f"""
-        <div class="jugador-panel">
-
-            <div class="jugador-nombre">
-                👤 {jugador['Jugador']}
-            </div>
-
-            <div class="jugador-posicion">
-                Ranking {tipo} · Posición #{int(jugador['Pos.'])}
-            </div>
-
-        </div>
-        """,
+        '<div class="panel-jugador">',
         unsafe_allow_html=True
     )
 
-    # Métricas principales
-    c1, c2, c3, c4 = st.columns(4)
+    st.markdown(
+        f'<div class="nombre-jugador">'
+        f'{jugador["Jugador"]}'
+        f'</div>',
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        f'<div class="posicion-jugador">'
+        f'{tipo} · Posición {int(jugador["Pos."])}'
+        f'</div>',
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+    # --------------------------------------------------------
+    # ESTADÍSTICAS PRINCIPALES
+    # --------------------------------------------------------
+
+    c1, c2, c3 = st.columns(3)
 
     with c1:
-        st.markdown(
-            f"""
-            <div class="estadistica">
-                <div class="estadistica-numero">
-                    #{int(jugador['Pos.'])}
-                </div>
-                <div class="estadistica-texto">
-                    POSICIÓN
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
 
-    with c2:
         st.markdown(
             f"""
             <div class="estadistica">
                 <div class="estadistica-numero">
-                    {int(jugador['Puntos'])}
+                    {int(jugador["Puntos"])}
                 </div>
-                <div class="estadistica-texto">
+                <div class="estadistica-label">
                     PUNTOS
                 </div>
             </div>
@@ -553,14 +642,15 @@ def mostrar_jugador(jugador_id, tipo, ranking):
             unsafe_allow_html=True
         )
 
-    with c3:
+    with c2:
+
         st.markdown(
             f"""
             <div class="estadistica">
                 <div class="estadistica-numero">
-                    {int(jugador['Partidas'])}
+                    {int(jugador["Partidas"])}
                 </div>
-                <div class="estadistica-texto">
+                <div class="estadistica-label">
                     PARTIDAS
                 </div>
             </div>
@@ -568,14 +658,15 @@ def mostrar_jugador(jugador_id, tipo, ranking):
             unsafe_allow_html=True
         )
 
-    with c4:
+    with c3:
+
         st.markdown(
             f"""
             <div class="estadistica">
                 <div class="estadistica-numero">
-                    {jugador['Media']:.1f}
+                    {jugador["Media"]:.1f}
                 </div>
-                <div class="estadistica-texto">
+                <div class="estadistica-label">
                     MEDIA
                 </div>
             </div>
@@ -583,19 +674,28 @@ def mostrar_jugador(jugador_id, tipo, ranking):
             unsafe_allow_html=True
         )
 
-    st.markdown("### 🏅 Resultados")
+    # --------------------------------------------------------
+    # RESULTADOS
+    # --------------------------------------------------------
+
+    st.markdown(
+        '<div class="titulo-historial">'
+        'Resultados'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
     c1, c2, c3, c4, c5 = st.columns(5)
 
     posiciones = [
-        ("🥇", "1º", jugador["1º"]),
-        ("🥈", "2º", jugador["2º"]),
-        ("🥉", "3º", jugador["3º"]),
-        ("4️⃣", "4º", jugador["4º"]),
-        ("5️⃣", "5º", jugador["5º"]),
+        ("🥇", jugador["1º"]),
+        ("🥈", jugador["2º"]),
+        ("🥉", jugador["3º"]),
+        ("4º", jugador["4º"]),
+        ("5º", jugador["5º"])
     ]
 
-    for col, (emoji, nombre, valor) in zip(
+    for col, (nombre, cantidad) in zip(
         [c1, c2, c3, c4, c5],
         posiciones
     ):
@@ -605,21 +705,28 @@ def mostrar_jugador(jugador_id, tipo, ranking):
             st.markdown(
                 f"""
                 <div class="estadistica">
-                    <div style="font-size:1.3rem;">
-                        {emoji}
-                    </div>
-                    <div class="estadistica-numero">
-                        {int(valor)}
-                    </div>
-                    <div class="estadistica-texto">
+                    <div style="font-size:1.15rem;">
                         {nombre}
+                    </div>
+
+                    <div class="estadistica-numero">
+                        {int(cantidad)}
                     </div>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
 
-    st.markdown("### 📜 Historial de partidas")
+    # --------------------------------------------------------
+    # HISTORIAL
+    # --------------------------------------------------------
+
+    st.markdown(
+        '<div class="titulo-historial">'
+        'Historial de partidas'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
     historial = datos[
         (datos["jugador_id"] == jugador_id) &
@@ -628,42 +735,71 @@ def mostrar_jugador(jugador_id, tipo, ranking):
 
     if historial.empty:
 
-        st.info("No hay partidas registradas.")
-
-    else:
-
-        historial = historial.sort_values(
-            by="fecha",
-            ascending=False
+        st.info(
+            "No hay partidas registradas."
         )
 
-        historial["Posición"] = historial["posicion"].apply(
-            lambda x: f"{int(x)}º"
+        return
+
+    historial = historial.sort_values(
+        by="fecha",
+        ascending=False
+    )
+
+    historial["Fecha"] = (
+        historial["fecha"]
+        .astype(str)
+    )
+
+    historial["Posición"] = (
+        historial["posicion"]
+        .apply(
+            lambda x:
+            f"{int(x)}º"
             if pd.notna(x)
             else "-"
         )
+    )
 
-        historial["Puntos"] = historial[
-            "puntuacion"
-        ].astype(int)
+    historial["Puntos"] = (
+        historial["puntuacion"]
+        .astype(int)
+    )
 
-        historial["Fecha"] = historial[
-            "fecha"
-        ].astype(str)
-
-        historial = historial[
-            [
-                "Fecha",
-                "Posición",
-                "Puntos"
-            ]
+    historial = historial[
+        [
+            "Fecha",
+            "Posición",
+            "Puntos"
         ]
+    ]
 
-        st.dataframe(
-            historial,
-            use_container_width=True,
-            hide_index=True
+    st.dataframe(
+        historial,
+        use_container_width=True,
+        hide_index=True
+    )
+
+    # --------------------------------------------------------
+    # CERRAR
+    # --------------------------------------------------------
+
+    if st.button(
+        "Cerrar estadísticas",
+        key=f"cerrar_{tipo}_{jugador_id}"
+    ):
+
+        st.session_state.pop(
+            "jugador_seleccionado",
+            None
         )
+
+        st.session_state.pop(
+            "tipo_seleccionado",
+            None
+        )
+
+        st.rerun()
 
 
 # ============================================================
@@ -677,67 +813,33 @@ def mostrar_ranking(tipo):
     if ranking.empty:
 
         st.info(
-            f"Todavía no hay partidas de {tipo}."
+            f"No hay partidas de {tipo}."
         )
 
         return
 
-    # --------------------------------------------------------
+    # ========================================================
     # TÍTULO
-    # --------------------------------------------------------
+    # ========================================================
 
     icono = "🀄" if tipo == "MCR" else "🎴"
 
     st.markdown(
-        f"""
-        <div class="seccion-titulo">
-            {icono} {tipo}
-        </div>
-
-        <div class="seccion-subtitulo">
-            Clasificación de la Liga Mahjong Madrid
-        </div>
-        """,
+        f'<div class="titulo-juego">'
+        f'{icono} {tipo}'
+        f'</div>',
         unsafe_allow_html=True
     )
 
-    # --------------------------------------------------------
-    # RESUMEN
-    # --------------------------------------------------------
-
-    c1, c2, c3 = st.columns(3)
-
-    with c1:
-        st.metric(
-            "👥 Jugadores",
-            len(ranking)
-        )
-
-    with c2:
-        st.metric(
-            "🎲 Partidas",
-            datos[
-                datos["tipo_juego"] == tipo
-            ]["partida_id"].nunique()
-        )
-
-    with c3:
-        st.metric(
-            "🏆 Líder",
-            ranking.iloc[0]["Jugador"]
-        )
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # --------------------------------------------------------
+    # ========================================================
     # CABECERA
-    # --------------------------------------------------------
+    # ========================================================
 
     columnas = st.columns(
-        [0.6, 3.4, 1.2, 1.2, 1.2, 0.8]
+        [0.7, 3.5, 1.3, 1.3, 1.3, 0.8]
     )
 
-    cabeceras = [
+    nombres = [
         "POS.",
         "JUGADOR",
         "PUNTOS",
@@ -746,59 +848,61 @@ def mostrar_ranking(tipo):
         "🥇"
     ]
 
-    for col, texto in zip(columnas, cabeceras):
+    for col, nombre in zip(
+        columnas,
+        nombres
+    ):
 
         with col:
+
             st.markdown(
-                f"""
-                <div class="tabla-header">
-                    {texto}
-                </div>
-                """,
+                f'<div class="cabecera-tabla">'
+                f'{nombre}'
+                f'</div>',
                 unsafe_allow_html=True
             )
 
-    # --------------------------------------------------------
+    # ========================================================
     # FILAS
-    # --------------------------------------------------------
+    # ========================================================
 
     for _, jugador in ranking.iterrows():
 
         jugador_id = jugador["jugador_id"]
 
         columnas = st.columns(
-            [0.6, 3.4, 1.2, 1.2, 1.2, 0.8]
+            [0.7, 3.5, 1.3, 1.3, 1.3, 0.8]
         )
 
         # Posición
         with columnas[0]:
 
-            posicion = int(jugador["Pos."])
+            posicion = int(
+                jugador["Pos."]
+            )
 
             if posicion == 1:
-                texto_pos = "🥇"
+                texto = "🥇"
             elif posicion == 2:
-                texto_pos = "🥈"
+                texto = "🥈"
             elif posicion == 3:
-                texto_pos = "🥉"
+                texto = "🥉"
             else:
-                texto_pos = str(posicion)
+                texto = str(posicion)
 
             st.markdown(
-                f"""
-                <div class="posicion">
-                    {texto_pos}
-                </div>
-                """,
+                f'<div class="posicion-tabla">'
+                f'{texto}'
+                f'</div>',
                 unsafe_allow_html=True
             )
 
-        # Nombre clickable
+        # Jugador
         with columnas[1]:
 
             if st.button(
                 str(jugador["Jugador"]),
-                key=f"btn_{tipo}_{jugador_id}",
+                key=f"jugador_{tipo}_{jugador_id}",
                 use_container_width=True
             ):
 
@@ -810,15 +914,15 @@ def mostrar_ranking(tipo):
                     "tipo_seleccionado"
                 ] = tipo
 
+                st.rerun()
+
         # Puntos
         with columnas[2]:
 
             st.markdown(
-                f"""
-                <div class="dato">
-                    <strong>{int(jugador['Puntos'])}</strong>
-                </div>
-                """,
+                f'<div class="dato-tabla">'
+                f'<strong>{int(jugador["Puntos"])}</strong>'
+                f'</div>',
                 unsafe_allow_html=True
             )
 
@@ -826,11 +930,9 @@ def mostrar_ranking(tipo):
         with columnas[3]:
 
             st.markdown(
-                f"""
-                <div class="dato">
-                    {int(jugador['Partidas'])}
-                </div>
-                """,
+                f'<div class="dato-tabla">'
+                f'{int(jugador["Partidas"])}'
+                f'</div>',
                 unsafe_allow_html=True
             )
 
@@ -838,33 +940,30 @@ def mostrar_ranking(tipo):
         with columnas[4]:
 
             st.markdown(
-                f"""
-                <div class="dato">
-                    {jugador['Media']:.1f}
-                </div>
-                """,
+                f'<div class="dato-tabla">'
+                f'{jugador["Media"]:.1f}'
+                f'</div>',
                 unsafe_allow_html=True
             )
 
-        # Primeros
+        # Primeros puestos
         with columnas[5]:
 
             st.markdown(
-                f"""
-                <div class="dato">
-                    {int(jugador['1º'])}
-                </div>
-                """,
+                f'<div class="dato-tabla">'
+                f'{int(jugador["1º"])}'
+                f'</div>',
                 unsafe_allow_html=True
             )
 
-    # --------------------------------------------------------
+    # ========================================================
     # JUGADOR SELECCIONADO
-    # --------------------------------------------------------
+    # ========================================================
 
     if (
         "jugador_seleccionado" in st.session_state
-        and st.session_state.get(
+        and
+        st.session_state.get(
             "tipo_seleccionado"
         ) == tipo
     ):
@@ -875,72 +974,46 @@ def mostrar_ranking(tipo):
         )
 
         mostrar_jugador(
-            st.session_state["jugador_seleccionado"],
+            st.session_state[
+                "jugador_seleccionado"
+            ],
             tipo,
             ranking
         )
-
-        if st.button(
-            "✕ Cerrar estadísticas",
-            key=f"cerrar_{tipo}"
-        ):
-
-            del st.session_state[
-                "jugador_seleccionado"
-            ]
-
-            del st.session_state[
-                "tipo_seleccionado"
-            ]
-
-            st.rerun()
 
 
 # ============================================================
 # CABECERA PRINCIPAL
 # ============================================================
 
-if LOGO is not None:
+cabecera_logo, cabecera_titulo = st.columns(
+    [1, 5],
+    vertical_alignment="center"
+)
 
-    st.markdown(
-        '<div class="logo-container">',
-        unsafe_allow_html=True
-    )
+with cabecera_logo:
 
-    st.image(
-        str(LOGO),
-        width=180
-    )
+    if LOGO is not None:
 
-    st.markdown(
-        '</div>',
-        unsafe_allow_html=True
-    )
+        st.image(
+            str(LOGO),
+            width=150
+        )
 
-else:
+with cabecera_titulo:
 
     st.markdown(
         """
-        <div style="
-            text-align:center;
-            font-size:4rem;
-        ">
-            🀄
+        <div class="titulo-principal">
+            LIGA MAHJONG MADRID
+        </div>
+
+        <div class="subtitulo">
+            CLASIFICACIÓN Y ESTADÍSTICAS
         </div>
         """,
         unsafe_allow_html=True
     )
-
-
-st.markdown(
-    '<div class="titulo-principal">LIGA MAHJONG MADRID</div>',
-    unsafe_allow_html=True
-)
-
-st.markdown(
-    '<div class="subtitulo">CLASIFICACIÓN · ESTADÍSTICAS · RESULTADOS</div>',
-    unsafe_allow_html=True
-)
 
 st.markdown(
     '<div class="linea-dorada"></div>',
@@ -949,7 +1022,7 @@ st.markdown(
 
 
 # ============================================================
-# TABS MCR / RIICHI
+# PESTAÑAS
 # ============================================================
 
 tab_mcr, tab_riichi = st.tabs(
@@ -972,14 +1045,14 @@ with tab_riichi:
 
 st.markdown(
     """
-    <br><br>
     <div style="
         text-align:center;
         color:#8f927f;
-        font-size:0.8rem;
+        font-size:0.75rem;
+        margin-top:40px;
         letter-spacing:1px;
     ">
-        MAHJONG MADRID · LIGA OFICIAL
+        MAHJONG MADRID
     </div>
     """,
     unsafe_allow_html=True
