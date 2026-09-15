@@ -80,14 +80,19 @@ df_resultados = pd.DataFrame(resultados)
 
 
 if df_jugadores.empty:
+
     st.error("La tabla jugadores está vacía.")
     st.stop()
 
+
 if df_partidas.empty:
+
     st.error("La tabla partidas está vacía.")
     st.stop()
 
+
 if df_resultados.empty:
+
     st.error("La tabla resultados_partidas está vacía.")
     st.stop()
 
@@ -148,6 +153,7 @@ else:
     st.error(
         "No encuentro la columna nombre/name en la tabla jugadores."
     )
+
     st.stop()
 
 
@@ -197,6 +203,7 @@ def crear_ranking(tipo_juego, temporada):
     ]
 
     if df.empty:
+
         return pd.DataFrame()
 
 
@@ -474,9 +481,6 @@ def mostrar_historial(
     ].copy()
 
 
-    # MUY IMPORTANTE:
-    # mantener el filtro de juego + temporada
-
     partidas_jugador = partidas_jugador[
         (partidas_jugador["tipo_juego"] == tipo_juego) &
         (partidas_jugador["temporada"] == temporada)
@@ -498,6 +502,7 @@ def mostrar_historial(
 
 
         if partida.empty:
+
             continue
 
 
@@ -587,6 +592,7 @@ def mostrar_historial(
 
 
         if partida_completa.empty:
+
             continue
 
 
@@ -814,12 +820,154 @@ def mostrar_historial(
 
 
 # ============================================================
+# NUEVO: MOSTRAR POSICIONES 1ª - 5ª
+# ============================================================
+
+def mostrar_distribucion_posiciones(
+    jugador_id,
+    tipo_juego,
+    temporada
+):
+
+    jugador_id_texto = str(jugador_id)
+
+
+    df = datos[
+        (datos["jugador_id"].astype(str) == jugador_id_texto) &
+        (datos["tipo_juego"] == tipo_juego) &
+        (datos["temporada"] == temporada)
+    ].copy()
+
+
+    # Si no tiene partidas no mostramos nada
+
+    if df.empty:
+
+        return
+
+
+    # Si no existe la columna posición no mostramos nada
+
+    if "posicion" not in df.columns:
+
+        return
+
+
+    # --------------------------------------------------------
+    # ASEGURAR QUE POSICIÓN SEA NUMÉRICA
+    # --------------------------------------------------------
+
+    df["posicion"] = pd.to_numeric(
+        df["posicion"],
+        errors="coerce"
+    )
+
+
+    # --------------------------------------------------------
+    # CONTAR CADA POSICIÓN
+    # --------------------------------------------------------
+
+    posicion_1 = int(
+        (df["posicion"] == 1).sum()
+    )
+
+    posicion_2 = int(
+        (df["posicion"] == 2).sum()
+    )
+
+    posicion_3 = int(
+        (df["posicion"] == 3).sum()
+    )
+
+    posicion_4 = int(
+        (df["posicion"] == 4).sum()
+    )
+
+    posicion_5 = int(
+        (df["posicion"] == 5).sum()
+    )
+
+
+    # ========================================================
+    # TÍTULO
+    # ========================================================
+
+    st.subheader(
+        "📊 Posiciones"
+    )
+
+
+    # ========================================================
+    # TABLA HORIZONTAL
+    # ========================================================
+
+    c1, c2, c3, c4, c5 = st.columns(5)
+
+
+    posiciones = [
+        (c1, "🥇 1ª", posicion_1),
+        (c2, "🥈 2ª", posicion_2),
+        (c3, "🥉 3ª", posicion_3),
+        (c4, "4ª", posicion_4),
+        (c5, "5ª", posicion_5)
+    ]
+
+
+    for columna, titulo, cantidad in posiciones:
+
+        with columna:
+
+            st.markdown(
+                f"""
+                <div style="
+                    border: 1px solid #dddddd;
+                    border-radius: 8px;
+                    padding: 8px 3px;
+                    text-align: center;
+                    margin: 0 2px;
+                ">
+                    <div style="
+                        font-size: 14px;
+                        font-weight: 600;
+                    ">
+                        {titulo}
+                    </div>
+
+                    <div style="
+                        font-size: 21px;
+                        font-weight: 700;
+                        margin-top: 3px;
+                    ">
+                        {cantidad}
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+
+# ============================================================
 # FICHA DEL JUGADOR
 # ============================================================
 
 def mostrar_ficha(jugador_id):
 
     jugador_id_texto = str(jugador_id)
+
+
+    # ========================================================
+    # NUEVO: VOLVER ARRIBA
+    # ========================================================
+
+    if st.button(
+        "← Volver al ranking",
+        key="volver_arriba",
+        use_container_width=True
+    ):
+
+        st.session_state.jugador_seleccionado = None
+
+        st.rerun()
 
 
     # --------------------------------------------------------
@@ -851,6 +999,7 @@ def mostrar_ficha(jugador_id):
         if datos_jugador_busqueda.empty:
 
             st.error("No se encuentra el jugador.")
+
             return
 
 
@@ -867,7 +1016,9 @@ def mostrar_ficha(jugador_id):
 
     st.title("🀄 Ficha del jugador")
 
-    st.header(str(nombre_jugador))
+    st.header(
+        str(nombre_jugador)
+    )
 
 
     # ========================================================
@@ -929,6 +1080,20 @@ def mostrar_ficha(jugador_id):
                 )
 
 
+                # --------------------------------------------
+                # NUEVO: POSICIONES
+                # --------------------------------------------
+
+                st.divider()
+
+
+                mostrar_distribucion_posiciones(
+                    jugador_id,
+                    "MCR",
+                    temporada
+                )
+
+
     # ========================================================
     # RIICHI
     # ========================================================
@@ -976,8 +1141,22 @@ def mostrar_ficha(jugador_id):
                 )
 
 
+                # --------------------------------------------
+                # NUEVO: POSICIONES
+                # --------------------------------------------
+
+                st.divider()
+
+
+                mostrar_distribucion_posiciones(
+                    jugador_id,
+                    "RIICHI",
+                    temporada
+                )
+
+
     # ========================================================
-    # VOLVER
+    # VOLVER ABAJO
     # ========================================================
 
     st.divider()
@@ -985,6 +1164,7 @@ def mostrar_ficha(jugador_id):
 
     if st.button(
         "← Volver al ranking",
+        key="volver_abajo",
         use_container_width=True
     ):
 
@@ -1221,7 +1401,9 @@ def mostrar_ranking(tipo_juego):
 # TÍTULO PRINCIPAL
 # ============================================================
 
-st.title("🀄 Liga Mahjong Madrid")
+st.title(
+    "🀄 Liga Mahjong Madrid"
+)
 
 
 # ============================================================
@@ -1238,9 +1420,13 @@ tab_mcr, tab_riichi = st.tabs(
 
 with tab_mcr:
 
-    mostrar_ranking("MCR")
+    mostrar_ranking(
+        "MCR"
+    )
 
 
 with tab_riichi:
 
-    mostrar_ranking("RIICHI")
+    mostrar_ranking(
+        "RIICHI"
+    )
