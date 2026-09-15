@@ -16,7 +16,7 @@ RUTA_LOGO = os.path.join(
 
 st.set_page_config(
     page_title="Liga Mahjong Madrid",
-    page_icon=RUTA_LOGO,
+    page_icon=RUTA_LOGO if os.path.exists(RUTA_LOGO) else "🀄",
     layout="centered"
 )
 
@@ -25,11 +25,6 @@ SUPABASE_URL = "https://gauqwlrsmxynqcokblaw.supabase.co/rest/v1"
 TEMPORADAS = [
     "Oct 2025 - Sept 2026",
     "Oct 2026 - Sept 2027"
-]
-
-TIPOS_JUEGO = [
-    "MCR",
-    "RIICHI"
 ]
 
 
@@ -97,11 +92,13 @@ if "partida_id" in df_resultados.columns:
     )
 
 if "id" in df_partidas.columns:
-    df_partidas["id"] = df_partidas["id"].astype(str)
+    df_partidas["id"] = (
+        df_partidas["id"].astype(str)
+    )
 
 
 # =========================================================
-# PREPARAR NOMBRES
+# NOMBRE DE LOS JUGADORES
 # =========================================================
 
 if "nombre" in df_jugadores.columns:
@@ -124,7 +121,7 @@ else:
 
 
 # =========================================================
-# UNIR RESULTADOS + JUGADORES
+# UNIR RESULTADOS CON JUGADORES
 # =========================================================
 
 datos = df_resultados.merge(
@@ -138,11 +135,12 @@ datos = df_resultados.merge(
 
 
 # =========================================================
-# UNIR RESULTADOS + PARTIDAS
+# UNIR RESULTADOS CON PARTIDAS
 # =========================================================
 
 columnas_partidas = [
-    c for c in [
+    columna
+    for columna in [
         "id",
         "fecha",
         "tipo_juego",
@@ -150,7 +148,7 @@ columnas_partidas = [
         "nombre_partida",
         "nombre"
     ]
-    if c in df_partidas.columns
+    if columna in df_partidas.columns
 ]
 
 datos = datos.merge(
@@ -163,7 +161,7 @@ datos = datos.merge(
 
 
 # =========================================================
-# LIMPIAR TIPO DE JUEGO
+# COMPLETAR TIPO DE JUEGO
 # =========================================================
 
 if "tipo_juego_partida" in datos.columns:
@@ -176,7 +174,7 @@ if "tipo_juego_partida" in datos.columns:
 
 
 # =========================================================
-# LIMPIAR TEMPORADA
+# COMPLETAR TEMPORADA
 # =========================================================
 
 if "temporada_partida" in datos.columns:
@@ -189,7 +187,7 @@ if "temporada_partida" in datos.columns:
 
 
 # =========================================================
-# CREAR RANKING
+# RANKING
 # =========================================================
 
 def crear_ranking(tipo_juego, temporada):
@@ -218,9 +216,9 @@ def crear_ranking(tipo_juego, temporada):
         )
     )
 
-    # -----------------------------
-    # PARTIDAS GANADAS
-    # -----------------------------
+    # -----------------------------------------------------
+    # GANADAS
+    # -----------------------------------------------------
 
     if "posicion" in df.columns:
 
@@ -247,18 +245,18 @@ def crear_ranking(tipo_juego, temporada):
         .astype(int)
     )
 
-    # -----------------------------
-    # MEDIA DE PUNTOS
-    # -----------------------------
+    # -----------------------------------------------------
+    # MEDIA
+    # -----------------------------------------------------
 
     ranking["Media"] = (
-        ranking["Puntos"] /
-        ranking["Partidas"]
+        ranking["Puntos"]
+        / ranking["Partidas"]
     ).round(1)
 
-    # -----------------------------
-    # MEDIA DE POSICIÓN
-    # -----------------------------
+    # -----------------------------------------------------
+    # MEDIA POSICIÓN
+    # -----------------------------------------------------
 
     if "posicion" in df.columns:
 
@@ -277,24 +275,26 @@ def crear_ranking(tipo_juego, temporada):
         )
 
         ranking["MediaPosicion"] = (
-            ranking["SumaPosiciones"] /
-            ranking["Partidas"]
+            ranking["SumaPosiciones"]
+            / ranking["Partidas"]
         ).round(2)
 
     else:
 
         ranking["MediaPosicion"] = 0
 
-    # -----------------------------
-    # ORDENAR
-    # -----------------------------
+    # -----------------------------------------------------
+    # ORDEN
+    # -----------------------------------------------------
 
     ranking = ranking.sort_values(
         "Puntos",
         ascending=False
     ).reset_index(drop=True)
 
-    ranking["Posición"] = ranking.index + 1
+    ranking["Posición"] = (
+        ranking.index + 1
+    )
 
     ranking["Puntos"] = (
         ranking["Puntos"]
@@ -343,19 +343,19 @@ def mostrar_indicadores(
 
         return
 
-    partidas_jugadas = df[
-        "partida_id"
-    ].nunique()
+    partidas_jugadas = (
+        df["partida_id"].nunique()
+    )
 
-    puntos = df[
-        "puntuacion"
-    ].sum()
+    puntos = df["puntuacion"].sum()
 
     if "posicion" in df.columns:
 
-        victorias = df[
-            df["posicion"] == 1
-        ]["partida_id"].nunique()
+        victorias = (
+            df[df["posicion"] == 1]
+            ["partida_id"]
+            .nunique()
+        )
 
         media_posicion = (
             df["posicion"].sum()
@@ -371,9 +371,9 @@ def mostrar_indicadores(
         puntos / partidas_jugadas
     )
 
-    # =====================================================
+    # -----------------------------------------------------
     # INDICADORES
-    # =====================================================
+    # -----------------------------------------------------
 
     c1, c2, c3, c4, c5 = st.columns(5)
 
@@ -409,7 +409,7 @@ def mostrar_indicadores(
 
 
 # =========================================================
-# TABLA DE POSICIONES
+# DISTRIBUCIÓN DE POSICIONES
 # =========================================================
 
 def mostrar_distribucion_posiciones(
@@ -426,65 +426,72 @@ def mostrar_distribucion_posiciones(
         (datos["temporada"] == temporada)
     ].copy()
 
-    if df.empty or "posicion" not in df.columns:
+    if df.empty:
         return
 
-    # Aseguramos que posición sea numérica
+    if "posicion" not in df.columns:
+        return
+
     df["posicion"] = pd.to_numeric(
         df["posicion"],
         errors="coerce"
     )
 
-    # Contamos las posiciones 1 a 5
-    conteo = {}
+    # =====================================================
+    # CONTAR POSICIONES
+    # =====================================================
+
+    posiciones = {}
 
     for posicion in range(1, 6):
 
-        conteo[posicion] = int(
+        posiciones[posicion] = int(
             (
                 df["posicion"] == posicion
             ).sum()
         )
 
     st.markdown(
-        "### Distribución de posiciones"
+        "### Posiciones"
     )
 
-    # Una columna por posición
+    # =====================================================
+    # TABLA HORIZONTAL
+    # =====================================================
+
     c1, c2, c3, c4, c5 = st.columns(5)
 
-    columnas = [
-        (c1, "🥇 1ª", conteo[1]),
-        (c2, "🥈 2ª", conteo[2]),
-        (c3, "🥉 3ª", conteo[3]),
-        (c4, "4ª", conteo[4]),
-        (c5, "5ª", conteo[5])
+    datos_posiciones = [
+        (c1, "🥇 1ª", posiciones[1]),
+        (c2, "🥈 2ª", posiciones[2]),
+        (c3, "🥉 3ª", posiciones[3]),
+        (c4, "4ª", posiciones[4]),
+        (c5, "5ª", posiciones[5])
     ]
 
-    for columna, posicion, cantidad in columnas:
+    for columna, titulo, cantidad in datos_posiciones:
 
         with columna:
 
             st.markdown(
                 f"""
                 <div style="
-                    text-align: center;
-                    border: 1px solid #dddddd;
-                    border-radius: 8px;
-                    padding: 8px 4px;
-                    margin-bottom: 10px;
+                    text-align:center;
+                    border:1px solid #dddddd;
+                    border-radius:8px;
+                    padding:8px 3px;
                 ">
                     <div style="
-                        font-size: 14px;
-                        font-weight: 600;
+                        font-size:14px;
+                        font-weight:600;
                     ">
-                        {posicion}
+                        {titulo}
                     </div>
 
                     <div style="
-                        font-size: 20px;
-                        font-weight: 700;
-                        margin-top: 3px;
+                        font-size:21px;
+                        font-weight:700;
+                        margin-top:3px;
                     ">
                         {cantidad}
                     </div>
@@ -575,7 +582,7 @@ def mostrar_historial(
     )
 
     # =====================================================
-    # MOSTRAR CADA PARTIDA
+    # MOSTRAR PARTIDAS
     # =====================================================
 
     for _, partida in lista_partidas.iterrows():
@@ -583,9 +590,9 @@ def mostrar_historial(
         partida_id = partida["partida_id"]
         fecha = partida["_fecha"]
 
-        # -----------------------------
+        # -------------------------------------------------
         # FECHA
-        # -----------------------------
+        # -------------------------------------------------
 
         if pd.notna(fecha):
 
@@ -597,41 +604,45 @@ def mostrar_historial(
 
             fecha_texto = ""
 
-        # -----------------------------
-        # NOMBRE DE LA PARTIDA
-        # -----------------------------
+        # -------------------------------------------------
+        # NOMBRE PARTIDA
+        # -------------------------------------------------
 
         nombre_partida = ""
 
-        if (
-            "nombre_partida" in partidas_jugador.columns
-        ):
+        partido_actual = partidas_jugador[
+            partidas_jugador["partida_id"] == partida_id
+        ]
 
-            valores = partidas_jugador[
-                partidas_jugador["partida_id"] == partida_id
-            ]["nombre_partida"].dropna()
+        if "nombre_partida" in partido_actual.columns:
+
+            valores = partido_actual[
+                "nombre_partida"
+            ].dropna()
 
             if not valores.empty:
+
                 nombre_partida = str(
                     valores.iloc[0]
                 )
 
         if not nombre_partida:
 
-            if "nombre" in partidas_jugador.columns:
+            if "nombre" in partido_actual.columns:
 
-                valores = partidas_jugador[
-                    partidas_jugador["partida_id"] == partida_id
-                ]["nombre"].dropna()
+                valores = partido_actual[
+                    "nombre"
+                ].dropna()
 
                 if not valores.empty:
+
                     nombre_partida = str(
                         valores.iloc[0]
                     )
 
-        # -----------------------------
+        # -------------------------------------------------
         # TÍTULO
-        # -----------------------------
+        # -------------------------------------------------
 
         if fecha_texto and nombre_partida:
 
@@ -648,20 +659,20 @@ def mostrar_historial(
             titulo_partida = fecha_texto
 
         # =================================================
-        # CABECERA DE PARTIDA
+        # CABECERA PARTIDA
         # =================================================
 
         st.markdown(
             f"""
             <div style="
-                background-color: #e8f5e9;
-                padding: 10px 14px;
-                border-radius: 8px;
-                margin-top: 14px;
-                margin-bottom: 6px;
-                color: #2e7d32;
-                font-weight: 600;
-                font-size: 16px;
+                background-color:#e8f5e9;
+                padding:10px 14px;
+                border-radius:8px;
+                margin-top:14px;
+                margin-bottom:6px;
+                color:#2e7d32;
+                font-weight:600;
+                font-size:16px;
             ">
                 {titulo_partida}
             </div>
@@ -670,7 +681,7 @@ def mostrar_historial(
         )
 
         # =================================================
-        # DATOS DE LA PARTIDA
+        # JUGADORES DE LA PARTIDA
         # =================================================
 
         partido = partidas_jugador[
@@ -690,32 +701,26 @@ def mostrar_historial(
                 na_position="last"
             )
 
-        # =================================================
+        # -------------------------------------------------
         # CABECERAS
-        # =================================================
+        # -------------------------------------------------
 
         c1, c2, c3 = st.columns(
             [3, 1.2, 1.2]
         )
 
         with c1:
-            st.markdown(
-                "**Jugador**"
-            )
+            st.markdown("**Jugador**")
 
         with c2:
-            st.markdown(
-                "**Puntos**"
-            )
+            st.markdown("**Puntos**")
 
         with c3:
-            st.markdown(
-                "**Pos.**"
-            )
+            st.markdown("**Pos.**")
 
-        # =================================================
-        # JUGADORES
-        # =================================================
+        # -------------------------------------------------
+        # FILAS
+        # -------------------------------------------------
 
         for _, fila in partido.iterrows():
 
@@ -738,7 +743,6 @@ def mostrar_historial(
                 ""
             )
 
-            # Comprobar si es el jugador de la ficha
             es_jugador = (
                 jugador_fila == jugador_id_texto
             )
@@ -753,10 +757,6 @@ def mostrar_historial(
                 fondo = "#ffffff"
                 peso = "400"
 
-            # ---------------------------------------------
-            # NOMBRE
-            # ---------------------------------------------
-
             c1, c2, c3 = st.columns(
                 [3, 1.2, 1.2]
             )
@@ -766,10 +766,10 @@ def mostrar_historial(
                 st.markdown(
                     f"""
                     <div style="
-                        background-color: {fondo};
-                        padding: 6px 8px;
-                        border-radius: 5px;
-                        font-weight: {peso};
+                        background-color:{fondo};
+                        padding:6px 8px;
+                        border-radius:5px;
+                        font-weight:{peso};
                     ">
                         {nombre}
                     </div>
@@ -777,26 +777,25 @@ def mostrar_historial(
                     unsafe_allow_html=True
                 )
 
-            # ---------------------------------------------
-            # PUNTOS
-            # ---------------------------------------------
-
             with c2:
 
                 try:
+
                     puntos_texto = str(
                         int(round(float(puntos)))
                     )
+
                 except:
+
                     puntos_texto = str(puntos)
 
                 st.markdown(
                     f"""
                     <div style="
-                        background-color: {fondo};
-                        padding: 6px 8px;
-                        border-radius: 5px;
-                        font-weight: {peso};
+                        background-color:{fondo};
+                        padding:6px 8px;
+                        border-radius:5px;
+                        font-weight:{peso};
                     ">
                         {puntos_texto}
                     </div>
@@ -804,26 +803,25 @@ def mostrar_historial(
                     unsafe_allow_html=True
                 )
 
-            # ---------------------------------------------
-            # POSICIÓN
-            # ---------------------------------------------
-
             with c3:
 
                 try:
+
                     posicion_texto = str(
                         int(posicion)
                     )
+
                 except:
+
                     posicion_texto = str(posicion)
 
                 st.markdown(
                     f"""
                     <div style="
-                        background-color: {fondo};
-                        padding: 6px 8px;
-                        border-radius: 5px;
-                        font-weight: {peso};
+                        background-color:{fondo};
+                        padding:6px 8px;
+                        border-radius:5px;
+                        font-weight:{peso};
                     ">
                         {posicion_texto}
                     </div>
@@ -831,9 +829,8 @@ def mostrar_historial(
                     unsafe_allow_html=True
                 )
 
-        # Separación entre partidas
         st.markdown(
-            "<div style='height: 4px;'></div>",
+            "<div style='height:4px;'></div>",
             unsafe_allow_html=True
         )
 
@@ -845,6 +842,18 @@ def mostrar_historial(
 def mostrar_ficha(jugador_id):
 
     jugador_id_texto = str(jugador_id)
+
+    # =====================================================
+    # BOTÓN VOLVER ARRIBA
+    # =====================================================
+
+    if st.button(
+        "← Volver al ranking",
+        key="volver_arriba"
+    ):
+
+        st.session_state.jugador_seleccionado = None
+        st.rerun()
 
     # =====================================================
     # BUSCAR JUGADOR
@@ -890,9 +899,13 @@ def mostrar_ficha(jugador_id):
     # CABECERA
     # =====================================================
 
-    st.title("🀄 Ficha del jugador")
+    st.title(
+        "🀄 Ficha del jugador"
+    )
 
-    st.subheader(nombre_jugador)
+    st.subheader(
+        nombre_jugador
+    )
 
     st.divider()
 
@@ -942,7 +955,7 @@ def mostrar_ficha(jugador_id):
                 )
 
                 # -----------------------------------------
-                # DISTRIBUCIÓN DE POSICIONES
+                # POSICIONES
                 # -----------------------------------------
 
                 st.divider()
@@ -988,7 +1001,7 @@ def mostrar_ficha(jugador_id):
                 )
 
                 # -----------------------------------------
-                # DISTRIBUCIÓN DE POSICIONES
+                # POSICIONES
                 # -----------------------------------------
 
                 st.divider()
@@ -1000,13 +1013,14 @@ def mostrar_ficha(jugador_id):
                 )
 
     # =====================================================
-    # VOLVER
+    # BOTÓN VOLVER ABAJO
     # =====================================================
 
     st.divider()
 
     if st.button(
-        "← Volver al ranking"
+        "← Volver al ranking",
+        key="volver_abajo"
     ):
 
         st.session_state.jugador_seleccionado = None
@@ -1023,7 +1037,7 @@ if "jugador_seleccionado" not in st.session_state:
 
 
 # =========================================================
-# SI HAY JUGADOR SELECCIONADO
+# MOSTRAR FICHA SI HAY JUGADOR SELECCIONADO
 # =========================================================
 
 if (
@@ -1039,7 +1053,7 @@ if (
 
 
 # =========================================================
-# TÍTULO PRINCIPAL
+# RANKING PRINCIPAL
 # =========================================================
 
 if os.path.exists(RUTA_LOGO):
@@ -1057,24 +1071,10 @@ st.divider()
 
 
 # =========================================================
-# TIPO DE JUEGO
-# =========================================================
-
-pestaña_mcr, pestaña_riichi = st.tabs(
-    [
-        "MCR",
-        "RIICHI"
-    ]
-)
-
-
-# =========================================================
 # FUNCIÓN PARA MOSTRAR RANKING
 # =========================================================
 
-def mostrar_ranking(
-    tipo_juego
-):
+def mostrar_ranking(tipo_juego):
 
     temporadas = st.tabs(
         TEMPORADAS
@@ -1100,9 +1100,9 @@ def mostrar_ranking(
 
                 continue
 
-            # ---------------------------------------------
+            # =================================================
             # CABECERAS
-            # ---------------------------------------------
+            # =================================================
 
             (
                 cab1,
@@ -1125,43 +1125,29 @@ def mostrar_ranking(
             )
 
             with cab1:
-                st.markdown(
-                    "**Pos.**"
-                )
+                st.markdown("**Pos.**")
 
             with cab2:
-                st.markdown(
-                    "**Jugador**"
-                )
+                st.markdown("**Jugador**")
 
             with cab3:
-                st.markdown(
-                    "**Puntos**"
-                )
+                st.markdown("**Puntos**")
 
             with cab4:
-                st.markdown(
-                    "**Partidas**"
-                )
+                st.markdown("**Partidas**")
 
             with cab5:
-                st.markdown(
-                    "**Ganadas**"
-                )
+                st.markdown("**Ganadas**")
 
             with cab6:
-                st.markdown(
-                    "**Media**"
-                )
+                st.markdown("**Media**")
 
             with cab7:
-                st.markdown(
-                    "**Media pos.**"
-                )
+                st.markdown("**Media pos.**")
 
-            # ---------------------------------------------
+            # =================================================
             # FILAS
-            # ---------------------------------------------
+            # =================================================
 
             for _, fila in ranking.iterrows():
 
@@ -1243,7 +1229,19 @@ def mostrar_ranking(
 
 
 # =========================================================
-# RANKING MCR
+# PESTAÑAS PRINCIPALES
+# =========================================================
+
+pestaña_mcr, pestaña_riichi = st.tabs(
+    [
+        "MCR",
+        "RIICHI"
+    ]
+)
+
+
+# =========================================================
+# MCR
 # =========================================================
 
 with pestaña_mcr:
@@ -1254,7 +1252,7 @@ with pestaña_mcr:
 
 
 # =========================================================
-# RANKING RIICHI
+# RIICHI
 # =========================================================
 
 with pestaña_riichi:
