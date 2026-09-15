@@ -214,14 +214,14 @@ datos["nombre_jugador"] = (
 
 
 # ============================================================
-# FUNCIÓN PARA CREAR EL RANKING
+# FUNCIÓN CREAR RANKING
 # ============================================================
 
 def crear_ranking(tipo_juego, temporada):
 
     df = datos.copy()
 
-    # Filtrar juego y temporada
+    # Filtrar por tipo de juego y temporada
     df = df[
         (df["tipo_juego"] == tipo_juego) &
         (df["temporada"] == temporada)
@@ -252,8 +252,7 @@ def crear_ranking(tipo_juego, temporada):
 
     # --------------------------------------------------------
     # PARTIDAS GANADAS
-    #
-    # Una partida ganada es aquella donde posicion = 1
+    # posicion = 1
     # --------------------------------------------------------
 
     if "posicion" in df.columns:
@@ -284,13 +283,46 @@ def crear_ranking(tipo_juego, temporada):
 
 
     # --------------------------------------------------------
-    # MEDIA DE PUNTOS POR PARTIDA
+    # MEDIA DE PUNTOS
+    # Puntos / partidas jugadas
     # --------------------------------------------------------
 
     ranking["Media"] = (
         ranking["Puntos"] /
         ranking["Partidas"]
     ).round(1)
+
+
+    # --------------------------------------------------------
+    # MEDIA DE POSICIÓN
+    #
+    # Suma de posiciones / partidas jugadas
+    # --------------------------------------------------------
+
+    if "posicion" in df.columns:
+
+        posiciones = (
+            df.groupby("jugador_id")
+            .agg(
+                SumaPosiciones=("posicion", "sum")
+            )
+            .reset_index()
+        )
+
+        ranking = ranking.merge(
+            posiciones,
+            on="jugador_id",
+            how="left"
+        )
+
+        ranking["MediaPosicion"] = (
+            ranking["SumaPosiciones"] /
+            ranking["Partidas"]
+        ).round(2)
+
+    else:
+
+        ranking["MediaPosicion"] = 0
 
 
     # --------------------------------------------------------
@@ -303,7 +335,7 @@ def crear_ranking(tipo_juego, temporada):
     ).reset_index(drop=True)
 
 
-    # Posición
+    # Posición del ranking
     ranking["Posición"] = ranking.index + 1
 
 
@@ -316,7 +348,7 @@ def crear_ranking(tipo_juego, temporada):
 
 
     # --------------------------------------------------------
-    # ORDEN FINAL DE COLUMNAS
+    # COLUMNAS FINALES
     # --------------------------------------------------------
 
     return ranking[
@@ -327,13 +359,14 @@ def crear_ranking(tipo_juego, temporada):
             "Puntos",
             "Partidas",
             "Ganadas",
-            "Media"
+            "Media",
+            "MediaPosicion"
         ]
     ]
 
 
 # ============================================================
-# FUNCIÓN PARA MOSTRAR LA FICHA DEL JUGADOR
+# FUNCIÓN MOSTRAR FICHA DEL JUGADOR
 # ============================================================
 
 def mostrar_ficha(jugador_id):
@@ -389,7 +422,7 @@ def mostrar_ficha(jugador_id):
 
 
     # ========================================================
-    # BOTÓN VOLVER
+    # VOLVER
     # ========================================================
 
     if st.button("← Volver al ranking"):
@@ -413,7 +446,6 @@ def mostrar_ficha(jugador_id):
     # ========================================================
 
     st.subheader("🀄 MCR")
-
 
     pestañas_mcr = st.tabs(TEMPORADAS)
 
@@ -454,6 +486,7 @@ def mostrar_ficha(jugador_id):
             )
 
 
+            # Ranking MCR
             ranking_mcr = crear_ranking(
                 "MCR",
                 temporada
@@ -505,6 +538,11 @@ def mostrar_ficha(jugador_id):
                     fila_ranking.iloc[0]["Ganadas"]
                 )
 
+                media_posicion = float(
+                    fila_ranking.iloc[0]["MediaPosicion"]
+                )
+
+
                 st.write(
                     f"**Posición en el ranking: "
                     f"{posicion}º**"
@@ -513,6 +551,11 @@ def mostrar_ficha(jugador_id):
                 st.write(
                     f"**Partidas ganadas: "
                     f"{ganadas}**"
+                )
+
+                st.write(
+                    f"**Media de posición: "
+                    f"{media_posicion:.2f}**"
                 )
 
 
@@ -559,7 +602,6 @@ def mostrar_ficha(jugador_id):
 
     st.subheader("🀄 RIICHI")
 
-
     pestañas_riichi = st.tabs(TEMPORADAS)
 
 
@@ -599,6 +641,7 @@ def mostrar_ficha(jugador_id):
             )
 
 
+            # Ranking RIICHI
             ranking_riichi = crear_ranking(
                 "RIICHI",
                 temporada
@@ -650,6 +693,11 @@ def mostrar_ficha(jugador_id):
                     fila_ranking.iloc[0]["Ganadas"]
                 )
 
+                media_posicion = float(
+                    fila_ranking.iloc[0]["MediaPosicion"]
+                )
+
+
                 st.write(
                     f"**Posición en el ranking: "
                     f"{posicion}º**"
@@ -658,6 +706,11 @@ def mostrar_ficha(jugador_id):
                 st.write(
                     f"**Partidas ganadas: "
                     f"{ganadas}**"
+                )
+
+                st.write(
+                    f"**Media de posición: "
+                    f"{media_posicion:.2f}**"
                 )
 
 
@@ -708,7 +761,7 @@ if "jugador_seleccionado" not in st.session_state:
 
 
 # ============================================================
-# MOSTRAR FICHA SI HAY JUGADOR SELECCIONADO
+# SI HAY JUGADOR SELECCIONADO
 # ============================================================
 
 if st.session_state.jugador_seleccionado is not None:
@@ -728,7 +781,7 @@ st.title("🀄 Liga Mahjong Madrid")
 
 
 # ============================================================
-# TABS MCR / RIICHI
+# MCR / RIICHI
 # ============================================================
 
 tabs_juego = st.tabs(
@@ -740,7 +793,7 @@ tabs_juego = st.tabs(
 
 
 # ============================================================
-# FUNCIÓN PARA MOSTRAR RANKING
+# FUNCIÓN MOSTRAR RANKING
 # ============================================================
 
 def mostrar_ranking(tipo_juego):
@@ -759,10 +812,6 @@ def mostrar_ranking(tipo_juego):
                 temporada
             )
 
-
-            # ------------------------------------------------
-            # SIN DATOS
-            # ------------------------------------------------
 
             if ranking.empty:
 
@@ -783,14 +832,15 @@ def mostrar_ranking(tipo_juego):
             # ENCABEZADOS
             # =================================================
 
-            cab1, cab2, cab3, cab4, cab5, cab6 = st.columns(
+            cab1, cab2, cab3, cab4, cab5, cab6, cab7 = st.columns(
                 [
-                    0.7,
-                    3,
+                    0.6,
+                    2.8,
+                    1.1,
                     1.2,
-                    1.4,
-                    1.4,
-                    1.1
+                    1.1,
+                    1.2,
+                    1.4
                 ]
             )
 
@@ -819,6 +869,10 @@ def mostrar_ranking(tipo_juego):
                 st.write("**Media**")
 
 
+            with cab7:
+                st.write("**Media pos.**")
+
+
             # =================================================
             # FILAS DEL RANKING
             # =================================================
@@ -839,15 +893,20 @@ def mostrar_ranking(tipo_juego):
 
                 media = fila["Media"]
 
+                media_posicion = fila[
+                    "MediaPosicion"
+                ]
 
-                col1, col2, col3, col4, col5, col6 = st.columns(
+
+                col1, col2, col3, col4, col5, col6, col7 = st.columns(
                     [
-                        0.7,
-                        3,
+                        0.6,
+                        2.8,
+                        1.1,
                         1.2,
-                        1.4,
-                        1.4,
-                        1.1
+                        1.1,
+                        1.2,
+                        1.4
                     ]
                 )
 
@@ -904,11 +963,19 @@ def mostrar_ranking(tipo_juego):
                     )
 
 
-                # Media
+                # Media de puntos
                 with col6:
 
                     st.write(
                         f"{media:.1f}"
+                    )
+
+
+                # Media de posición
+                with col7:
+
+                    st.write(
+                        f"{media_posicion:.2f}"
                     )
 
 
