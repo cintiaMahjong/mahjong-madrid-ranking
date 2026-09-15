@@ -124,9 +124,9 @@ span {
     margin: 0 0 24px;
 }
 
-/* El horizontal block que contiene los dos botones */
+/* Los dos botones siempre ocupan el mismo espacio */
 .selector-juego [data-testid="stHorizontalBlock"] {
-    gap: 8px !important;
+    gap: 9px !important;
 }
 
 .selector-juego [data-testid="stButton"] {
@@ -142,28 +142,78 @@ span {
     font-weight: 800 !important;
     letter-spacing: 0.4px !important;
     transition: all 0.15s ease !important;
+    box-shadow: none !important;
 }
 
+/* ------------------------------------------------------------
+   PESTAÑA NO SELECCIONADA
+   Verde oscuro elegante: se ve claramente que está apagada.
+   ------------------------------------------------------------ */
+
 .selector-normal button {
-    background: #123125 !important;
-    border: 1px solid #6e5e35 !important;
+    background: #102a20 !important;
+    background-color: #102a20 !important;
+    border: 1px solid #625b3b !important;
+    color: #cfc39e !important;
 }
 
 .selector-normal button p,
-.selector-normal button span {
-    color: #eadcb8 !important;
+.selector-normal button span,
+.selector-normal button div {
+    color: #cfc39e !important;
 }
 
-.selector-activo button {
-    background: #f0c94d !important;
-    border: 2px solid #9e001d !important;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22) !important;
+/* ------------------------------------------------------------
+   MCR SELECCIONADO
+   ROJO GRANATE = MCR
+   ------------------------------------------------------------ */
+
+.selector-activo-mcr button {
+    background: #8f1730 !important;
+    background-color: #8f1730 !important;
+    border: 2px solid #d9b65b !important;
+    color: #fff2d0 !important;
+    box-shadow:
+        0 4px 14px rgba(143, 23, 48, 0.30),
+        inset 0 1px 0 rgba(255,255,255,0.10) !important;
 }
 
-.selector-activo button p,
-.selector-activo button span {
-    color: #980019 !important;
+.selector-activo-mcr button p,
+.selector-activo-mcr button span,
+.selector-activo-mcr button div {
+    color: #fff2d0 !important;
     font-weight: 900 !important;
+}
+
+/* ------------------------------------------------------------
+   RIICHI SELECCIONADO
+   MORADO / ÍNDIGO = RIICHI
+   ------------------------------------------------------------ */
+
+.selector-activo-riichi button {
+    background: #563a78 !important;
+    background-color: #563a78 !important;
+    border: 2px solid #d9b65b !important;
+    color: #fff2d0 !important;
+    box-shadow:
+        0 4px 14px rgba(86, 58, 120, 0.32),
+        inset 0 1px 0 rgba(255,255,255,0.10) !important;
+}
+
+.selector-activo-riichi button p,
+.selector-activo-riichi button span,
+.selector-activo-riichi button div {
+    color: #fff2d0 !important;
+    font-weight: 900 !important;
+}
+
+/* En móvil, un poco más compactos */
+@media (max-width: 500px) {
+    .selector-juego button {
+        height: 48px !important;
+        min-height: 48px !important;
+        font-size: 0.82rem !important;
+    }
 }
 
 
@@ -1157,7 +1207,7 @@ with col_mcr:
 
     if st.session_state["tipo_juego"] == "MCR":
         st.markdown(
-            '<div class="selector-activo">',
+            '<div class="selector-activo-mcr">',
             unsafe_allow_html=True,
         )
     else:
@@ -1185,7 +1235,7 @@ with col_riichi:
 
     if st.session_state["tipo_juego"] == "RIICHI":
         st.markdown(
-            '<div class="selector-activo">',
+            '<div class="selector-activo-riichi">',
             unsafe_allow_html=True,
         )
     else:
