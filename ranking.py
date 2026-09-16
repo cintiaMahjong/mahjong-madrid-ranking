@@ -1473,22 +1473,21 @@ def mostrar_ranking(
 
         with col6:
 
-            st.write(
-                f"{float(media):.1f}"
-            )
+    st.write(
+        f"{float(winrate):.1f}%"
+    )
 
+with col7:
 
-        with col7:
+    st.write(
+        f"{float(media):.1f}"
+    )
 
-            st.write(
-                f"{float(media_posicion):.2f}"
-            )
+with col8:
 
-         with col8:
-
-            st.write(
-                f"{float(media_posicion):.2f}"
-            )
+    st.write(
+        f"{float(media_posicion):.2f}"
+    )
 # =========================================================
 # TABS PRINCIPALES
 # =========================================================
