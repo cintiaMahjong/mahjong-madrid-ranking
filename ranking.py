@@ -1484,7 +1484,11 @@ def mostrar_ranking(
                 f"{float(media_posicion):.2f}"
             )
 
+         with col8:
 
+            st.write(
+                f"{float(media_posicion):.2f}"
+            )
 # =========================================================
 # TABS PRINCIPALES
 # =========================================================
