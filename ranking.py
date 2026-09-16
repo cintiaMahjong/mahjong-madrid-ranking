@@ -1120,10 +1120,14 @@ def mostrar_ficha(jugador_id):
     # VOLVER AL RANKING - ARRIBA
     # =====================================================
 
+   # if st.button(
+   #     "← Volver al ranking",
+   #     key="volver_arriba",
+   #     use_container_width=True
+   # ):
     if st.button(
         "← Volver al ranking",
-        key="volver_arriba",
-        use_container_width=True
+        key="volver_arriba"
     ):
 
         st.session_state.jugador_seleccionado = None
