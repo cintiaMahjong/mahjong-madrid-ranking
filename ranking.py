@@ -1643,6 +1643,36 @@ def mostrar_ranking(
 
     if es_movil:
 
+                # -------------------------------------------------
+        # ESTILO BOTONES MÓVILES
+        # -------------------------------------------------
+
+        st.markdown(
+            """
+            <style>
+
+            div[data-testid="stButton"] button {
+                min-height: 28px !important;
+                height: 28px !important;
+
+                padding-top: 0px !important;
+                padding-bottom: 0px !important;
+
+                padding-left: 4px !important;
+                padding-right: 4px !important;
+
+                font-size: 12px !important;
+
+                line-height: 1 !important;
+
+                border-radius: 4px !important;
+            }
+
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+
         # -------------------------------------------------
         # TÍTULO
         # -------------------------------------------------
@@ -1778,24 +1808,29 @@ def mostrar_ranking(
             # JUGADOR
             # ---------------------------------------------
 
-            with col2:
+                  # -------------------------------------------------
+        # JUGADOR
+        # -------------------------------------------------
 
-                if st.button(
-                    nombre,
-                    key=(
-                        f"movil_"
-                        f"{tipo_juego}_"
-                        f"{temporada}_"
-                        f"{jugador_id}"
-                    ),
-                    use_container_width=True
-                ):
+        with col2:
 
-                    st.session_state.jugador_seleccionado = (
-                        str(jugador_id)
-                    )
+            if st.button(
+                nombre,
+                key=(
+                    f"movil_"
+                    f"{tipo_juego}_"
+                    f"{temporada}_"
+                    f"{jugador_id}"
+                ),
+                use_container_width=True
+            ):
 
-                    st.rerun()
+                st.session_state.jugador_seleccionado = (
+                    str(jugador_id)
+                )
+
+                st.rerun()
+
 
 
             # ---------------------------------------------
