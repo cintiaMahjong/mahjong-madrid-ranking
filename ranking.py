@@ -1125,8 +1125,26 @@ def mostrar_ficha(jugador_id):
    #     key="volver_arriba",
    #     use_container_width=True
    # ):
+   # if st.button(
+   #     "← Volver al ranking",
+   #     key="volver_arriba"
+   # ):
+# =====================================================
+# CABECERA DE LA FICHA
+# =====================================================
+
+cabecera_titulo, cabecera_boton = st.columns(
+    [3, 1]
+)
+
+with cabecera_titulo:
+
+    st.title("🀄 Ficha del jugador")
+
+with cabecera_boton:
+
     if st.button(
-        "← Volver al ranking",
+        "← Volver",
         key="volver_arriba"
     ):
 
@@ -1137,7 +1155,7 @@ def mostrar_ficha(jugador_id):
     # TÍTULO
     # =====================================================
 
-    st.title("🀄 Ficha del jugador")
+ #   st.title("🀄 Ficha del jugador")
 
     jugador_id_texto = str(jugador_id)
 
