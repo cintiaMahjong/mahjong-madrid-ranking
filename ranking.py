@@ -1505,13 +1505,17 @@ st.title(
 # =========================================================
 
 # =========================================================
-# >>> BLOQUE 11 - RANKING RESPONSIVE <<<
+# >>> BLOQUE 11 - RANKING PC + MÓVIL <<<
 # =========================================================
 
 def mostrar_ranking(
     tipo_juego,
     temporada
 ):
+
+    # =====================================================
+    # CREAR RANKING
+    # =====================================================
 
     ranking = crear_ranking(
         tipo_juego,
@@ -1542,35 +1546,31 @@ def mostrar_ranking(
         index=0,
         horizontal=True,
         key=(
-            f"orden_ranking_"
+            f"criterio_ranking_"
             f"{tipo_juego}_"
             f"{temporada}"
-        ),
-        label_visibility="collapsed"
+        )
     )
 
 
     # =====================================================
-    # DETERMINAR CRITERIO
+    # DEFINIR ORDEN
     # =====================================================
 
     if criterio == "📈 Winrate":
 
         columna_orden = "Winrate"
         ascendente = False
-        nombre_criterio = "Winrate"
 
     elif criterio == "🏆 Puntos":
 
         columna_orden = "Puntos"
         ascendente = False
-        nombre_criterio = "Puntos"
 
     else:
 
         columna_orden = "MediaPosicion"
         ascendente = True
-        nombre_criterio = "Media posición"
 
 
     # =====================================================
@@ -1580,14 +1580,14 @@ def mostrar_ranking(
     ranking = ranking.sort_values(
         by=columna_orden,
         ascending=ascendente,
-        kind="stable"
+        kind="mergesort"
     ).reset_index(
         drop=True
     )
 
 
     # =====================================================
-    # RECALCULAR POSICIÓN
+    # ASIGNAR POSICIÓN
     # =====================================================
 
     ranking["Posición"] = (
@@ -1596,25 +1596,230 @@ def mostrar_ranking(
 
 
     # =====================================================
-    # INDICADOR DEL ORDEN ACTUAL
+    # DETECTAR MÓVIL
     # =====================================================
 
-    st.caption(
-        f"Ordenado por **{nombre_criterio}**"
+    user_agent = ""
+
+    try:
+
+        user_agent = (
+            st.context.headers
+            .get(
+                "User-Agent",
+                ""
+            )
+            .lower()
+        )
+
+    except Exception:
+
+        user_agent = ""
+
+
+    es_movil = any(
+        palabra in user_agent
+        for palabra in [
+            "android",
+            "iphone",
+            "ipad",
+            "ipod",
+            "mobile"
+        ]
     )
 
 
     # =====================================================
-    # RANKING ESCRITORIO
-    #
-    # Se muestra siempre en escritorio.
+    # RANKING MÓVIL
+    # =====================================================
+
+    if es_movil:
+
+        # -------------------------------------------------
+        # TÍTULO
+        # -------------------------------------------------
+
+        st.markdown(
+            f"**Ranking por {criterio.replace('📈 ', '').replace('🏆 ', '').replace('🎯 ', '')}**"
+        )
+
+
+        # -------------------------------------------------
+        # CABECERA
+        # -------------------------------------------------
+
+        col1, col2, col3 = st.columns(
+            [
+                0.55,
+                2.30,
+                1.20
+            ]
+        )
+
+
+        with col1:
+
+            st.markdown(
+                "**Pos.**"
+            )
+
+
+        with col2:
+
+            st.markdown(
+                "**Jugador**"
+            )
+
+
+        with col3:
+
+            if columna_orden == "Winrate":
+
+                st.markdown(
+                    "**Winrate**"
+                )
+
+            elif columna_orden == "Puntos":
+
+                st.markdown(
+                    "**Puntos**"
+                )
+
+            else:
+
+                st.markdown(
+                    "**Media pos.**"
+                )
+
+
+        # -------------------------------------------------
+        # FILAS
+        # -------------------------------------------------
+
+        for _, fila in ranking.iterrows():
+
+            posicion = int(
+                fila["Posición"]
+            )
+
+            jugador_id = fila[
+                "jugador_id"
+            ]
+
+            nombre = str(
+                fila["nombre_jugador"]
+            )
+
+
+            # ---------------------------------------------
+            # VALOR PRINCIPAL
+            # ---------------------------------------------
+
+            if columna_orden == "Winrate":
+
+                valor = (
+                    f"{float(fila['Winrate']):.1f}%"
+                )
+
+            elif columna_orden == "Puntos":
+
+                valor = str(
+                    int(fila["Puntos"])
+                )
+
+            else:
+
+                valor = (
+                    f"{float(fila['MediaPosicion']):.2f}"
+                )
+
+
+            # ---------------------------------------------
+            # COLUMNAS
+            # ---------------------------------------------
+
+            col1, col2, col3 = st.columns(
+                [
+                    0.55,
+                    2.30,
+                    1.20
+                ]
+            )
+
+
+            # ---------------------------------------------
+            # POSICIÓN
+            # ---------------------------------------------
+
+            with col1:
+
+                if posicion == 1:
+
+                    st.write("🥇")
+
+                elif posicion == 2:
+
+                    st.write("🥈")
+
+                elif posicion == 3:
+
+                    st.write("🥉")
+
+                else:
+
+                    st.write(
+                        posicion
+                    )
+
+
+            # ---------------------------------------------
+            # JUGADOR
+            # ---------------------------------------------
+
+            with col2:
+
+                if st.button(
+                    nombre,
+                    key=(
+                        f"movil_"
+                        f"{tipo_juego}_"
+                        f"{temporada}_"
+                        f"{jugador_id}"
+                    ),
+                    use_container_width=True
+                ):
+
+                    st.session_state.jugador_seleccionado = (
+                        str(jugador_id)
+                    )
+
+                    st.rerun()
+
+
+            # ---------------------------------------------
+            # VALOR
+            # ---------------------------------------------
+
+            with col3:
+
+                st.markdown(
+                    f"**{valor}**"
+                )
+
+
+        # -------------------------------------------------
+        # TERMINAR AQUÍ
+        # -------------------------------------------------
+
+        return
+
+
+    # =====================================================
+    # RANKING PC
     # =====================================================
 
     st.markdown(
-        """
-        <div class="ranking-escritorio">
-        """,
-        unsafe_allow_html=True
+        f"**Ranking por {criterio.replace('📈 ', '').replace('🏆 ', '').replace('🎯 ', '')}**"
     )
 
 
@@ -1660,11 +1865,13 @@ def mostrar_ranking(
             "**Pos.**"
         )
 
+
     with cab2:
 
         st.markdown(
             "**Jugador**"
         )
+
 
     with cab3:
 
@@ -1672,11 +1879,13 @@ def mostrar_ranking(
             "**Puntos**"
         )
 
+
     with cab4:
 
         st.markdown(
             "**Part.**"
         )
+
 
     with cab5:
 
@@ -1684,11 +1893,13 @@ def mostrar_ranking(
             "**Gan.**"
         )
 
+
     with cab6:
 
         st.markdown(
             "**Winrate**"
         )
+
 
     with cab7:
 
@@ -1696,11 +1907,13 @@ def mostrar_ranking(
             "**Media**"
         )
 
+
     with cab8:
 
         st.markdown(
             "**Máx.**"
         )
+
 
     with cab9:
 
@@ -1710,7 +1923,7 @@ def mostrar_ranking(
 
 
     # =====================================================
-    # FILAS
+    # FILAS PC
     # =====================================================
 
     for _, fila in ranking.iterrows():
@@ -1719,13 +1932,13 @@ def mostrar_ranking(
             fila["Posición"]
         )
 
-        nombre = str(
-            fila["nombre_jugador"]
-        )
-
         jugador_id = fila[
             "jugador_id"
         ]
+
+        nombre = str(
+            fila["nombre_jugador"]
+        )
 
         puntos = int(
             fila["Puntos"]
@@ -1756,6 +1969,10 @@ def mostrar_ranking(
         )
 
 
+        # -------------------------------------------------
+        # COLUMNAS
+        # -------------------------------------------------
+
         (
             col1,
             col2,
@@ -1771,209 +1988,15 @@ def mostrar_ranking(
         )
 
 
-        with col1:
-
-            st.write(
-                posicion
-            )
-
-
-        with col2:
-
-            if st.button(
-                nombre,
-                key=(
-                    f"desktop_"
-                    f"{tipo_juego}_"
-                    f"{temporada}_"
-                    f"{jugador_id}"
-                ),
-                use_container_width=True
-            ):
-
-                st.session_state.jugador_seleccionado = (
-                    str(jugador_id)
-                )
-
-                st.rerun()
-
-
-        with col3:
-
-            st.write(
-                puntos
-            )
-
-
-        with col4:
-
-            st.write(
-                partidas
-            )
-
-
-        with col5:
-
-            st.write(
-                ganadas
-            )
-
-
-        with col6:
-
-            st.write(
-                f"{winrate:.1f}%"
-            )
-
-
-        with col7:
-
-            st.write(
-                f"{media:.1f}"
-            )
-
-
-        with col8:
-
-            st.write(
-                puntuacion_maxima
-            )
-
-
-        with col9:
-
-            st.write(
-                f"{media_posicion:.2f}"
-            )
-
-
-    st.markdown(
-        "</div>",
-        unsafe_allow_html=True
-    )
-
-
-    # =====================================================
-    # RANKING MÓVIL
-    # =====================================================
-
-    st.markdown(
-        "### 📱 Ranking"
-    )
-
-
-    # =====================================================
-    # CABECERA MÓVIL
-    # =====================================================
-
-    movil1, movil2, movil3 = st.columns(
-        [
-            0.55,
-            2.30,
-            1.20
-        ]
-    )
-
-
-    with movil1:
-
-        st.markdown(
-            "**Pos.**"
-        )
-
-
-    with movil2:
-
-        st.markdown(
-            "**Jugador**"
-        )
-
-
-    with movil3:
-
-        st.markdown(
-            f"**{nombre_criterio}**"
-        )
-
-
-    # =====================================================
-    # FILAS MÓVILES
-    # =====================================================
-
-    for _, fila in ranking.iterrows():
-
-        posicion = int(
-            fila["Posición"]
-        )
-
-        nombre = str(
-            fila["nombre_jugador"]
-        )
-
-        jugador_id = fila[
-            "jugador_id"
-        ]
-
-
-        # -------------------------------------------------
-        # VALOR QUE SE MUESTRA
-        # -------------------------------------------------
-
-        if columna_orden == "Winrate":
-
-            valor = (
-                f"{float(fila['Winrate']):.1f}%"
-            )
-
-        elif columna_orden == "Puntos":
-
-            valor = str(
-                int(fila["Puntos"])
-            )
-
-        else:
-
-            valor = (
-                f"{float(fila['MediaPosicion']):.2f}"
-            )
-
-
-        # -------------------------------------------------
-        # COLUMNAS
-        # -------------------------------------------------
-
-        col1, col2, col3 = st.columns(
-            [
-                0.55,
-                2.30,
-                1.20
-            ]
-        )
-
-
         # -------------------------------------------------
         # POSICIÓN
         # -------------------------------------------------
 
         with col1:
 
-            if posicion == 1:
-
-                st.write("🥇")
-
-            elif posicion == 2:
-
-                st.write("🥈")
-
-            elif posicion == 3:
-
-                st.write("🥉")
-
-            else:
-
-                st.write(
-                    posicion
-                )
+            st.write(
+                posicion
+            )
 
 
         # -------------------------------------------------
@@ -1985,7 +2008,7 @@ def mostrar_ranking(
             if st.button(
                 nombre,
                 key=(
-                    f"mobile_"
+                    f"pc_"
                     f"{tipo_juego}_"
                     f"{temporada}_"
                     f"{jugador_id}"
@@ -2001,13 +2024,79 @@ def mostrar_ranking(
 
 
         # -------------------------------------------------
-        # VALOR
+        # PUNTOS
         # -------------------------------------------------
 
         with col3:
 
-            st.markdown(
-                f"**{valor}**"
+            st.write(
+                puntos
+            )
+
+
+        # -------------------------------------------------
+        # PARTIDAS
+        # -------------------------------------------------
+
+        with col4:
+
+            st.write(
+                partidas
+            )
+
+
+        # -------------------------------------------------
+        # GANADAS
+        # -------------------------------------------------
+
+        with col5:
+
+            st.write(
+                ganadas
+            )
+
+
+        # -------------------------------------------------
+        # WINRATE
+        # -------------------------------------------------
+
+        with col6:
+
+            st.write(
+                f"{winrate:.1f}%"
+            )
+
+
+        # -------------------------------------------------
+        # MEDIA
+        # -------------------------------------------------
+
+        with col7:
+
+            st.write(
+                f"{media:.1f}"
+            )
+
+
+        # -------------------------------------------------
+        # PUNTUACIÓN MÁXIMA
+        # -------------------------------------------------
+
+        with col8:
+
+            st.write(
+                puntuacion_maxima
+            )
+
+
+        # -------------------------------------------------
+        # MEDIA POSICIÓN
+        # -------------------------------------------------
+
+        with col9:
+
+            st.write(
+                f"{media_posicion:.2f}"
             )
 
 
