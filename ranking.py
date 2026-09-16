@@ -1641,51 +1641,27 @@ def mostrar_ranking(
     # BLOQUE 11B - RANKING MÓVIL
     # =====================================================
 
+   # =========================================================
+# BLOQUE 11 - RANKING MÓVIL ORIGINAL
+# =========================================================
+
     if es_movil:
-
-                # -------------------------------------------------
-        # ESTILO BOTONES MÓVILES
-        # -------------------------------------------------
-
-        st.markdown(
-            """
-            <style>
-
-            div[data-testid="stButton"] button {
-                min-height: 28px !important;
-                height: 28px !important;
-
-                padding-top: 0px !important;
-                padding-bottom: 0px !important;
-
-                padding-left: 4px !important;
-                padding-right: 4px !important;
-
-                font-size: 12px !important;
-
-                line-height: 1 !important;
-
-                border-radius: 4px !important;
-            }
-
-            </style>
-            """,
-            unsafe_allow_html=True
-        )
 
         # -------------------------------------------------
         # TÍTULO
         # -------------------------------------------------
 
-        nombre_criterio = (
-            criterio
-            .replace("📈 ", "")
-            .replace("🏆 ", "")
-            .replace("🎯 ", "")
-        )
-
         st.subheader(
-            f"Ranking por {nombre_criterio}"
+            criterio.replace(
+                "📈 ",
+                ""
+            ).replace(
+                "🏆 ",
+                ""
+            ).replace(
+                "🎯 ",
+                ""
+            )
         )
 
 
@@ -1693,39 +1669,48 @@ def mostrar_ranking(
         # CABECERA
         # -------------------------------------------------
 
-        if columna_orden == "Winrate":
-
-            nombre_columna = "Winrate"
-
-        elif columna_orden == "Puntos":
-
-            nombre_columna = "Puntos"
-
-        else:
-
-            nombre_columna = "Media pos."
-
-
-        cab1, cab2, cab3 = st.columns(
-            [0.6, 2.6, 0.9]
+        col1, col2, col3 = st.columns(
+            [
+                0.45,
+                2.00,
+                0.85
+            ]
         )
 
 
-        with cab1:
+        with col1:
 
-            st.caption("Pos.")
-
-
-        with cab2:
-
-            st.caption("Jugador")
-
-
-        with cab3:
-
-            st.caption(
-                nombre_columna
+            st.markdown(
+                "**Pos.**"
             )
+
+
+        with col2:
+
+            st.markdown(
+                "**Jugador**"
+            )
+
+
+        with col3:
+
+            if columna_orden == "Winrate":
+
+                st.markdown(
+                    "**Winrate**"
+                )
+
+            elif columna_orden == "Puntos":
+
+                st.markdown(
+                    "**Puntos**"
+                )
+
+            else:
+
+                st.markdown(
+                    "**Media pos.**"
+                )
 
 
         # -------------------------------------------------
@@ -1748,7 +1733,7 @@ def mostrar_ranking(
 
 
             # ---------------------------------------------
-            # VALOR
+            # VALOR PRINCIPAL
             # ---------------------------------------------
 
             if columna_orden == "Winrate":
@@ -1775,7 +1760,11 @@ def mostrar_ranking(
             # ---------------------------------------------
 
             col1, col2, col3 = st.columns(
-                [0.6, 2.6, 0.9]
+                [
+                    0.45,
+                    2.00,
+                    0.85
+                ]
             )
 
 
@@ -1808,29 +1797,24 @@ def mostrar_ranking(
             # JUGADOR
             # ---------------------------------------------
 
-                  # -------------------------------------------------
-        # JUGADOR
-        # -------------------------------------------------
+            with col2:
 
-        with col2:
+                if st.button(
+                    nombre,
+                    key=(
+                        f"movil_"
+                        f"{tipo_juego}_"
+                        f"{temporada}_"
+                        f"{jugador_id}"
+                    ),
+                    use_container_width=True
+                ):
 
-            if st.button(
-                nombre,
-                key=(
-                    f"movil_"
-                    f"{tipo_juego}_"
-                    f"{temporada}_"
-                    f"{jugador_id}"
-                ),
-                use_container_width=True
-            ):
+                    st.session_state.jugador_seleccionado = (
+                        str(jugador_id)
+                    )
 
-                st.session_state.jugador_seleccionado = (
-                    str(jugador_id)
-                )
-
-                st.rerun()
-
+                    st.rerun()
 
 
             # ---------------------------------------------
