@@ -1637,180 +1637,183 @@ def mostrar_ranking(
 # BLOQUE 11B - RANKING MÓVIL
 # =========================================================
 
-if es_movil:
+    # =====================================================
+    # BLOQUE 11B - RANKING MÓVIL
+    # =====================================================
 
-    # -----------------------------------------------------
-    # TÍTULO
-    # -----------------------------------------------------
+    if es_movil:
 
-    nombre_criterio = (
-        criterio
-        .replace("📈 ", "")
-        .replace("🏆 ", "")
-        .replace("🎯 ", "")
-    )
+        # -------------------------------------------------
+        # TÍTULO
+        # -------------------------------------------------
 
-    st.subheader(
-        f"Ranking por {nombre_criterio}"
-    )
-
-
-    # -----------------------------------------------------
-    # CABECERA
-    # -----------------------------------------------------
-
-    if columna_orden == "Winrate":
-
-        nombre_columna = "Winrate"
-
-    elif columna_orden == "Puntos":
-
-        nombre_columna = "Puntos"
-
-    else:
-
-        nombre_columna = "Media pos."
-
-
-    cab1, cab2, cab3 = st.columns(
-        [0.6, 2.6, 0.9]
-    )
-
-    with cab1:
-
-        st.caption("Pos.")
-
-    with cab2:
-
-        st.caption("Jugador")
-
-    with cab3:
-
-        st.caption(nombre_columna)
-
-
-    # -----------------------------------------------------
-    # FILAS
-    # -----------------------------------------------------
-
-    for _, fila in ranking.iterrows():
-
-        posicion = int(
-            fila["Posición"]
+        nombre_criterio = (
+            criterio
+            .replace("📈 ", "")
+            .replace("🏆 ", "")
+            .replace("🎯 ", "")
         )
 
-        jugador_id = fila[
-            "jugador_id"
-        ]
-
-        nombre = str(
-            fila["nombre_jugador"]
+        st.subheader(
+            f"Ranking por {nombre_criterio}"
         )
 
 
         # -------------------------------------------------
-        # VALOR QUE SE MUESTRA
+        # CABECERA
         # -------------------------------------------------
 
         if columna_orden == "Winrate":
 
-            valor = (
-                f"{float(fila['Winrate']):.1f}%"
-            )
+            nombre_columna = "Winrate"
 
         elif columna_orden == "Puntos":
 
-            valor = str(
-                int(fila["Puntos"])
-            )
+            nombre_columna = "Puntos"
 
         else:
 
-            valor = (
-                f"{float(fila['MediaPosicion']):.2f}"
-            )
+            nombre_columna = "Media pos."
 
 
-        # -------------------------------------------------
-        # FILA
-        # -------------------------------------------------
-
-        col1, col2, col3 = st.columns(
+        cab1, cab2, cab3 = st.columns(
             [0.6, 2.6, 0.9]
         )
 
 
+        with cab1:
+
+            st.caption("Pos.")
+
+
+        with cab2:
+
+            st.caption("Jugador")
+
+
+        with cab3:
+
+            st.caption(
+                nombre_columna
+            )
+
+
         # -------------------------------------------------
-        # POSICIÓN
+        # FILAS
         # -------------------------------------------------
 
-        with col1:
+        for _, fila in ranking.iterrows():
 
-            if posicion == 1:
+            posicion = int(
+                fila["Posición"]
+            )
 
-                st.markdown(
-                    "🥇"
+            jugador_id = fila[
+                "jugador_id"
+            ]
+
+            nombre = str(
+                fila["nombre_jugador"]
+            )
+
+
+            # ---------------------------------------------
+            # VALOR
+            # ---------------------------------------------
+
+            if columna_orden == "Winrate":
+
+                valor = (
+                    f"{float(fila['Winrate']):.1f}%"
                 )
 
-            elif posicion == 2:
+            elif columna_orden == "Puntos":
 
-                st.markdown(
-                    "🥈"
-                )
-
-            elif posicion == 3:
-
-                st.markdown(
-                    "🥉"
+                valor = str(
+                    int(fila["Puntos"])
                 )
 
             else:
 
-                st.markdown(
-                    f"**{posicion}**"
+                valor = (
+                    f"{float(fila['MediaPosicion']):.2f}"
                 )
 
 
-        # -------------------------------------------------
-        # JUGADOR
-        # -------------------------------------------------
+            # ---------------------------------------------
+            # COLUMNAS
+            # ---------------------------------------------
 
-        with col2:
-
-            if st.button(
-                nombre,
-                key=(
-                    f"movil_"
-                    f"{tipo_juego}_"
-                    f"{temporada}_"
-                    f"{jugador_id}"
-                ),
-                use_container_width=True
-            ):
-
-                st.session_state.jugador_seleccionado = (
-                    str(jugador_id)
-                )
-
-                st.rerun()
-
-
-        # -------------------------------------------------
-        # VALOR
-        # -------------------------------------------------
-
-        with col3:
-
-            st.markdown(
-                f"**{valor}**"
+            col1, col2, col3 = st.columns(
+                [0.6, 2.6, 0.9]
             )
 
 
-    # -----------------------------------------------------
-    # NO MOSTRAR RANKING DE PC
-    # -----------------------------------------------------
+            # ---------------------------------------------
+            # POSICIÓN
+            # ---------------------------------------------
 
-    return
+            with col1:
+
+                if posicion == 1:
+
+                    st.write("🥇")
+
+                elif posicion == 2:
+
+                    st.write("🥈")
+
+                elif posicion == 3:
+
+                    st.write("🥉")
+
+                else:
+
+                    st.write(
+                        posicion
+                    )
+
+
+            # ---------------------------------------------
+            # JUGADOR
+            # ---------------------------------------------
+
+            with col2:
+
+                if st.button(
+                    nombre,
+                    key=(
+                        f"movil_"
+                        f"{tipo_juego}_"
+                        f"{temporada}_"
+                        f"{jugador_id}"
+                    ),
+                    use_container_width=True
+                ):
+
+                    st.session_state.jugador_seleccionado = (
+                        str(jugador_id)
+                    )
+
+                    st.rerun()
+
+
+            # ---------------------------------------------
+            # VALOR
+            # ---------------------------------------------
+
+            with col3:
+
+                st.markdown(
+                    f"**{valor}**"
+                )
+
+
+        # -------------------------------------------------
+        # TERMINAR RANKING MÓVIL
+        # -------------------------------------------------
+
+        return
 
 
 
