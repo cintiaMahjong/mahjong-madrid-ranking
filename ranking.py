@@ -1114,14 +1114,10 @@ def mostrar_historial(
 # FICHA DEL JUGADOR
 # =========================================================
 
-# =========================================================
-# FICHA DEL JUGADOR
-# =========================================================
-
 def mostrar_ficha(jugador_id):
 
     # =====================================================
-    # CABECERA DE LA FICHA
+    # CABECERA
     # =====================================================
 
     cabecera_titulo, cabecera_boton = st.columns(
@@ -1134,50 +1130,19 @@ def mostrar_ficha(jugador_id):
 
     with cabecera_boton:
 
-        st.markdown(
-            """
-            <style>
-
-            .boton-ranking {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                height: 42px;
-                margin-top: 18px;
-                padding: 0 12px;
-                border: 1px solid #cccccc;
-                border-radius: 8px;
-                background-color: white;
-                color: #333333;
-                font-size: 14px;
-                font-weight: 500;
-                text-decoration: none;
-                box-sizing: border-box;
-            }
-
-            .boton-ranking:hover {
-                border-color: #2e7d32;
-                color: #2e7d32;
-                background-color: #f5f5f5;
-            }
-
-            </style>
-
-            <div class="boton-ranking">
-                ← Volver al ranking
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        if st.button(
+            "← Volver",
+            key="volver_arriba"
+        ):
 
             st.session_state.jugador_seleccionado = None
             st.rerun()
 
-    jugador_id_texto = str(jugador_id)
+    # =====================================================
+    # IDENTIFICAR JUGADOR
+    # =====================================================
 
-    # =====================================================
-    # BUSCAR JUGADOR
-    # =====================================================
+    jugador_id_texto = str(jugador_id)
 
     jugadores_busqueda = df_jugadores[
         df_jugadores["id"].astype(str)
@@ -1234,573 +1199,53 @@ def mostrar_ficha(jugador_id):
         ]
     )
 
-    temporadas = [
-        "Oct 2025 - Sept 2026",
-        "Oct 2026 - Sept 2027"
-    ]
-
     # =====================================================
-    # MCR
+    # TEMPORADAS DINÁMICAS
     # =====================================================
 
-    with tab_mcr:
+    if "temporada" in df_partidas.columns:
 
-        temporada_mcr_1, temporada_mcr_2 = st.tabs(
-            temporadas
+        temporadas_ficha = (
+            df_partidas["temporada"]
+            .dropna()
+            .astype(str)
+            .str.strip()
+            .drop_duplicates()
+            .tolist()
         )
 
-        # -------------------------------------------------
-        # MCR 2025-2026
-        # -------------------------------------------------
+        def ordenar_temporada_ficha(temporada):
 
-        with temporada_mcr_1:
+            try:
 
-            st.subheader(
-                "Oct 2025 - Sept 2026"
-            )
+                return int(
+                    temporada.split()[1]
+                )
 
-            mostrar_indicadores(
-                jugador_id,
-                "MCR",
-                "Oct 2025 - Sept 2026"
-            )
+            except Exception:
 
-            st.divider()
+                return 9999
 
-            mostrar_distribucion_posiciones(
-                jugador_id,
-                "MCR",
-                "Oct 2025 - Sept 2026"
-            )
-
-            st.divider()
-
-            st.subheader(
-                "📋 Historial"
-            )
-
-            mostrar_historial(
-                jugador_id,
-                "MCR",
-                "Oct 2025 - Sept 2026"
-            )
-
-        # -------------------------------------------------
-        # MCR 2026-2027
-        # -------------------------------------------------
-
-        with temporada_mcr_2:
-
-            st.subheader(
-                "Oct 2026 - Sept 2027"
-            )
-
-            mostrar_indicadores(
-                jugador_id,
-                "MCR",
-                "Oct 2026 - Sept 2027"
-            )
-
-            st.divider()
-
-            mostrar_distribucion_posiciones(
-                jugador_id,
-                "MCR",
-                "Oct 2026 - Sept 2027"
-            )
-
-            st.divider()
-
-            st.subheader(
-                "📋 Historial"
-            )
-
-            mostrar_historial(
-                jugador_id,
-                "MCR",
-                "Oct 2026 - Sept 2027"
-            )
-
-    # =====================================================
-    # RIICHI
-    # =====================================================
-
-    with tab_riichi:
-
-        temporada_riichi_1, temporada_riichi_2 = st.tabs(
-            temporadas
+        temporadas_ficha = sorted(
+            temporadas_ficha,
+            key=ordenar_temporada_ficha
         )
 
-        # -------------------------------------------------
-        # RIICHI 2025-2026
-        # -------------------------------------------------
+    else:
 
-        with temporada_riichi_1:
-
-            st.subheader(
-                "Oct 2025 - Sept 2026"
-            )
-
-            mostrar_indicadores(
-                jugador_id,
-                "RIICHI",
-                "Oct 2025 - Sept 2026"
-            )
-
-            st.divider()
-
-            mostrar_distribucion_posiciones(
-                jugador_id,
-                "RIICHI",
-                "Oct 2025 - Sept 2026"
-            )
-
-            st.divider()
-
-            st.subheader(
-                "📋 Historial"
-            )
-
-            mostrar_historial(
-                jugador_id,
-                "RIICHI",
-                "Oct 2025 - Sept 2026"
-            )
-
-        # -------------------------------------------------
-        # RIICHI 2026-2027
-        # -------------------------------------------------
-
-        with temporada_riichi_2:
-
-            st.subheader(
-                "Oct 2026 - Sept 2027"
-            )
-
-            mostrar_indicadores(
-                jugador_id,
-                "RIICHI",
-                "Oct 2026 - Sept 2027"
-            )
-
-            st.divider()
-
-            mostrar_distribucion_posiciones(
-                jugador_id,
-                "RIICHI",
-                "Oct 2026 - Sept 2027"
-            )
-
-            st.divider()
-
-            st.subheader(
-                "📋 Historial"
-            )
-
-            mostrar_historial(
-                jugador_id,
-                "RIICHI",
-                "Oct 2026 - Sept 2027"
-            )
+        temporadas_ficha = []
 
     # =====================================================
-    # VOLVER AL RANKING - ABAJO
+    # SI NO HAY TEMPORADAS
     # =====================================================
 
-    st.divider()
+    if not temporadas_ficha:
 
-    if st.button(
-        "← Volver al ranking",
-        key="volver_abajo",
-        use_container_width=True
-    ):
-
-        st.session_state.jugador_seleccionado = None
-        st.rerun()
-# =========================================================
-# MOSTRAR RANKING
-# =========================================================
-
-def mostrar_ranking(
-    tipo_juego,
-    temporada
-):
-
-    ranking = crear_ranking(
-        tipo_juego,
-        temporada
-    )
-
-    if ranking.empty:
-
-        st.info(
-            f"No hay datos de {tipo_juego} "
-            f"para {temporada}."
+        st.warning(
+            "No se han encontrado temporadas "
+            "en la tabla de partidas."
         )
 
         return
-
-    # =====================================================
-    # ANCHOS DE LAS COLUMNAS
-    # =====================================================
-
-    anchos = [
-        0.55,   # Posición
-        2.30,   # Jugador
-        0.95,   # Puntos
-        0.85,   # Partidas
-        0.85,   # Ganadas
-        1.00,   # Winrate
-        0.95,   # Media
-        0.95,   # Máxima
-        1.10    # Media posición
-    ]
-
-    # =====================================================
-    # CABECERA
-    # =====================================================
-
-    (
-        cab1,
-        cab2,
-        cab3,
-        cab4,
-        cab5,
-        cab6,
-        cab7,
-        cab8,
-        cab9
-    ) = st.columns(anchos)
-
-    with cab1:
-
-        st.markdown(
-            "**Pos.**"
-        )
-
-    with cab2:
-
-        st.markdown(
-            "**Jugador**"
-        )
-
-    with cab3:
-
-        st.markdown(
-            "**Puntos**"
-        )
-
-    with cab4:
-
-        st.markdown(
-            "**Part.**"
-        )
-
-    with cab5:
-
-        st.markdown(
-            "**Gan.**"
-        )
-
-    with cab6:
-
-        st.markdown(
-            "**Winrate**"
-        )
-
-    with cab7:
-
-        st.markdown(
-            "**Media**"
-        )
-
-    with cab8:
-
-        st.markdown(
-            "**Máx.**"
-        )
-
-    with cab9:
-
-        st.markdown(
-            "**Media pos.**"
-        )
-
-    # =====================================================
-    # FILAS
-    # =====================================================
-
-    for _, fila in ranking.iterrows():
-
-        posicion = fila["Posición"]
-        nombre = fila["nombre_jugador"]
-        jugador_id = fila["jugador_id"]
-
-        puntos = fila["Puntos"]
-        partidas = fila["Partidas"]
-        ganadas = fila["Ganadas"]
-
-        winrate = fila["Winrate"]
-        media = fila["Media"]
-        puntuacion_maxima = fila["PuntuacionMaxima"]
-        media_posicion = fila["MediaPosicion"]
-
-        # -------------------------------------------------
-        # CREAR COLUMNAS
-        # -------------------------------------------------
-
-        (
-            col1,
-            col2,
-            col3,
-            col4,
-            col5,
-            col6,
-            col7,
-            col8,
-            col9
-        ) = st.columns(anchos)
-
-        # -------------------------------------------------
-        # POSICIÓN
-        # -------------------------------------------------
-
-        with col1:
-
-            st.write(
-                int(posicion)
-            )
-
-        # -------------------------------------------------
-        # JUGADOR
-        # -------------------------------------------------
-
-        with col2:
-
-            if st.button(
-                str(nombre),
-                key=(
-                    f"{tipo_juego}_"
-                    f"{temporada}_"
-                    f"{str(jugador_id)}"
-                ),
-                use_container_width=True
-            ):
-
-                st.session_state.jugador_seleccionado = (
-                    str(jugador_id)
-                )
-
-                st.rerun()
-
-        # -------------------------------------------------
-        # PUNTOS
-        # -------------------------------------------------
-
-        with col3:
-
-            st.write(
-                int(puntos)
-            )
-
-        # -------------------------------------------------
-        # PARTIDAS
-        # -------------------------------------------------
-
-        with col4:
-
-            st.write(
-                int(partidas)
-            )
-
-        # -------------------------------------------------
-        # GANADAS
-        # -------------------------------------------------
-
-        with col5:
-
-            st.write(
-                int(ganadas)
-            )
-
-        # -------------------------------------------------
-        # WINRATE
-        # -------------------------------------------------
-
-        with col6:
-
-            st.write(
-                f"{float(winrate):.1f}%"
-            )
-
-        # -------------------------------------------------
-        # MEDIA DE PUNTOS
-        # -------------------------------------------------
-
-        with col7:
-
-            st.write(
-                f"{float(media):.1f}"
-            )
-
-        # -------------------------------------------------
-        # PUNTUACIÓN MÁXIMA
-        # -------------------------------------------------
-
-        with col8:
-
-            st.write(
-                int(puntuacion_maxima)
-            )
-
-        # -------------------------------------------------
-        # MEDIA DE POSICIÓN
-        # -------------------------------------------------
-
-        with col9:
-
-            st.write(
-                f"{float(media_posicion):.2f}"
-            )
-
-# =========================================================
-# MOSTRAR FICHA SI HAY JUGADOR SELECCIONADO
-# =========================================================
-
-if st.session_state.jugador_seleccionado is not None:
-
-    mostrar_ficha(
-        st.session_state.jugador_seleccionado
-    )
-
-    st.stop()
-
-
-# =========================================================
-# RANKING PRINCIPAL
-# =========================================================
-
-st.title(
-    "🀄 Liga Mahjong Madrid"
-)
-
-
-# =========================================================
-# TEMPORADAS DINÁMICAS
-# =========================================================
-
-if "temporada" in df_partidas.columns:
-
-    temporadas = (
-        df_partidas["temporada"]
-        .dropna()
-        .astype(str)
-        .str.strip()
-        .drop_duplicates()
-        .tolist()
-    )
-
-    # Ordenar por año inicial de la temporada
-    def ordenar_temporada(temporada):
-
-        try:
-
-            return int(
-                temporada.split()[1]
-            )
-
-        except Exception:
-
-            return 9999
-
-    temporadas = sorted(
-        temporadas,
-        key=ordenar_temporada
-    )
-
-else:
-
-    temporadas = []
-
-
-# =========================================================
-# SI NO HAY TEMPORADAS
-# =========================================================
-
-if not temporadas:
-
-    st.warning(
-        "No se han encontrado temporadas "
-        "en la tabla de partidas."
-    )
-
-    st.stop()
-
-
-# =========================================================
-# TABS PRINCIPALES
-# =========================================================
-
-tab_mcr, tab_riichi = st.tabs(
-    [
-        "🀄 MCR",
-        "🀄 RIICHI"
-    ]
-)
-
-
-# =========================================================
-# MCR
-# =========================================================
-
-with tab_mcr:
-
-    tabs_mcr = st.tabs(
-        temporadas
-    )
-
-    for temporada, tab_temporada in zip(
-        temporadas,
-        tabs_mcr
-    ):
-
-        with tab_temporada:
-
-            st.subheader(
-                temporada
-            )
-
-            mostrar_ranking(
-                "MCR",
-                temporada
-            )
-
-
-# =========================================================
-# RIICHI
-# =========================================================
-
-with tab_riichi:
-
-    tabs_riichi = st.tabs(
-        temporadas
-    )
-
-    for temporada, tab_temporada in zip(
-        temporadas,
-        tabs_riichi
-    ):
-
-        with tab_temporada:
-
-            st.subheader(
-                temporada
-            )
-
-            mostrar_ranking(
-                "RIICHI",
-                temporada
-            )
-
 
 
