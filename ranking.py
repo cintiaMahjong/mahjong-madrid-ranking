@@ -1639,9 +1639,19 @@ def mostrar_ranking(
         # TÍTULO
         # -------------------------------------------------
 
-        st.markdown(
-            f"**Ranking por {criterio.replace('📈 ', '').replace('🏆 ', '').replace('🎯 ', '')}**"
-        )
+        st.subheader(
+    criterio.replace(
+        "📈 ",
+        ""
+    ).replace(
+        "🏆 ",
+        ""
+    ).replace(
+        "🎯 ",
+        ""
+    )
+)
+
 
 
         # -------------------------------------------------
