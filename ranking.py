@@ -1740,9 +1740,9 @@ def mostrar_ranking(
 
             col1, col2, col3 = st.columns(
                 [
-                    0.55,
-                    2.30,
-                    1.20
+                    0.45,
+                    2.00,
+                    0.85
                 ]
             )
 
