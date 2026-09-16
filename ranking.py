@@ -32,14 +32,6 @@ st.markdown(
     """
     <style>
 
-    [data-testid="stSidebar"] {
-        display: none !important;
-    }
-
-    [data-testid="stSidebarCollapsedControl"] {
-        display: none !important;
-    }
-
     .block-container {
         max-width: 900px;
         padding-top: 1.5rem;
@@ -347,42 +339,31 @@ def crear_ranking(tipo_juego, temporada):
         (df["tipo_juego"] == tipo_juego)
         &
         (df["temporada"] == temporada)
-    ].copy()
+    ]
 
     if df.empty:
         return pd.DataFrame()
 
-    # Una sola fila por jugador y partida
-    df = df.drop_duplicates(
-        subset=["partida_id", "jugador_id"]
-    ).copy()
-
-    df["puntuacion"] = pd.to_numeric(
-        df["puntuacion"],
-        errors="coerce"
-    ).fillna(0)
-
-    if "posicion" in df.columns:
-        df["posicion"] = pd.to_numeric(
-            df["posicion"],
-            errors="coerce"
-        )
-
     ranking = (
         df.groupby(
-            ["jugador_id", "nombre_jugador"],
+            [
+                "jugador_id",
+                "nombre_jugador"
+            ],
             as_index=False
         )
         .agg(
             Puntos=("puntuacion", "sum"),
-            Partidas=("partida_id", "nunique"),
-            Media=("puntuacion", "mean"),
-            PuntuacionMaxima=("puntuacion", "max")
+            Partidas=("partida_id", "nunique")
         )
     )
 
+    # -----------------------------------------------------
     # GANADAS
+    # -----------------------------------------------------
+
     if "posicion" in df.columns:
+
         ganadas = (
             df[df["posicion"] == 1]
             .groupby("jugador_id")["partida_id"]
@@ -395,8 +376,11 @@ def crear_ranking(tipo_juego, temporada):
             on="jugador_id",
             how="left"
         )
+
     else:
+
         ranking["Ganadas"] = 0
+
 
     ranking["Ganadas"] = (
         ranking["Ganadas"]
@@ -404,18 +388,29 @@ def crear_ranking(tipo_juego, temporada):
         .astype(int)
     )
 
-    # WINRATE = partidas ganadas / partidas jugadas
-    ranking["Winrate"] = (
-        ranking["Ganadas"]
-        / ranking["Partidas"]
-        * 100
-    ).fillna(0).round(1)
 
+    # -----------------------------------------------------
+    # MEDIA
+    # -----------------------------------------------------
+
+    ranking["Media"] = (
+        ranking["Puntos"]
+        /
+        ranking["Partidas"]
+    ).round(1)
+
+
+    # -----------------------------------------------------
     # MEDIA POSICIÓN
+    # -----------------------------------------------------
+
     if "posicion" in df.columns:
+
         posiciones = (
             df.groupby("jugador_id")
-            .agg(SumaPosiciones=("posicion", "sum"))
+            .agg(
+                SumaPosiciones=("posicion", "sum")
+            )
             .reset_index()
         )
 
@@ -427,26 +422,33 @@ def crear_ranking(tipo_juego, temporada):
 
         ranking["MediaPosicion"] = (
             ranking["SumaPosiciones"]
-            / ranking["Partidas"]
+            /
+            ranking["Partidas"]
         ).round(2)
+
     else:
+
         ranking["MediaPosicion"] = 0
 
-    ranking["Puntos"] = ranking["Puntos"].round().astype(int)
-    ranking["Media"] = ranking["Media"].round(1)
-    ranking["PuntuacionMaxima"] = (
-        ranking["PuntuacionMaxima"].round().astype(int)
-    )
-    ranking["MediaPosicion"] = (
-        ranking["MediaPosicion"].fillna(0).round(2)
-    )
+
+    # -----------------------------------------------------
+    # ORDENAR
+    # -----------------------------------------------------
 
     ranking = ranking.sort_values(
         "Puntos",
         ascending=False
     ).reset_index(drop=True)
 
-    ranking["Posición"] = ranking.index + 1
+    ranking["Posición"] = (
+        ranking.index + 1
+    )
+
+    ranking["Puntos"] = (
+        ranking["Puntos"]
+        .round()
+        .astype(int)
+    )
 
     return ranking[
         [
@@ -456,9 +458,7 @@ def crear_ranking(tipo_juego, temporada):
             "Puntos",
             "Partidas",
             "Ganadas",
-            "Winrate",
             "Media",
-            "PuntuacionMaxima",
             "MediaPosicion"
         ]
     ]
@@ -482,65 +482,84 @@ def mostrar_indicadores(
     )
 
     if ranking.empty:
-        st.info("No hay datos para esta temporada.")
+
+        st.info(
+            "No hay datos para esta temporada."
+        )
+
         return
 
     jugador_ranking = ranking[
-        ranking["jugador_id"].astype(str) == jugador_id_texto
+        ranking["jugador_id"].astype(str)
+        ==
+        jugador_id_texto
     ]
 
     if jugador_ranking.empty:
+
         st.info(
             f"Este jugador no tiene partidas de "
             f"{tipo_juego} en esta temporada."
         )
+
         return
 
     fila = jugador_ranking.iloc[0]
 
+
+    # -----------------------------------------------------
     # PRIMERA FILA
+    # -----------------------------------------------------
+
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.metric("Puntos", int(fila["Puntos"]))
+
+        st.metric(
+            "Puntos",
+            int(fila["Puntos"])
+        )
 
     with col2:
-        st.metric("Partidas", int(fila["Partidas"]))
+
+        st.metric(
+            "Partidas",
+            int(fila["Partidas"])
+        )
 
     with col3:
-        st.metric("Posición", int(fila["Posición"]))
 
+        st.metric(
+            "Posición",
+            int(fila["Posición"])
+        )
+
+
+    # -----------------------------------------------------
     # SEGUNDA FILA
+    # -----------------------------------------------------
+
     col4, col5, col6 = st.columns(3)
 
     with col4:
+
         st.metric(
-            "WINRATE",
-            f"{float(fila['Winrate']):.1f}%"
+            "Media",
+            f"{fila['Media']:.1f}"
         )
 
     with col5:
-        st.metric("Ganadas", int(fila["Ganadas"]))
+
+        st.metric(
+            "Ganadas",
+            int(fila["Ganadas"])
+        )
 
     with col6:
+
         st.metric(
             "Media posición",
-            f"{float(fila['MediaPosicion']):.2f}"
-        )
-
-    # TERCERA FILA
-    col7, col8 = st.columns(2)
-
-    with col7:
-        st.metric(
-            "Puntuación media",
-            f"{float(fila['Media']):.1f}"
-        )
-
-    with col8:
-        st.metric(
-            "Puntuación máxima",
-            int(fila["PuntuacionMaxima"])
+            f"{fila['MediaPosicion']:.2f}"
         )
 
 
@@ -1345,16 +1364,15 @@ def mostrar_ranking(
     # CABECERA
     # -----------------------------------------------------
 
-    cab1, cab2, cab3, cab4, cab5, cab6, cab7, cab8 = st.columns(
+    cab1, cab2, cab3, cab4, cab5, cab6, cab7 = st.columns(
         [
-            0.55,
-            2.45,
-            1.0,
-            1.05,
-            0.95,
-            1.05,
-            1.05,
-            1.2
+            0.6,
+            2.8,
+            1.1,
+            1.2,
+            1.1,
+            1.2,
+            1.4
         ]
     )
 
@@ -1375,12 +1393,9 @@ def mostrar_ranking(
         st.markdown("**Ganadas**")
 
     with cab6:
-        st.markdown("**WINRATE**")
-
-    with cab7:
         st.markdown("**Media**")
 
-    with cab8:
+    with cab7:
         st.markdown("**Media pos.**")
 
 
@@ -1396,7 +1411,6 @@ def mostrar_ranking(
         puntos = fila["Puntos"]
         partidas = fila["Partidas"]
         ganadas = fila["Ganadas"]
-        winrate = fila["Winrate"]
         media = fila["Media"]
         media_posicion = fila["MediaPosicion"]
 
@@ -1408,18 +1422,16 @@ def mostrar_ranking(
             col4,
             col5,
             col6,
-            col7,
-            col8
+            col7
         ) = st.columns(
             [
-                0.55,
-                2.45,
-                1.0,
-                1.05,
-                0.95,
-                1.05,
-                1.05,
-                1.2
+                0.6,
+                2.8,
+                1.1,
+                1.2,
+                1.1,
+                1.2,
+                1.4
             ]
         )
 
@@ -1473,21 +1485,18 @@ def mostrar_ranking(
 
         with col6:
 
-    st.write(
-        f"{float(winrate):.1f}%"
-    )
+            st.write(
+                f"{float(media):.1f}"
+            )
 
-with col7:
 
-    st.write(
-        f"{float(media):.1f}"
-    )
+        with col7:
 
-with col8:
+            st.write(
+                f"{float(media_posicion):.2f}"
+            )
 
-    st.write(
-        f"{float(media_posicion):.2f}"
-    )
+
 # =========================================================
 # TABS PRINCIPALES
 # =========================================================
