@@ -1117,45 +1117,24 @@ def mostrar_historial(
 def mostrar_ficha(jugador_id):
 
     # =====================================================
-    # VOLVER AL RANKING - ARRIBA
-    # =====================================================
-
-   # if st.button(
-   #     "← Volver al ranking",
-   #     key="volver_arriba",
-   #     use_container_width=True
-   # ):
-   # if st.button(
-   #     "← Volver al ranking",
-   #     key="volver_arriba"
-   # ):
-# =====================================================
-# CABECERA DE LA FICHA
+# VOLVER AL RANKING - ARRIBA
 # =====================================================
 
-cabecera_titulo, cabecera_boton = st.columns(
-    [3, 1]
-)
+if st.button(
+    "← Volver al ranking",
+    key="volver_arriba"
+):
 
-with cabecera_titulo:
+    st.session_state.jugador_seleccionado = None
+    st.rerun()
 
-    st.title("🀄 Ficha del jugador")
 
-with cabecera_boton:
+# =====================================================
+# TÍTULO
+# =====================================================
 
-    if st.button(
-        "← Volver",
-        key="volver_arriba"
-    ):
+st.title("🀄 Ficha del jugador")
 
-        st.session_state.jugador_seleccionado = None
-        st.rerun()
-
-    # =====================================================
-    # TÍTULO
-    # =====================================================
-
- #   st.title("🀄 Ficha del jugador")
 
     jugador_id_texto = str(jugador_id)
 
