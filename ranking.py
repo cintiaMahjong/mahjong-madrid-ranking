@@ -523,22 +523,25 @@ def mostrar_indicadores(
         st.metric("Ganadas", int(fila["Ganadas"]))
 
     with col6:
+        st.metric(
+            "Media posición",
+            f"{float(fila['MediaPosicion']):.2f}"
+        )
 
-    st.write(
-        f"{float(winrate):.1f}%"
-    )
+    # TERCERA FILA
+    col7, col8 = st.columns(2)
 
-with col7:
+    with col7:
+        st.metric(
+            "Puntuación media",
+            f"{float(fila['Media']):.1f}"
+        )
 
-    st.write(
-        f"{float(media):.1f}"
-    )
-
-with col8:
-
-    st.write(
-        f"{float(media_posicion):.2f}"
-    )
+    with col8:
+        st.metric(
+            "Puntuación máxima",
+            int(fila["PuntuacionMaxima"])
+        )
 
 
 # =========================================================
