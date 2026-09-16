@@ -1544,7 +1544,7 @@ def mostrar_ranking(
             "🎯 Media posición"
         ],
         index=0,
-        horizontal=True,
+        horizontal=False,
         key=(
             f"criterio_ranking_"
             f"{tipo_juego}_"
