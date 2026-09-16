@@ -1134,10 +1134,41 @@ def mostrar_ficha(jugador_id):
 
     with cabecera_boton:
 
-        if st.button(
-            "← Volver",
-            key="volver_arriba"
-        ):
+        st.markdown(
+            """
+            <style>
+
+            .boton-ranking {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 42px;
+                margin-top: 18px;
+                padding: 0 12px;
+                border: 1px solid #cccccc;
+                border-radius: 8px;
+                background-color: white;
+                color: #333333;
+                font-size: 14px;
+                font-weight: 500;
+                text-decoration: none;
+                box-sizing: border-box;
+            }
+
+            .boton-ranking:hover {
+                border-color: #2e7d32;
+                color: #2e7d32;
+                background-color: #f5f5f5;
+            }
+
+            </style>
+
+            <div class="boton-ranking">
+                ← Volver al ranking
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
             st.session_state.jugador_seleccionado = None
             st.rerun()
