@@ -1648,13 +1648,55 @@ st.title(
 
 
 # =========================================================
-# TEMPORADAS
+# TEMPORADAS DINÁMICAS
 # =========================================================
 
-temporadas = [
-    "Oct 2025 - Sept 2026",
-    "Oct 2026 - Sept 2027"
-]
+if "temporada" in df_partidas.columns:
+
+    temporadas = (
+        df_partidas["temporada"]
+        .dropna()
+        .astype(str)
+        .str.strip()
+        .drop_duplicates()
+        .tolist()
+    )
+
+    # Ordenar por año inicial de la temporada
+    def ordenar_temporada(temporada):
+
+        try:
+
+            return int(
+                temporada.split()[1]
+            )
+
+        except Exception:
+
+            return 9999
+
+    temporadas = sorted(
+        temporadas,
+        key=ordenar_temporada
+    )
+
+else:
+
+    temporadas = []
+
+
+# =========================================================
+# SI NO HAY TEMPORADAS
+# =========================================================
+
+if not temporadas:
+
+    st.warning(
+        "No se han encontrado temporadas "
+        "en la tabla de partidas."
+    )
+
+    st.stop()
 
 
 # =========================================================
@@ -1675,39 +1717,25 @@ tab_mcr, tab_riichi = st.tabs(
 
 with tab_mcr:
 
-    temporada_mcr_1, temporada_mcr_2 = st.tabs(
+    tabs_mcr = st.tabs(
         temporadas
     )
 
-    # -----------------------------------------------------
-    # MCR 2025-2026
-    # -----------------------------------------------------
+    for temporada, tab_temporada in zip(
+        temporadas,
+        tabs_mcr
+    ):
 
-    with temporada_mcr_1:
+        with tab_temporada:
 
-        st.subheader(
-            "Oct 2025 - Sept 2026"
-        )
+            st.subheader(
+                temporada
+            )
 
-        mostrar_ranking(
-            "MCR",
-            "Oct 2025 - Sept 2026"
-        )
-
-    # -----------------------------------------------------
-    # MCR 2026-2027
-    # -----------------------------------------------------
-
-    with temporada_mcr_2:
-
-        st.subheader(
-            "Oct 2026 - Sept 2027"
-        )
-
-        mostrar_ranking(
-            "MCR",
-            "Oct 2026 - Sept 2027"
-        )
+            mostrar_ranking(
+                "MCR",
+                temporada
+            )
 
 
 # =========================================================
@@ -1716,39 +1744,25 @@ with tab_mcr:
 
 with tab_riichi:
 
-    temporada_riichi_1, temporada_riichi_2 = st.tabs(
+    tabs_riichi = st.tabs(
         temporadas
     )
 
-    # -----------------------------------------------------
-    # RIICHI 2025-2026
-    # -----------------------------------------------------
+    for temporada, tab_temporada in zip(
+        temporadas,
+        tabs_riichi
+    ):
 
-    with temporada_riichi_1:
+        with tab_temporada:
 
-        st.subheader(
-            "Oct 2025 - Sept 2026"
-        )
+            st.subheader(
+                temporada
+            )
 
-        mostrar_ranking(
-            "RIICHI",
-            "Oct 2025 - Sept 2026"
-        )
-
-    # -----------------------------------------------------
-    # RIICHI 2026-2027
-    # -----------------------------------------------------
-
-    with temporada_riichi_2:
-
-        st.subheader(
-            "Oct 2026 - Sept 2027"
-        )
-
-        mostrar_ranking(
-            "RIICHI",
-            "Oct 2026 - Sept 2027"
-        )
+            mostrar_ranking(
+                "RIICHI",
+                temporada
+            )
 
 
 
