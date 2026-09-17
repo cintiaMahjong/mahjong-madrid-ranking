@@ -138,7 +138,7 @@ div[role="radiogroup"] label {
 }
 .ranking-header {
     min-height: 48px;
-    background: #b90000;
+    background: #14532d;
     color: #ffffff;
     font-size: .76rem;
     font-weight: 800;
