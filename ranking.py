@@ -213,7 +213,121 @@ div[role="radiogroup"] label {
     font-weight: 700;
     font-size: .88rem;
 }
+/* =========================================================
+   HISTORIAL DE PARTIDAS - MÓVIL
+   ========================================================= */
 
+.mobile-match-card {
+    display: none;
+}
+
+
+/* =========================================================
+   SOLO MÓVIL
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    /* Ocultamos la versión normal de PC */
+    .mobile-match-card {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        width: 100%;
+        margin: 0 0 12px 0;
+        border: 1px solid #d8d8d8;
+        border-radius: 4px;
+        overflow: hidden;
+        background: #ffffff;
+        box-sizing: border-box;
+    }
+
+    /*
+       Ocultamos las columnas y filas normales
+       del historial en móvil.
+    */
+
+    .mobile-match-card + div {
+        display: none;
+    }
+
+    /*
+       Cada jugador ocupa una de las 4 posiciones.
+    */
+
+    .mobile-match-player {
+        min-width: 0;
+        height: 42px;
+        padding: 0 8px;
+        display: flex;
+        align-items: center;
+        box-sizing: border-box;
+        border-top: 1px solid #e5e5e5;
+        font-size: .82rem;
+        background: #ffffff;
+    }
+
+    .mobile-match-player:nth-child(1),
+    .mobile-match-player:nth-child(2) {
+        border-top: none;
+    }
+
+    .mobile-match-player:nth-child(odd) {
+        border-right: 1px solid #e5e5e5;
+    }
+
+    .mobile-match-position {
+        width: 17px;
+        flex-shrink: 0;
+        font-weight: 800;
+        text-align: center;
+        margin-right: 4px;
+    }
+
+    .mobile-match-name {
+        min-width: 0;
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: 600;
+    }
+
+    .mobile-match-points {
+        flex-shrink: 0;
+        margin-left: 5px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .mobile-match-negative {
+        color: #b90000;
+    }
+
+    .mobile-match-selected {
+        font-weight: 800;
+    }
+
+    /* Cabecera de cada partida */
+    .match-header {
+        background: #14532d !important;
+        color: #ffffff !important;
+        border-radius: 4px 4px 0 0;
+        padding: 7px 10px !important;
+        font-size: .82rem !important;
+        font-weight: 800 !important;
+        margin-top: 10px !important;
+        margin-bottom: 0 !important;
+    }
+
+    /*
+       Ocultamos la tabla/filas de PC.
+       La versión móvil se muestra debajo.
+    */
+
+    .match-col-header {
+        display: none !important;
+    }
+}
 [data-testid="stMetric"] {
     border: 1px solid #e1e1e1 !important;
     border-radius: 9px !important;
@@ -583,93 +697,269 @@ def mostrar_distribucion_posiciones(jugador_id, tipo_juego, temporada):
     st.table(tabla)
 def mostrar_historial(jugador_id, tipo_juego, temporada):
     jugador_id_texto = str(jugador_id)
+
     datos_jugador = datos[
         (datos["jugador_id"].astype(str) == jugador_id_texto) &
         (datos["tipo_juego"] == tipo_juego) &
         (datos["temporada"] == temporada)
     ].copy()
+
     if datos_jugador.empty:
         st.info(f"Este jugador no tiene partidas de {tipo_juego} en esta temporada.")
         return
+
     ids_partidas = datos_jugador["partida_id"].dropna().unique()
+
     partidas_jugador = datos[
         datos["partida_id"].isin(ids_partidas)
     ].copy()
+
     partidas_jugador = partidas_jugador[
         (partidas_jugador["tipo_juego"] == tipo_juego) &
         (partidas_jugador["temporada"] == temporada)
     ].copy()
+
     if partidas_jugador.empty:
         st.info("No hay historial.")
         return
+
     partidas_info = (
         partidas_jugador[["partida_id", "fecha"]]
         .drop_duplicates()
         .copy()
     )
+
     partidas_info["fecha_orden"] = pd.to_datetime(
-        partidas_info["fecha"], errors="coerce"
+        partidas_info["fecha"],
+        errors="coerce"
     )
+
     partidas_info = partidas_info.sort_values(
-        "fecha_orden", ascending=False
+        "fecha_orden",
+        ascending=False
     )
+
     for _, partida in partidas_info.iterrows():
+
         partida_id = partida["partida_id"]
+
         datos_partida = partidas_jugador[
             partidas_jugador["partida_id"] == partida_id
         ].copy()
+
         if datos_partida.empty:
             continue
+
         datos_partida = datos_partida.sort_values(
-            "posicion", ascending=True, na_position="last"
+            "posicion",
+            ascending=True,
+            na_position="last"
         )
+
         try:
-            fecha_formateada = pd.to_datetime(partida["fecha"]).strftime("%d/%m/%Y")
+            fecha_formateada = pd.to_datetime(
+                partida["fecha"]
+            ).strftime("%d/%m/%Y")
         except Exception:
             fecha_formateada = str(partida["fecha"])
+
         nombre_partida = ""
+
         if "nombre_partida" in datos_partida.columns:
             valores = datos_partida["nombre_partida"].dropna()
+
             if not valores.empty:
-                nombre_partida = str(valores.iloc[0]).strip()
+                nombre_partida = str(
+                    valores.iloc[0]
+                ).strip()
+
         if not nombre_partida and "nombre" in datos_partida.columns:
             valores = datos_partida["nombre"].dropna()
+
             if not valores.empty:
-                nombre_partida = str(valores.iloc[0]).strip()
+                nombre_partida = str(
+                    valores.iloc[0]
+                ).strip()
+
         titulo = (
             f"{fecha_formateada} · {nombre_partida}"
-            if nombre_partida else fecha_formateada
+            if nombre_partida
+            else fecha_formateada
         )
+
+        # =====================================================
+        # CABECERA DE LA PARTIDA
+        # =====================================================
+
         st.markdown(
             f'<div class="match-header">{titulo}</div>',
             unsafe_allow_html=True
         )
+
+        # =====================================================
+        # FORMATO PC
+        # =====================================================
+
         h1, h2, h3 = st.columns([3, 1, 1])
+
         with h1:
-            st.markdown('<div class="match-col-header">JUGADOR</div>', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="match-col-header">JUGADOR</div>',
+                unsafe_allow_html=True
+            )
+
         with h2:
-            st.markdown('<div class="match-col-header">PUNTOS</div>', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="match-col-header">PUNTOS</div>',
+                unsafe_allow_html=True
+            )
+
         with h3:
-            st.markdown('<div class="match-col-header">POS.</div>', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="match-col-header">POS.</div>',
+                unsafe_allow_html=True
+            )
+
+        # =====================================================
+        # FILAS PC
+        # =====================================================
+
+        jugadores_moviles = []
+
         for _, fila in datos_partida.iterrows():
-            nombre = str(fila.get("nombre_jugador", "Jugador"))
+
+            nombre = str(
+                fila.get("nombre_jugador", "Jugador")
+            )
+
             try:
-                puntuacion = int(round(float(fila.get("puntuacion", 0))))
+                puntuacion = int(
+                    round(
+                        float(
+                            fila.get("puntuacion", 0)
+                        )
+                    )
+                )
             except Exception:
                 puntuacion = 0
+
             try:
-                posicion = int(float(fila.get("posicion", "")))
+                posicion = int(
+                    float(
+                        fila.get("posicion", "")
+                    )
+                )
             except Exception:
                 posicion = ""
-            seleccionado = str(fila["jugador_id"]) == jugador_id_texto
-            clase = "match-cell-selected" if seleccionado else "match-cell"
+
+            seleccionado = (
+                str(fila["jugador_id"])
+                == jugador_id_texto
+            )
+
+            clase = (
+                "match-cell-selected"
+                if seleccionado
+                else "match-cell"
+            )
+
+            # -----------------------------
+            # PC
+            # -----------------------------
+
             c1, c2, c3 = st.columns([3, 1, 1])
+
             with c1:
-                st.markdown(f'<div class="{clase}">{nombre}</div>', unsafe_allow_html=True)
+                st.markdown(
+                    f'<div class="{clase}">{nombre}</div>',
+                    unsafe_allow_html=True
+                )
+
             with c2:
-                st.markdown(f'<div class="{clase}" style="text-align:center">{puntuacion}</div>', unsafe_allow_html=True)
+                clase_puntos = (
+                    f"{clase} "
+                    f"{'match-negative' if puntuacion < 0 else ''}"
+                )
+
+                st.markdown(
+                    f'<div class="{clase_puntos}" '
+                    f'style="text-align:center">'
+                    f'{puntuacion}'
+                    f'</div>',
+                    unsafe_allow_html=True
+                )
+
             with c3:
-                st.markdown(f'<div class="{clase}" style="text-align:center">{posicion}</div>', unsafe_allow_html=True)
+                st.markdown(
+                    f'<div class="{clase}" '
+                    f'style="text-align:center">'
+                    f'{posicion}'
+                    f'</div>',
+                    unsafe_allow_html=True
+                )
+
+            # Guardamos los datos para el formato móvil
+            jugadores_moviles.append({
+                "nombre": nombre,
+                "puntuacion": puntuacion,
+                "posicion": posicion,
+                "seleccionado": seleccionado
+            })
+
+        # =====================================================
+        # FORMATO MÓVIL
+        # =====================================================
+
+        # Se genera una tarjeta independiente para móvil.
+        # En PC queda oculta mediante CSS.
+
+        html_movil = '<div class="mobile-match-card">'
+
+        for jugador in jugadores_moviles:
+
+            nombre = jugador["nombre"]
+
+            # Máximo 15 caracteres
+            if len(nombre) > 15:
+                nombre = nombre[:15]
+
+            puntuacion = jugador["puntuacion"]
+            posicion = jugador["posicion"]
+
+            clase_jugador = "mobile-match-player"
+
+            if jugador["seleccionado"]:
+                clase_jugador += " mobile-match-selected"
+
+            clase_puntos = "mobile-match-points"
+
+            if puntuacion < 0:
+                clase_puntos += " mobile-match-negative"
+
+            html_movil += f"""
+                <div class="{clase_jugador}">
+                    <span class="mobile-match-position">
+                        {posicion}
+                    </span>
+
+                    <span class="mobile-match-name">
+                        {nombre}
+                    </span>
+
+                    <span class="{clase_puntos}">
+                        {puntuacion}
+                    </span>
+                </div>
+            """
+
+        html_movil += "</div>"
+
+        st.markdown(
+            html_movil,
+            unsafe_allow_html=True
+        )
+
+        
 def mostrar_ficha(jugador_id):
     cab1, cab2 = st.columns([3, 1])
     with cab1:
