@@ -238,7 +238,7 @@ div[role="radiogroup"] label {
 .mobile-ranking-header {
     min-height: 43px;
     padding: 0 7px;
-    background: #b90000;
+    background: #14532d;
     color: #ffffff;
     font-size: .70rem;
     font-weight: 800;
