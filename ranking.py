@@ -162,6 +162,22 @@ div[role="radiogroup"] label {
 [data-testid="stHorizontalBlock"] { width: 100% !important; max-width: 100% !important; min-width: 0 !important; }
 [data-testid="column"] { min-width: 0 !important; }
 
+/* Cada fila móvil se encierra en un contenedor propio.
+   Esto evita que Streamlit apile las columnas en vertical. */
+[class*="st-key-mobile-row-"] [data-testid="stHorizontalBlock"] {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+}
+[class*="st-key-mobile-row-"] [data-testid="column"] {
+    min-width: 0 !important;
+    overflow: hidden !important;
+}
+
 /* Móvil */
 @media (max-width: 700px) {
     .block-container { max-width: 100% !important; padding: .55rem .45rem 1.5rem .45rem !important; }
@@ -201,9 +217,9 @@ div[role="radiogroup"] label {
         gap: 4px;
         align-items: center;
         width: 100%;
-        min-height: 50px;
+        min-height: 46px;
         box-sizing: border-box;
-        padding: 3px 7px;
+        padding: 2px 5px;
         border: 1px solid #e1e1e1;
         border-top: 0;
         background: #ffffff;
@@ -224,11 +240,12 @@ div[role="radiogroup"] label {
         justify-content: flex-start !important;
         padding: 4px 2px !important;
         margin: 0 !important;
-        font-size: .84rem !important;
-        line-height: 1.15 !important;
+        font-size: .82rem !important;
+        line-height: 1 !important;
         font-weight: 600 !important;
-        white-space: normal !important;
-        overflow-wrap: anywhere !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }
     .mobile-name-button .stButton > button:hover,
     .mobile-name-button button:hover { color: #b40000 !important; }
@@ -703,33 +720,36 @@ def mostrar_ranking(tipo_juego, temporada):
             else:
                 simbolo = str(posicion)
 
-            c1, c2, c3 = st.columns(
-                [0.55, 3.15, 0.90],
-                gap="small"
-            )
-
-            with c1:
-                st.markdown(
-                    f'''<div class="mobile-position" style="min-height:50px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #e1e1e1;">{simbolo}</div>''',
-                    unsafe_allow_html=True
+            # Contenedor propio para que estas 3 columnas permanezcan
+            # siempre en una sola línea también en teléfonos.
+            with st.container(key=f"mobile-row-{tipo_juego}-{temporada}-{jugador_id}"):
+                c1, c2, c3 = st.columns(
+                    [0.55, 3.15, 0.90],
+                    gap="small"
                 )
 
-            with c2:
-                st.markdown('<div class="mobile-name-button">', unsafe_allow_html=True)
-                if st.button(
-                    nombre,
-                    key=f"mobile_{tipo_juego}_{temporada}_{jugador_id}",
-                    use_container_width=True
-                ):
-                    st.session_state.jugador_seleccionado = str(jugador_id)
-                    st.rerun()
-                st.markdown('</div>', unsafe_allow_html=True)
+                with c1:
+                    st.markdown(
+                        f'''<div class="mobile-position" style="min-height:46px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #e1e1e1;">{simbolo}</div>''',
+                        unsafe_allow_html=True
+                    )
 
-            with c3:
-                st.markdown(
-                    f'''<div class="mobile-main-value" style="min-height:50px;display:flex;align-items:center;justify-content:flex-end;border-bottom:1px solid #e1e1e1;">{valor}</div>''',
-                    unsafe_allow_html=True
-                )
+                with c2:
+                    st.markdown('<div class="mobile-name-button">', unsafe_allow_html=True)
+                    if st.button(
+                        nombre[:15],
+                        key=f"mobile_{tipo_juego}_{temporada}_{jugador_id}",
+                        use_container_width=True
+                    ):
+                        st.session_state.jugador_seleccionado = str(jugador_id)
+                        st.rerun()
+                    st.markdown('</div>', unsafe_allow_html=True)
+
+                with c3:
+                    st.markdown(
+                        f'''<div class="mobile-main-value" style="min-height:46px;display:flex;align-items:center;justify-content:flex-end;border-bottom:1px solid #e1e1e1;">{valor}</div>''',
+                        unsafe_allow_html=True
+                    )
 
         return
 
