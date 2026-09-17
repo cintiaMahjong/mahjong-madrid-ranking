@@ -4,6 +4,7 @@ import urllib.request
 import urllib.parse
 import json
 import os
+import html
 RUTA_LOGO = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     "logo_mahjong_madrid.png"
@@ -17,76 +18,83 @@ SUPABASE_URL = "https://gauqwlrsmxynqcokblaw.supabase.co/rest/v1"
 st.markdown("""
 <style>
 /* =========================================================
-   MAHJONG MADRID - DISEÑO RESPONSIVE
-   Esta sección controla la presentación. La lógica y cálculos
-   del ranking permanecen sin cambios.
+   MAHJONG MADRID - DISEÑO LIMPIO Y RESPONSIVE
+   Escritorio y móvil se diseñan por separado mediante media queries.
 ========================================================= */
+* { box-sizing: border-box; }
+
 [data-testid="stSidebar"],
-[data-testid="stSidebarCollapsedControl"] { display: none !important; }
+[data-testid="stSidebarCollapsedControl"] {
+    display: none !important;
+}
 
 .stApp { background: #ffffff; }
 
 .block-container {
     width: 100% !important;
-    max-width: 1080px !important;
-    padding: 1.2rem 1.2rem 2.5rem 1.2rem !important;
-    box-sizing: border-box !important;
+    max-width: 1100px !important;
+    margin: 0 auto !important;
+    padding: 1.25rem 1.25rem 2.5rem !important;
 }
 
-[data-testid="stAppViewContainer"],
 [data-testid="stAppViewContainer"] .main,
 [data-testid="stAppViewContainer"] .block-container {
-    max-width: 100% !important;
     overflow-x: hidden !important;
 }
 
 h1, h2, h3 { color: #151515 !important; }
-h1 { font-size: 2rem !important; line-height: 1.08 !important; font-weight: 800 !important; margin-bottom: .15rem !important; }
-h2 { font-size: 1.4rem !important; line-height: 1.15 !important; }
+h1 { font-size: 2rem !important; font-weight: 800 !important; line-height: 1.1 !important; }
+h2 { font-size: 1.4rem !important; }
 h3 { font-size: 1.1rem !important; }
 
+/* Botones normales: compactos en escritorio */
 .stButton > button {
     width: 100% !important;
     min-height: 40px !important;
     height: auto !important;
+    padding: 6px 9px !important;
     border-radius: 8px !important;
     border: 1px solid #d6d6d6 !important;
     background: #ffffff !important;
     color: #151515 !important;
-    font-size: .9rem !important;
+    font-size: .90rem !important;
     font-weight: 600 !important;
-    line-height: 1.15 !important;
-    padding: 6px 8px !important;
-    white-space: normal !important;
-    overflow-wrap: anywhere !important;
+    line-height: 1.1 !important;
     box-shadow: none !important;
 }
-.stButton > button:hover { border-color: #b40000 !important; color: #b40000 !important; }
+.stButton > button:hover {
+    border-color: #b40000 !important;
+    color: #b40000 !important;
+}
 
-.stTabs [data-baseweb="tab-list"] { width: 100% !important; gap: 4px !important; }
+/* Pestañas */
+.stTabs [data-baseweb="tab-list"] {
+    width: 100% !important;
+    gap: 4px !important;
+}
 .stTabs [data-baseweb="tab"] {
     flex: 1 1 0 !important;
     min-width: 0 !important;
     justify-content: center !important;
-    font-size: .95rem !important;
-    font-weight: 700 !important;
     min-height: 46px !important;
     padding: 6px 8px !important;
+    font-size: .95rem !important;
+    font-weight: 700 !important;
 }
 
-/* Selector de orden */
+/* Selector de ordenación */
 div[role="radiogroup"] {
     display: flex !important;
-    flex-wrap: wrap !important;
+    flex-wrap: nowrap !important;
     gap: 6px !important;
     width: 100% !important;
 }
 div[role="radiogroup"] label {
     flex: 1 1 0 !important;
     min-width: 0 !important;
+    padding: 7px 8px !important;
     border: 1px solid #d8d8d8 !important;
     border-radius: 8px !important;
-    padding: 7px 9px !important;
     background: #ffffff !important;
     text-align: center !important;
     font-size: .82rem !important;
@@ -101,42 +109,73 @@ div[role="radiogroup"] label {
 }
 .main-header-logo { width: 78px; min-width: 78px; }
 .main-header-title { min-width: 0; }
-.main-header-subtitle { color: #777777; font-size: .9rem; line-height: 1.2; margin-top: 2px; }
+.main-header-subtitle {
+    color: #777777;
+    font-size: .90rem;
+    line-height: 1.2;
+    margin-top: 2px;
+}
 
-/* Ranking escritorio */
+/* =========================================================
+   RANKING ESCRITORIO
+========================================================= */
 .ranking-box {
     width: 100%;
     border: 1px solid #dedede;
-    border-radius: 10px;
+    border-radius: 9px;
     overflow: hidden;
     background: #ffffff;
-    box-sizing: border-box;
 }
-.ranking-header {
+.ranking-header,
+.ranking-row {
     display: grid;
-    grid-template-columns: .60fr 3.00fr .95fr .75fr .75fr 1.00fr .80fr .80fr 1.00fr;
-    gap: 5px;
+    grid-template-columns: 52px minmax(170px, 1fr) 82px 58px 58px 82px 68px 68px 82px;
+    column-gap: 5px;
     align-items: center;
     width: 100%;
-    box-sizing: border-box;
+    padding-left: 9px;
+    padding-right: 9px;
+}
+.ranking-header {
+    min-height: 48px;
     background: #b90000;
     color: #ffffff;
-    padding: 11px 9px;
+    font-size: .76rem;
     font-weight: 800;
-    font-size: .78rem;
-    line-height: 1.05;
 }
-.ranking-header > div { min-width: 0; }
-.ranking-header > div:not(:nth-child(2)) { text-align: center; }
-.ranking-position { text-align: center; font-weight: 800; font-size: .92rem; }
-.ranking-value { text-align: center; font-weight: 700; font-size: .86rem; white-space: nowrap; }
+.ranking-row {
+    min-height: 50px;
+    border-top: 1px solid #e5e5e5;
+    background: #ffffff;
+    font-size: .86rem;
+}
+.ranking-row:nth-child(odd) { background: #fff9df; }
+.ranking-cell { min-width: 0; }
+.ranking-position { text-align: center; font-weight: 800; }
+.ranking-value { text-align: center; font-weight: 700; white-space: nowrap; }
+.ranking-player-link {
+    display: block;
+    width: 100%;
+    color: #111111;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    font-weight: 600;
+}
+.ranking-player-link:hover { color: #b40000; }
 
-/* Ficha */
+/* =========================================================
+   FICHA / HISTORIAL
+========================================================= */
 .player-title {
     font-size: 1.45rem;
     font-weight: 800;
     color: #111111;
-    margin: 8px 0 12px 0;
+    margin: 8px 0 12px;
     overflow-wrap: anywhere;
 }
 .match-header {
@@ -145,126 +184,166 @@ div[role="radiogroup"] label {
     border-left: 4px solid #17612e;
     padding: 9px 12px;
     border-radius: 7px;
-    margin-top: 13px;
-    margin-bottom: 5px;
+    margin: 13px 0 5px;
     font-weight: 700;
-    overflow-wrap: anywhere;
 }
-.match-col-header { font-size: .76rem; color: #666666; font-weight: 700; padding: 4px 5px; }
-.match-cell { background: #ffffff; border-bottom: 1px solid #eeeeee; padding: 7px 5px; font-size: .88rem; overflow-wrap: anywhere; }
-.match-cell-selected { background: #fff8d9; border-bottom: 1px solid #eadf9c; padding: 7px 5px; font-weight: 700; font-size: .88rem; overflow-wrap: anywhere; }
+.match-col-header {
+    font-size: .76rem;
+    color: #666666;
+    font-weight: 700;
+    padding: 4px 5px;
+}
+.match-cell {
+    background: #ffffff;
+    border-bottom: 1px solid #eeeeee;
+    padding: 7px 5px;
+    font-size: .88rem;
+}
+.match-cell-selected {
+    background: #fff8d9;
+    border-bottom: 1px solid #eadf9c;
+    padding: 7px 5px;
+    font-weight: 700;
+    font-size: .88rem;
+}
 
-/* Métricas */
-[data-testid="stMetric"] { border: 1px solid #e1e1e1 !important; border-radius: 9px !important; padding: 9px !important; background: #fafafa !important; min-width: 0 !important; }
+[data-testid="stMetric"] {
+    border: 1px solid #e1e1e1 !important;
+    border-radius: 9px !important;
+    padding: 9px !important;
+    background: #fafafa !important;
+    min-width: 0 !important;
+}
 [data-testid="stMetricLabel"] { font-size: .72rem !important; }
 [data-testid="stMetricValue"] { font-size: 1.25rem !important; }
 
-[data-testid="stHorizontalBlock"] { width: 100% !important; max-width: 100% !important; min-width: 0 !important; }
-[data-testid="column"] { min-width: 0 !important; }
-
-/* Cada fila móvil se encierra en un contenedor propio.
-   Esto evita que Streamlit apile las columnas en vertical. */
-[class*="st-key-mobile-row-"] [data-testid="stHorizontalBlock"] {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: stretch !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
+/* =========================================================
+   RANKING MÓVIL: HTML PURO, SIN st.button NI st.columns
+   Esto es deliberado: evita que Streamlit apile o agrande botones.
+========================================================= */
+.mobile-ranking {
+    width: 100%;
+    max-width: 100%;
+    border: 1px solid #dedede;
+    border-radius: 8px;
+    overflow: hidden;
 }
-[class*="st-key-mobile-row-"] [data-testid="column"] {
-    min-width: 0 !important;
-    overflow: hidden !important;
+.mobile-ranking-header,
+.mobile-ranking-row {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr) 74px;
+    width: 100%;
+    align-items: center;
 }
+.mobile-ranking-header {
+    min-height: 43px;
+    padding: 0 7px;
+    background: #b90000;
+    color: #ffffff;
+    font-size: .70rem;
+    font-weight: 800;
+}
+.mobile-ranking-row {
+    min-height: 44px;
+    padding: 0 7px;
+    border-top: 1px solid #e5e5e5;
+    background: #ffffff;
+    text-decoration: none !important;
+}
+.mobile-ranking-row:nth-child(odd) { background: #fff9df; }
+.mobile-pos { text-align: center; font-size: .90rem; font-weight: 800; }
+.mobile-name {
+    min-width: 0;
+    padding: 0 5px;
+    color: #111111;
+    font-size: .82rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mobile-value {
+    text-align: right;
+    padding-right: 1px;
+    color: #111111;
+    font-size: .80rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+.mobile-ranking-row:hover .mobile-name { color: #b40000; }
 
-/* Móvil */
 @media (max-width: 700px) {
-    .block-container { max-width: 100% !important; padding: .55rem .45rem 1.5rem .45rem !important; }
-    h1 { font-size: 1.42rem !important; }
-    h2 { font-size: 1.18rem !important; }
-    h3 { font-size: 1.02rem !important; }
-    .main-header { gap: 10px; margin-bottom: 6px; }
-    .main-header-logo { width: 58px; min-width: 58px; }
-    .main-header-subtitle { font-size: .76rem; }
-    .stTabs [data-baseweb="tab"] { font-size: .82rem !important; min-height: 42px !important; padding: 5px 4px !important; }
-    div[role="radiogroup"] { gap: 4px !important; }
-    div[role="radiogroup"] label { padding: 6px 4px !important; font-size: .72rem !important; }
-
-    .mobile-ranking-header {
-        display: grid;
-        grid-template-columns: .55fr 3.15fr .90fr;
-        gap: 4px;
-        align-items: center;
-        width: 100%;
-        box-sizing: border-box;
-        background: #b90000;
-        color: #ffffff;
-        border-radius: 8px 8px 0 0;
-        padding: 10px 7px;
-        font-size: .70rem;
-        line-height: 1;
-        font-weight: 800;
-    }
-    .mobile-ranking-header > div { min-width: 0; }
-    .mobile-ranking-header > div:first-child,
-    .mobile-ranking-header > div:last-child { text-align: center; }
-    .mobile-ranking-header > div:nth-child(2) { text-align: left; }
-
-    .mobile-ranking-row {
-        display: grid;
-        grid-template-columns: .55fr 3.15fr .90fr;
-        gap: 4px;
-        align-items: center;
-        width: 100%;
-        min-height: 46px;
-        box-sizing: border-box;
-        padding: 2px 5px;
-        border: 1px solid #e1e1e1;
-        border-top: 0;
-        background: #ffffff;
-    }
-    .mobile-position { text-align: center; font-size: .98rem; line-height: 1; font-weight: 800; }
-    .mobile-name-button { min-width: 0 !important; width: 100% !important; }
-    .mobile-name-button .stButton > button,
-    .mobile-name-button button {
+    .block-container {
         width: 100% !important;
-        min-height: 42px !important;
-        height: auto !important;
-        border: 0 !important;
-        background: transparent !important;
-        color: #111111 !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        text-align: left !important;
-        justify-content: flex-start !important;
-        padding: 4px 2px !important;
-        margin: 0 !important;
-        font-size: .82rem !important;
-        line-height: 1 !important;
-        font-weight: 600 !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
+        max-width: 100% !important;
+        padding: .55rem .45rem 1.4rem !important;
     }
-    .mobile-name-button .stButton > button:hover,
-    .mobile-name-button button:hover { color: #b40000 !important; }
-    .mobile-main-value { text-align: right; padding-right: 2px; font-size: .82rem; line-height: 1; font-weight: 800; white-space: nowrap; }
+
+    h1 { font-size: 1.35rem !important; }
+    h2 { font-size: 1.15rem !important; }
+    h3 { font-size: 1rem !important; }
+
+    .main-header { gap: 9px; margin-bottom: 5px; }
+    .main-header-logo { width: 54px; min-width: 54px; }
+    .main-header-subtitle { font-size: .72rem; }
+
+    .stTabs [data-baseweb="tab"] {
+        min-height: 40px !important;
+        padding: 4px 3px !important;
+        font-size: .78rem !important;
+    }
+
+    div[role="radiogroup"] {
+        gap: 3px !important;
+    }
+    div[role="radiogroup"] label {
+        padding: 6px 3px !important;
+        font-size: .68rem !important;
+        line-height: 1 !important;
+    }
+
+    /* Los botones normales de otras pantallas sí se mantienen usables,
+       pero NO intervienen en el ranking móvil. */
+    .stButton > button {
+        min-height: 38px !important;
+        padding: 5px 7px !important;
+        font-size: .82rem !important;
+    }
+
+    .mobile-ranking-header,
+    .mobile-ranking-row {
+        grid-template-columns: 36px minmax(0, 1fr) 72px;
+    }
+    .mobile-ranking-header {
+        min-height: 40px;
+        font-size: .66rem;
+    }
+    .mobile-ranking-row {
+        min-height: 43px;
+    }
+    .mobile-pos { font-size: .86rem; }
+    .mobile-name { font-size: .78rem; padding: 0 4px; }
+    .mobile-value { font-size: .76rem; }
 
     [data-testid="stMetric"] { padding: 6px 5px !important; }
-    [data-testid="stMetricLabel"] { font-size: .64rem !important; }
-    [data-testid="stMetricValue"] { font-size: 1rem !important; }
-    .stButton > button { min-height: 40px !important; font-size: .86rem !important; padding: 5px 6px !important; }
-    .match-cell, .match-cell-selected { font-size: .82rem; padding: 6px 4px; }
+    [data-testid="stMetricLabel"] { font-size: .62rem !important; }
+    [data-testid="stMetricValue"] { font-size: .98rem !important; }
+
+    .match-cell, .match-cell-selected {
+        font-size: .80rem;
+        padding: 6px 4px;
+    }
 }
 
 @media (max-width: 380px) {
-    .block-container { padding-left: .3rem !important; padding-right: .3rem !important; }
-    .main-header-logo { width: 50px; min-width: 50px; }
-    h1 { font-size: 1.28rem !important; }
-    .mobile-ranking-header, .mobile-ranking-row { grid-template-columns: .50fr 3.20fr .85fr; }
-    .mobile-name-button .stButton > button, .mobile-name-button button { font-size: .80rem !important; }
-    .mobile-main-value { font-size: .78rem; }
+    .block-container { padding-left: .28rem !important; padding-right: .28rem !important; }
+    .main-header-logo { width: 48px; min-width: 48px; }
+    h1 { font-size: 1.22rem !important; }
+    .mobile-ranking-header,
+    .mobile-ranking-row { grid-template-columns: 34px minmax(0, 1fr) 68px; }
+    .mobile-name { font-size: .75rem; }
+    .mobile-value { font-size: .73rem; }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -355,6 +434,10 @@ if "jugador_id" not in datos.columns:
     datos["jugador_id"] = ""
 if "jugador_seleccionado" not in st.session_state:
     st.session_state.jugador_seleccionado = None
+# En móvil el nombre es un enlace HTML, no un botón de Streamlit.
+# Así la fila nunca se apila ni crece de tamaño.
+if "jugador_id" in st.query_params:
+    st.session_state.jugador_seleccionado = str(st.query_params["jugador_id"])
 def ordenar_temporada(valor):
     try:
         for parte in str(valor).split():
@@ -587,6 +670,7 @@ def mostrar_ficha(jugador_id):
     with cab2:
         if st.button("← Volver", key="volver_arriba", use_container_width=True):
             st.session_state.jugador_seleccionado = None
+            st.query_params.clear()
             st.rerun()
     jugador_id_texto = str(jugador_id)
     nombre_jugador = "Jugador"
@@ -641,6 +725,7 @@ def mostrar_ficha(jugador_id):
     st.divider()
     if st.button("← Volver al ranking", key="volver_abajo", use_container_width=True):
         st.session_state.jugador_seleccionado = None
+        st.query_params.clear()
         st.rerun()
 def limpiar_criterio(criterio):
     return (
@@ -682,27 +767,27 @@ def mostrar_ranking(tipo_juego, temporada):
     nombre_valor = limpiar_criterio(criterio)
 
     st.markdown(
-        f'<div style="font-size:.95rem;font-weight:800;margin:8px 0 7px 2px;">Ranking por {nombre_valor}</div>',
+        f'<div style="font-size:.92rem;font-weight:800;margin:8px 0 7px 2px;">Ranking por {nombre_valor}</div>',
         unsafe_allow_html=True
     )
 
     # =====================================================
-    # MÓVIL: POSICIÓN | JUGADOR | VALOR
+    # MÓVIL: TABLA HTML COMPLETA EN UNA SOLA FILA POR JUGADOR
+    # No usamos st.button ni st.columns aquí.
     # =====================================================
     if es_dispositivo_movil():
-        st.markdown(
+        filas_html = [
             f'''<div class="mobile-ranking-header">
-                <div>POS.</div>
-                <div>JUGADOR</div>
-                <div>{nombre_valor.upper()}</div>
-            </div>''',
-            unsafe_allow_html=True
-        )
+                    <div style="text-align:center;">POS.</div>
+                    <div>JUGADOR</div>
+                    <div style="text-align:right;">{nombre_valor.upper()}</div>
+                </div>'''
+        ]
 
         for _, fila in ranking.iterrows():
             posicion = int(fila["Posición"])
-            jugador_id = fila["jugador_id"]
-            nombre = str(fila["nombre_jugador"]).strip()
+            jugador_id = str(fila["jugador_id"])
+            nombre = html.escape(str(fila["nombre_jugador"]).strip()[:15])
 
             if columna_orden == "Winrate":
                 valor = f"{float(fila['Winrate']):.1f}%"
@@ -720,62 +805,44 @@ def mostrar_ranking(tipo_juego, temporada):
             else:
                 simbolo = str(posicion)
 
-            # Contenedor propio para que estas 3 columnas permanezcan
-            # siempre en una sola línea también en teléfonos.
-            with st.container(key=f"mobile-row-{tipo_juego}-{temporada}-{jugador_id}"):
-                c1, c2, c3 = st.columns(
-                    [0.55, 3.15, 0.90],
-                    gap="small"
-                )
+            # El ID se codifica para que cualquier UUID/valor especial sea seguro en la URL.
+            jugador_url = urllib.parse.quote(jugador_id, safe="")
 
-                with c1:
-                    st.markdown(
-                        f'''<div class="mobile-position" style="min-height:46px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #e1e1e1;">{simbolo}</div>''',
-                        unsafe_allow_html=True
-                    )
+            filas_html.append(
+                f'''<a class="mobile-ranking-row" href="?jugador_id={jugador_url}">
+                        <div class="mobile-pos">{simbolo}</div>
+                        <div class="mobile-name">{nombre}</div>
+                        <div class="mobile-value">{valor}</div>
+                    </a>'''
+            )
 
-                with c2:
-                    st.markdown('<div class="mobile-name-button">', unsafe_allow_html=True)
-                    if st.button(
-                        nombre[:15],
-                        key=f"mobile_{tipo_juego}_{temporada}_{jugador_id}",
-                        use_container_width=True
-                    ):
-                        st.session_state.jugador_seleccionado = str(jugador_id)
-                        st.rerun()
-                    st.markdown('</div>', unsafe_allow_html=True)
-
-                with c3:
-                    st.markdown(
-                        f'''<div class="mobile-main-value" style="min-height:46px;display:flex;align-items:center;justify-content:flex-end;border-bottom:1px solid #e1e1e1;">{valor}</div>''',
-                        unsafe_allow_html=True
-                    )
-
+        st.markdown(
+            '<div class="mobile-ranking">' + ''.join(filas_html) + '</div>',
+            unsafe_allow_html=True
+        )
         return
 
     # =====================================================
     # ESCRITORIO: TABLA COMPLETA
     # =====================================================
-    st.markdown('<div class="ranking-box">', unsafe_allow_html=True)
-
-    st.markdown('''
-    <div class="ranking-header">
-        <div>Pos.</div>
-        <div>Jugador</div>
-        <div>Puntos</div>
-        <div>Part.</div>
-        <div>Gan.</div>
-        <div>Winrate</div>
-        <div>Media</div>
-        <div>Máx.</div>
-        <div>Media pos.</div>
-    </div>
-    ''', unsafe_allow_html=True)
+    filas_html = [
+        '''<div class="ranking-header">
+            <div style="text-align:center;">Pos.</div>
+            <div>Jugador</div>
+            <div style="text-align:center;">Puntos</div>
+            <div style="text-align:center;">Part.</div>
+            <div style="text-align:center;">Gan.</div>
+            <div style="text-align:center;">Winrate</div>
+            <div style="text-align:center;">Media</div>
+            <div style="text-align:center;">Máx.</div>
+            <div style="text-align:center;">Media pos.</div>
+        </div>'''
+    ]
 
     for _, fila in ranking.iterrows():
         posicion = int(fila["Posición"])
-        jugador_id = fila["jugador_id"]
-        nombre = str(fila["nombre_jugador"]).strip()
+        jugador_id = str(fila["jugador_id"])
+        nombre = html.escape(str(fila["nombre_jugador"]).strip())
         puntos = int(fila["Puntos"])
         partidas = int(fila["Partidas"])
         ganadas = int(fila["Ganadas"])
@@ -783,43 +850,28 @@ def mostrar_ranking(tipo_juego, temporada):
         media = float(fila["Media"])
         maxima = int(fila["PuntuacionMaxima"])
         media_pos = float(fila["MediaPosicion"])
+        jugador_url = urllib.parse.quote(jugador_id, safe="")
 
-        c1, c2, c3, c4, c5, c6, c7, c8, c9 = st.columns(
-            [0.60, 3.00, 0.95, 0.75, 0.75, 1.00, 0.80, 0.80, 1.00],
-            gap="small"
+        filas_html.append(
+            f'''<div class="ranking-row">
+                <div class="ranking-cell ranking-position">{posicion}</div>
+                <div class="ranking-cell">
+                    <a class="ranking-player-link" href="?jugador_id={jugador_url}">{nombre}</a>
+                </div>
+                <div class="ranking-cell ranking-value">{puntos}</div>
+                <div class="ranking-cell ranking-value">{partidas}</div>
+                <div class="ranking-cell ranking-value">{ganadas}</div>
+                <div class="ranking-cell ranking-value">{winrate:.1f}%</div>
+                <div class="ranking-cell ranking-value">{media:.1f}</div>
+                <div class="ranking-cell ranking-value">{maxima}</div>
+                <div class="ranking-cell ranking-value">{media_pos:.2f}</div>
+            </div>'''
         )
 
-        with c1:
-            st.markdown(
-                f'<div class="ranking-position">{posicion}</div>',
-                unsafe_allow_html=True
-            )
-
-        with c2:
-            if st.button(
-                nombre,
-                key=f"pc_{tipo_juego}_{temporada}_{jugador_id}",
-                use_container_width=True
-            ):
-                st.session_state.jugador_seleccionado = str(jugador_id)
-                st.rerun()
-
-        with c3:
-            st.markdown(f'<div class="ranking-value">{puntos}</div>', unsafe_allow_html=True)
-        with c4:
-            st.markdown(f'<div class="ranking-value">{partidas}</div>', unsafe_allow_html=True)
-        with c5:
-            st.markdown(f'<div class="ranking-value">{ganadas}</div>', unsafe_allow_html=True)
-        with c6:
-            st.markdown(f'<div class="ranking-value">{winrate:.1f}%</div>', unsafe_allow_html=True)
-        with c7:
-            st.markdown(f'<div class="ranking-value">{media:.1f}</div>', unsafe_allow_html=True)
-        with c8:
-            st.markdown(f'<div class="ranking-value">{maxima}</div>', unsafe_allow_html=True)
-        with c9:
-            st.markdown(f'<div class="ranking-value">{media_pos:.2f}</div>', unsafe_allow_html=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="ranking-box">' + ''.join(filas_html) + '</div>',
+        unsafe_allow_html=True
+    )
 
 if st.session_state.jugador_seleccionado is not None:
     mostrar_ficha(st.session_state.jugador_seleccionado)
