@@ -130,57 +130,70 @@ div[role="radiogroup"] label {
     text-align: center;
     font-weight: 700;
 }
-/* Ranking móvil */
+/* -----------------------------
+   RANKING MÓVIL
+------------------------------ */
 .mobile-ranking-header {
     display: grid;
-    grid-template-columns: 48px minmax(0, 1fr) 82px;
-    gap: 5px;
+    grid-template-columns: 42px minmax(0, 1fr) 78px;
+    gap: 4px;
     align-items: center;
+    width: 100%;
+    box-sizing: border-box;
     background: #b90000;
     color: white;
-    border-radius: 10px 10px 0 0;
-    padding: 11px 9px;
-    font-size: .78rem;
+    border-radius: 8px 8px 0 0;
+    padding: 10px 8px;
+    font-size: .74rem;
+    line-height: 1;
     font-weight: 800;
 }
 .mobile-ranking-row {
     display: grid;
-    grid-template-columns: 48px minmax(0, 1fr) 82px;
-    gap: 5px;
+    grid-template-columns: 42px minmax(0, 1fr) 78px;
+    gap: 4px;
     align-items: center;
-    min-height: 57px;
-    padding: 7px 8px;
+    min-height: 54px;
+    box-sizing: border-box;
+    padding: 4px 7px;
     border: 1px solid #e3e3e3;
     border-top: 0;
     background: #ffffff;
 }
-.mobile-ranking-row:nth-child(even) {
-    background: #fff9df;
-}
 .mobile-position {
     text-align: center;
-    font-size: 1.15rem;
+    font-size: 1.05rem;
+    line-height: 1;
     font-weight: 800;
 }
 .mobile-name-button button {
     width: 100%;
+    min-height: 42px !important;
+    height: auto !important;
     text-align: left !important;
     justify-content: flex-start !important;
     border: 0 !important;
     background: transparent !important;
-    padding: 4px 2px !important;
-    min-height: 42px !important;
-    font-size: .95rem !important;
+    padding: 3px 2px !important;
+    margin: 0 !important;
+    font-size: .88rem !important;
+    line-height: 1.15 !important;
+    font-weight: 600 !important;
     color: #111111 !important;
     box-shadow: none !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
 }
 .mobile-name-button button:hover {
     color: #b40000 !important;
 }
 .mobile-main-value {
     text-align: right;
-    font-size: .95rem;
+    padding-right: 2px;
+    font-size: .88rem;
+    line-height: 1;
     font-weight: 800;
+    white-space: nowrap;
 }
 /* Ficha */
 .player-title {
@@ -262,13 +275,29 @@ div[role="radiogroup"] label {
         font-size: 1.05rem;
     }
     .stButton > button {
-        min-height: 52px !important;
-        font-size: .98rem !important;
+        min-height: 42px !important;
+        height: auto !important;
+        font-size: .90rem !important;
         padding: 4px 6px !important;
-        text-align: left !important;
-        justify-content: flex-start !important;
-        white-space: normal !important;
         line-height: 1.15 !important;
+        white-space: normal !important;
+    }
+
+    /* Evita cualquier desbordamiento horizontal en teléfonos */
+    [data-testid="stAppViewContainer"],
+    [data-testid="stAppViewContainer"] > .main,
+    [data-testid="stAppViewContainer"] .block-container {
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Las columnas del ranking móvil deben poder encogerse */
+    [data-testid="stHorizontalBlock"] {
+        min-width: 0 !important;
+        width: 100% !important;
+    }
+    [data-testid="column"] {
+        min-width: 0 !important;
     }
 }
 </style>
@@ -682,28 +711,34 @@ def mostrar_ranking(tipo_juego, temporada):
     ranking["Posición"] = ranking.index + 1
     if es_dispositivo_movil():
         nombre_valor = limpiar_criterio(criterio)
+
         st.markdown(
-            f'<div style="font-size:1.05rem;font-weight:800;margin:8px 0 8px 2px;">Ranking por {nombre_valor}</div>',
+            f'<div style="font-size:.98rem;font-weight:800;margin:7px 0 7px 2px;">Ranking por {nombre_valor}</div>',
             unsafe_allow_html=True
         )
+
+        # Cabecera compacta, similar al formato móvil de FEMJ.
         st.markdown(
-            f'''<div class="mobile-ranking-header">
+            f"""<div class="mobile-ranking-header">
                 <div>POS.</div>
                 <div>JUGADOR</div>
                 <div style="text-align:right">{nombre_valor.upper()}</div>
-            </div>''',
+            </div>""",
             unsafe_allow_html=True
         )
+
         for _, fila in ranking.iterrows():
             posicion = int(fila["Posición"])
             jugador_id = fila["jugador_id"]
-            nombre = str(fila["nombre_jugador"])
+            nombre = str(fila["nombre_jugador"]).strip()
+
             if columna_orden == "Winrate":
                 valor = f"{float(fila['Winrate']):.1f}%"
             elif columna_orden == "Puntos":
                 valor = f"{int(fila['Puntos'])}"
             else:
                 valor = f"{float(fila['MediaPosicion']):.2f}"
+
             if posicion == 1:
                 simbolo = "🥇"
             elif posicion == 2:
@@ -712,28 +747,33 @@ def mostrar_ranking(tipo_juego, temporada):
                 simbolo = "🥉"
             else:
                 simbolo = str(posicion)
-            # IMPORTANTE: st.columns usa PROPORCIONES, no píxeles.
-            # Por eso aquí las tres columnas permanecen en horizontal en móvil.
-            fondo_fila = "#fff9df" if posicion % 2 == 0 else "#ffffff"
 
-            c1, c2, c3 = st.columns([0.60, 3.25, 1.05], gap="small")
+            # Una fila compacta: posición | nombre | valor.
+            # Las columnas usan proporciones para que el nombre tenga
+            # siempre todo el espacio restante y pueda ocupar 2 líneas.
+            fondo_fila = "#fff9df" if posicion % 2 == 0 else "#ffffff"
+            c1, c2, c3 = st.columns([0.58, 3.55, 1.02], gap="small")
 
             with c1:
                 st.markdown(
-                    f'''<div style="
+                    f"""<div style="
                         background:{fondo_fila};
-                        min-height:52px;
+                        min-height:50px;
+                        height:100%;
+                        box-sizing:border-box;
                         display:flex;
                         align-items:center;
                         justify-content:center;
-                        border-bottom:1px solid #e5e5e5;
-                        font-size:1.05rem;
+                        border-bottom:1px solid #e3e3e3;
+                        font-size:1.02rem;
+                        line-height:1;
                         font-weight:800;
-                    ">{simbolo}</div>''',
+                    ">{simbolo}</div>""",
                     unsafe_allow_html=True
                 )
 
             with c2:
+                # El botón conserva la navegación a la ficha del jugador.
                 if st.button(
                     nombre,
                     key=f"mobile_{tipo_juego}_{temporada}_{jugador_id}",
@@ -744,18 +784,21 @@ def mostrar_ranking(tipo_juego, temporada):
 
             with c3:
                 st.markdown(
-                    f'''<div style="
+                    f"""<div style="
                         background:{fondo_fila};
-                        min-height:52px;
+                        min-height:50px;
+                        height:100%;
+                        box-sizing:border-box;
                         display:flex;
                         align-items:center;
                         justify-content:flex-end;
-                        padding:0 8px 0 2px;
-                        border-bottom:1px solid #e5e5e5;
-                        font-size:.98rem;
+                        padding:0 5px 0 1px;
+                        border-bottom:1px solid #e3e3e3;
+                        font-size:.88rem;
+                        line-height:1;
                         font-weight:800;
                         white-space:nowrap;
-                    ">{valor}</div>''',
+                    ">{valor}</div>""",
                     unsafe_allow_html=True
                 )
 
