@@ -81,6 +81,13 @@ h3 { font-size: 1.1rem !important; }
     font-size: .95rem !important;
     font-weight: 700 !important;
 }
+.stTabs [data-baseweb="tab"][aria-selected="true"] {
+    color: #14532d !important;
+}
+
+.stTabs [data-baseweb="tab-highlight"] {
+    background-color: #14532d !important;
+}
 
 /* Selector de ordenación */
 div[role="radiogroup"] {
