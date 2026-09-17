@@ -261,6 +261,15 @@ div[role="radiogroup"] label {
     [data-testid="stMetricValue"] {
         font-size: 1.05rem;
     }
+    .stButton > button {
+        min-height: 52px !important;
+        font-size: .98rem !important;
+        padding: 4px 6px !important;
+        text-align: left !important;
+        justify-content: flex-start !important;
+        white-space: normal !important;
+        line-height: 1.15 !important;
+    }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -703,15 +712,28 @@ def mostrar_ranking(tipo_juego, temporada):
                 simbolo = "🥉"
             else:
                 simbolo = str(posicion)
-            st.markdown('<div class="mobile-ranking-row">', unsafe_allow_html=True)
-            c1, c2, c3 = st.columns([48, 1, 82], gap="small")
+            # IMPORTANTE: st.columns usa PROPORCIONES, no píxeles.
+            # Por eso aquí las tres columnas permanecen en horizontal en móvil.
+            fondo_fila = "#fff9df" if posicion % 2 == 0 else "#ffffff"
+
+            c1, c2, c3 = st.columns([0.60, 3.25, 1.05], gap="small")
+
             with c1:
                 st.markdown(
-                    f'<div class="mobile-position">{simbolo}</div>',
+                    f'''<div style="
+                        background:{fondo_fila};
+                        min-height:52px;
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;
+                        border-bottom:1px solid #e5e5e5;
+                        font-size:1.05rem;
+                        font-weight:800;
+                    ">{simbolo}</div>''',
                     unsafe_allow_html=True
                 )
+
             with c2:
-                st.markdown('<div class="mobile-name-button">', unsafe_allow_html=True)
                 if st.button(
                     nombre,
                     key=f"mobile_{tipo_juego}_{temporada}_{jugador_id}",
@@ -719,13 +741,24 @@ def mostrar_ranking(tipo_juego, temporada):
                 ):
                     st.session_state.jugador_seleccionado = str(jugador_id)
                     st.rerun()
-                st.markdown('</div>', unsafe_allow_html=True)
+
             with c3:
                 st.markdown(
-                    f'<div class="mobile-main-value">{valor}</div>',
+                    f'''<div style="
+                        background:{fondo_fila};
+                        min-height:52px;
+                        display:flex;
+                        align-items:center;
+                        justify-content:flex-end;
+                        padding:0 8px 0 2px;
+                        border-bottom:1px solid #e5e5e5;
+                        font-size:.98rem;
+                        font-weight:800;
+                        white-space:nowrap;
+                    ">{valor}</div>''',
                     unsafe_allow_html=True
                 )
-            st.markdown('</div>', unsafe_allow_html=True)
+
         return
     st.markdown(
         f'<div style="font-weight:800;margin:8px 0;">Ranking por {limpiar_criterio(criterio)}</div>',
