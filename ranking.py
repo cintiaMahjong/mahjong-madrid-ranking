@@ -753,14 +753,21 @@ def mostrar_ranking(tipo_juego, temporada):
         (df_partidas["temporada"] == temporada)
     ]["id"].unique()
 )
-    
-    criterio = st.radio( 
-       f"Ordenar ranking por: · {total_jugadores} jugadores · {int(total_partidas)} partidas", 
-        ["📈 Winrate", "🏆 Puntos", "🎯 Media posición"], 
-        index=0, 
-        horizontal=True, 
-        key=f"criterio_{tipo_juego}_{temporada}" 
-    ) 
+    st.markdown(
+    f"Ordenar ranking por: "
+    f"<span style='color:#b40000;font-weight:800;'>👥 {total_jugadores} jugadores</span> · "
+    f"<span style='color:#14532d;font-weight:800;'>🎮 {total_partidas} partidas</span>",
+    unsafe_allow_html=True
+)
+
+criterio = st.radio(
+    "Criterio",
+    ["📈 Winrate", "🏆 Puntos", "🎯 Media posición"],
+    index=0,
+    horizontal=True,
+    label_visibility="collapsed",
+    key=f"criterio_{tipo_juego}_{temporada}"
+)
  
     if criterio == "📈 Winrate": 
         columna_orden = "Winrate" 
