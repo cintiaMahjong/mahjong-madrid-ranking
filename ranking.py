@@ -747,7 +747,12 @@ def mostrar_ranking(tipo_juego, temporada):
         return 
 
     total_jugadores = len(ranking)
-    total_partidas = ranking["Partidas"].sum()
+    total_partidas = len(
+    df_partidas[
+        (df_partidas["tipo_juego"] == tipo_juego) &
+        (df_partidas["temporada"] == temporada)
+    ]["id"].unique()
+)
     
     criterio = st.radio( 
        f"Ordenar ranking por: · {total_jugadores} jugadores · {int(total_partidas)} partidas", 
