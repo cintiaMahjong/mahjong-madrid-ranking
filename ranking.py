@@ -746,22 +746,22 @@ def mostrar_ranking(tipo_juego, temporada):
         st.info(f"No hay datos de {tipo_juego} para {temporada}.") 
         return 
 
-   total_jugadores = len(ranking)
+    total_jugadores = len(ranking)
 
-total_partidas = len(
-    df_partidas[
-        (df_partidas["tipo_juego"] == tipo_juego) &
-        (df_partidas["temporada"] == temporada)
-    ]["id"].unique()
-)
+    total_partidas = len(
+        df_partidas[
+            (df_partidas["tipo_juego"] == tipo_juego) &
+            (df_partidas["temporada"] == temporada)
+        ]["id"].unique()
+    )
 
-criterio = st.radio( 
-    f"Ordenar ranking por: · {total_jugadores} jugadores · {total_partidas} partidas", 
-    ["📈 Winrate", "🏆 Puntos", "🎯 Media posición"], 
-    index=0, 
-    horizontal=True, 
-    key=f"criterio_{tipo_juego}_{temporada}" 
-)
+    criterio = st.radio(
+        f"Ordenar ranking por: · {total_jugadores} jugadores · {total_partidas} partidas",
+        ["📈 Winrate", "🏆 Puntos", "🎯 Media posición"],
+        index=0,
+        horizontal=True,
+        key=f"criterio_{tipo_juego}_{temporada}"
+    )
  
     if criterio == "📈 Winrate": 
         columna_orden = "Winrate" 
