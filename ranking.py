@@ -746,13 +746,15 @@ def mostrar_ranking(tipo_juego, temporada):
         st.info(f"No hay datos de {tipo_juego} para {temporada}.")
         return
 
-    criterio = st.radio(
-        "Ordenar ranking por:",
-        ["📈 Winrate", "🏆 Puntos", "🎯 Media posición"],
-        index=0,
-        horizontal=True,
-        key=f"criterio_{tipo_juego}_{temporada}"
-    )
+    total_jugadores = len(ranking)
+
+criterio = st.radio( 
+    f"Ordenar ranking por: · {total_jugadores} jugadores", 
+    ["📈 Winrate", "🏆 Puntos", "🎯 Media posición"], 
+    index=0, 
+    horizontal=True, 
+    key=f"criterio_{tipo_juego}_{temporada}" 
+)
 
     if criterio == "📈 Winrate":
         columna_orden = "Winrate"
