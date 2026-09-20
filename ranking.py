@@ -746,7 +746,7 @@ def mostrar_ranking(tipo_juego, temporada):
         st.info(f"No hay datos de {tipo_juego} para {temporada}.") 
         return 
 
-    total_jugadores = len(ranking)
+        total_jugadores = len(ranking)
 
     total_partidas = len(
         df_partidas[
@@ -755,11 +755,28 @@ def mostrar_ranking(tipo_juego, temporada):
         ]["id"].unique()
     )
 
+    st.markdown(
+        f"""
+        <div style="margin-bottom: -5px;">
+            <span style="font-weight: 700;">Ordenar ranking por:</span>
+            <span style="color:#b40000; font-weight:800;">
+                👥 {total_jugadores} jugadores
+            </span>
+            <span style="font-weight:700;"> · </span>
+            <span style="color:#14532d; font-weight:800;">
+                🎮 {total_partidas} partidas
+            </span>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
     criterio = st.radio(
-        f"Ordenar ranking por: · {total_jugadores} jugadores · {total_partidas} partidas",
+        "Criterio",
         ["📈 Winrate", "🏆 Puntos", "🎯 Media posición"],
         index=0,
         horizontal=True,
+        label_visibility="collapsed",
         key=f"criterio_{tipo_juego}_{temporada}"
     )
  
