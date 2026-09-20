@@ -748,7 +748,7 @@ def mostrar_ranking(tipo_juego, temporada):
 
     total_jugadores = len(ranking)
     criterio = st.radio( 
-        "Ordenar ranking por:" · {total_jugadores} jugadores", 
+        f"Ordenar ranking por: · {total_jugadores} jugadores", 
         ["📈 Winrate", "🏆 Puntos", "🎯 Media posición"], 
         index=0, 
         horizontal=True, 
