@@ -750,33 +750,13 @@ def mostrar_ranking(tipo_juego, temporada):
 
 total_jugadores = len(ranking)
 
-st.markdown(
-    f'''
-    <div style="
-        font-size:.92rem;
-        font-weight:800;
-        margin:8px 0 7px 2px;
-    ">
-        Ordenar ranking por:
-        <span style="
-            color:#14532d;
-            font-size:.82rem;
-            margin-left:10px;
-        ">
-            👥 {total_jugadores} jugadores
-        </span>
-    </div>
-    ''',
-    unsafe_allow_html=True
-)
-
-criterio = st.radio(
-    "Criterio",
-    ["📈 Winrate", "🏆 Puntos", "🎯 Media posición"],
-    index=0,
-    horizontal=True,
-    label_visibility="collapsed",
-    key=f"criterio_{tipo_juego}_{temporada}"
+criterio = st.radio( 
+        "Ordenar ranking por:", 
+        ["📈 Winrate", "🏆 Puntos", "🎯 Media posición"], 
+        index=0, 
+        horizontal=True, 
+        key=f"criterio_{tipo_juego}_{temporada}" 
+    ) 
 )
 
 if criterio == "📈 Winrate":
