@@ -746,7 +746,7 @@ def mostrar_ranking(tipo_juego, temporada):
         st.info(f"No hay datos de {tipo_juego} para {temporada}.") 
         return 
 
-    total_jugadores = len(ranking)
+   total_jugadores = len(ranking)
 
 total_partidas = len(
     df_partidas[
