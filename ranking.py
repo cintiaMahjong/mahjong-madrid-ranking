@@ -740,13 +740,26 @@ def limpiar_criterio(criterio):
         .replace("🏆 ", "") 
         .replace("🎯 ", "") 
     ) 
-def mostrar_ranking(tipo_juego, temporada): 
+def mostrar_ranking(tipo_juego, temporada, segundo_ranking=False):
     ranking = crear_ranking(tipo_juego, temporada) 
     if ranking.empty: 
         st.info(f"No hay datos de {tipo_juego} para {temporada}.") 
         return 
 
+    # Guardamos el total de jugadores antes de separar los dos rankings.
     total_jugadores = len(ranking)
+
+    # Ranking principal: 6 o más partidas. Ranking secundario: 5 o menos.
+    if segundo_ranking:
+        ranking = ranking[ranking["Partidas"] <= 5].copy()
+    else:
+        ranking = ranking[ranking["Partidas"] > 5].copy()
+
+    if ranking.empty:
+        if segundo_ranking:
+            return
+        st.info(f"No hay jugadores con más de 5 partidas en {tipo_juego} · {temporada}.")
+        return
 
     total_partidas = len(
         df_partidas[
@@ -755,30 +768,37 @@ def mostrar_ranking(tipo_juego, temporada):
         ]["id"].unique()
     )
 
-    st.markdown(
-        f"""
-        <div style="margin-bottom: -5px;">
-            <span style="font-weight: 700;">Ordenar ranking por:</span>
-            <span style="color:#b40000; font-weight:800;">
-                👥 {total_jugadores} jugadores
-            </span>
-            <span style="font-weight:700;"> · </span>
-            <span style="color:#14532d; font-weight:800;">
-                🎮 {total_partidas} partidas
-            </span>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    if not segundo_ranking:
+        st.markdown(
+            f"""
+            <div style="margin-bottom: -5px;">
+                <span style="font-weight: 700;">Ordenar ranking por:</span>
+                <span style="color:#b40000; font-weight:800;">
+                    👥 {total_jugadores} jugadores
+                </span>
+                <span style="font-weight:700;"> · </span>
+                <span style="color:#14532d; font-weight:800;">
+                    🎮 {total_partidas} partidas
+                </span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
-    criterio = st.radio(
-        "Criterio",
-        ["📈 Winrate", "🏆 Puntos", "🎯 Media posición"],
-        index=0,
-        horizontal=True,
-        label_visibility="collapsed",
-        key=f"criterio_{tipo_juego}_{temporada}"
-    )
+    if not segundo_ranking:
+        criterio = st.radio(
+            "Criterio",
+            ["📈 Winrate", "🏆 Puntos", "🎯 Media posición"],
+            index=0,
+            horizontal=True,
+            label_visibility="collapsed",
+            key=f"criterio_{tipo_juego}_{temporada}"
+        )
+    else:
+        criterio = st.session_state.get(
+            f"criterio_{tipo_juego}_{temporada}",
+            "📈 Winrate"
+        )
  
     if criterio == "📈 Winrate": 
         columna_orden = "Winrate" 
@@ -799,10 +819,16 @@ def mostrar_ranking(tipo_juego, temporada):
  
     nombre_valor = limpiar_criterio(criterio) 
  
-    st.markdown( 
-        f'<div style="font-size:.92rem;font-weight:800;margin:8px 0 7px 2px;">Ranking por {nombre_valor}</div>', 
-        unsafe_allow_html=True 
-    ) 
+    titulo_ranking = (
+        f"Ranking con 5 o menos partidas · {nombre_valor}"
+        if segundo_ranking
+        else f"Ranking con más de 5 partidas (6 o más) · {nombre_valor}"
+    )
+
+    st.markdown(
+        f'<div style="font-size:.92rem;font-weight:800;margin:8px 0 7px 2px;">{titulo_ranking}</div>',
+        unsafe_allow_html=True
+    )
  
     # ===================================================== 
     # MÓVIL: TABLA HTML COMPLETA EN UNA SOLA FILA POR JUGADOR 
@@ -853,6 +879,9 @@ def mostrar_ranking(tipo_juego, temporada):
             '<div class="mobile-ranking">' + ''.join(filas_html) + '</div>', 
             unsafe_allow_html=True 
         ) 
+        if not segundo_ranking:
+            st.markdown('<div style="height:18px;"></div>', unsafe_allow_html=True)
+            mostrar_ranking(tipo_juego, temporada, segundo_ranking=True)
         return 
  
     # ===================================================== 
@@ -905,6 +934,10 @@ def mostrar_ranking(tipo_juego, temporada):
         '<div class="ranking-box">' + ''.join(filas_html) + '</div>', 
         unsafe_allow_html=True 
     ) 
+
+    if not segundo_ranking:
+        st.markdown('<div style="height:18px;"></div>', unsafe_allow_html=True)
+        mostrar_ranking(tipo_juego, temporada, segundo_ranking=True)
  
 if st.session_state.jugador_seleccionado is not None: 
     mostrar_ficha(st.session_state.jugador_seleccionado) 
