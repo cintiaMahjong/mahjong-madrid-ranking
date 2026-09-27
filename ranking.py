@@ -749,23 +749,6 @@ def mostrar_ranking(tipo_juego, temporada, segundo_ranking=False):
     # Guardamos el total de jugadores antes de separar los dos rankings.
     total_jugadores = len(ranking)
 
-    # Ranking principal: 6 o más partidas. Ranking secundario: 5 o menos.
-    if segundo_ranking:
-        ranking = ranking[ranking["Partidas"] <= 5].copy()
-    else:
-        ranking = ranking[ranking["Partidas"] > 5].copy()
-
-    if ranking.empty:
-        if segundo_ranking:
-            return
-
-        # Si no hay jugadores con más de 5 partidas, mostramos igualmente
-        # el aviso y continuamos con el ranking de 5 o menos partidas.
-        st.info(f"No hay jugadores con más de 5 partidas en {tipo_juego} · {temporada}.")
-        st.markdown('<div style="height:18px;"></div>', unsafe_allow_html=True)
-        mostrar_ranking(tipo_juego, temporada, segundo_ranking=True)
-        return
-
     total_partidas = len(
         df_partidas[
             (df_partidas["tipo_juego"] == tipo_juego) &
@@ -773,6 +756,8 @@ def mostrar_ranking(tipo_juego, temporada, segundo_ranking=False):
         ]["id"].unique()
     )
 
+    # El selector se muestra siempre en el ranking principal de cada
+    # combinación juego/temporada, incluso si no hay jugadores con 6+ partidas.
     if not segundo_ranking:
         st.markdown(
             f"""
@@ -790,7 +775,6 @@ def mostrar_ranking(tipo_juego, temporada, segundo_ranking=False):
             unsafe_allow_html=True
         )
 
-    if not segundo_ranking:
         criterio = st.radio(
             "Criterio",
             ["📈 Winrate", "🏆 Puntos", "🎯 Media posición"],
@@ -804,6 +788,23 @@ def mostrar_ranking(tipo_juego, temporada, segundo_ranking=False):
             f"criterio_{tipo_juego}_{temporada}",
             "📈 Winrate"
         )
+
+    # Ranking principal: 6 o más partidas. Ranking secundario: 5 o menos.
+    if segundo_ranking:
+        ranking = ranking[ranking["Partidas"] <= 5].copy()
+    else:
+        ranking = ranking[ranking["Partidas"] > 5].copy()
+
+    if ranking.empty:
+        if segundo_ranking:
+            return
+
+        # Si no hay jugadores con más de 5 partidas, mostramos igualmente
+        # el aviso y continuamos con el ranking de 5 o menos partidas.
+        st.info(f"No hay jugadores con más de 5 partidas en {tipo_juego} · {temporada}.")
+        st.markdown('<div style="height:18px;"></div>', unsafe_allow_html=True)
+        mostrar_ranking(tipo_juego, temporada, segundo_ranking=True)
+        return
  
     if criterio == "📈 Winrate": 
         columna_orden = "Winrate" 
