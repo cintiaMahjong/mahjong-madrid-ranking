@@ -758,7 +758,12 @@ def mostrar_ranking(tipo_juego, temporada, segundo_ranking=False):
     if ranking.empty:
         if segundo_ranking:
             return
+
+        # Si no hay jugadores con más de 5 partidas, mostramos igualmente
+        # el aviso y continuamos con el ranking de 5 o menos partidas.
         st.info(f"No hay jugadores con más de 5 partidas en {tipo_juego} · {temporada}.")
+        st.markdown('<div style="height:18px;"></div>', unsafe_allow_html=True)
+        mostrar_ranking(tipo_juego, temporada, segundo_ranking=True)
         return
 
     total_partidas = len(
