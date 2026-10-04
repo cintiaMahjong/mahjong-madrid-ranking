@@ -707,12 +707,8 @@ def mostrar_ficha(jugador_id):
         st.warning("No se han encontrado temporadas en la tabla de partidas.") 
         return 
     
-       tab_mcr, tab_riichi = st.tabs(["🀄 MCR", "🀄 RIICHI"]) 
-    
-    # 1. Definimos la temporada que queremos ver primero
+    tab_mcr, tab_riichi = st.tabs(["🀄 MCR", "🀄 RIICHI"]) 
     temporada_prioritaria = "Oct 2026 - Sept 2027"
-    
-    # 2. Reordenamos la lista: si la prioritaria existe, la movemos al principio (índice 0)
     lista_ordenada_mcr = temporadas_ficha.copy()
     if temporada_prioritaria in lista_ordenada_mcr:
         lista_ordenada_mcr.remove(temporada_prioritaria)
