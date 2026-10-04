@@ -707,14 +707,21 @@ def mostrar_ficha(jugador_id):
         st.warning("No se han encontrado temporadas en la tabla de partidas.") 
         return 
     
-   tab_mcr, tab_riichi = st.tabs(["🀄 MCR", "🀄 RIICHI"])     
-   temporada_defecto = "Oct 2026 - Sept 2027"    
-    val_defecto = temporada_defecto if temporada_defecto in temporadas_ficha else None
-
+       tab_mcr, tab_riichi = st.tabs(["🀄 MCR", "🀄 RIICHI"]) 
+    
+    # 1. Definimos la temporada que queremos ver primero
+    temporada_prioritaria = "Oct 2026 - Sept 2027"
+    
+    # 2. Reordenamos la lista: si la prioritaria existe, la movemos al principio (índice 0)
+    lista_ordenada_mcr = temporadas_ficha.copy()
+    if temporada_prioritaria in lista_ordenada_mcr:
+        lista_ordenada_mcr.remove(temporada_prioritaria)
+        lista_ordenada_mcr.insert(0, temporada_prioritaria)
+        
     with tab_mcr: 
-        # 3. Se invoca una única vez al constructor usando la variable de control limpia
-        tabs = st.tabs(temporadas_ficha, default_value=val_defecto)
-        for temporada, tab in zip(temporadas_ficha, tabs): 
+        # Streamlit siempre abre la primera de la lista por defecto
+        tabs = st.tabs(lista_ordenada_mcr) 
+        for temporada, tab in zip(lista_ordenada_mcr, tabs): 
             with tab: 
                 st.subheader(temporada) 
                 mostrar_indicadores(jugador_id, "MCR", temporada) 
@@ -723,11 +730,16 @@ def mostrar_ficha(jugador_id):
                 st.divider() 
                 st.subheader("📋 Historial") 
                 mostrar_historial(jugador_id, "MCR", temporada) 
-                
+
+    # 3. Hacemos exactamente lo mismo para la lista de RIICHI
+    lista_ordenada_riichi = temporadas_ficha.copy()
+    if temporada_prioritaria in lista_ordenada_riichi:
+        lista_ordenada_riichi.remove(temporada_prioritaria)
+        lista_ordenada_riichi.insert(0, temporada_prioritaria)
+        
     with tab_riichi: 
-        # 4. Hacemos lo mismo para la sección Riichi
-        tabs = st.tabs(temporadas_ficha, default_value=val_defecto)
-        for temporada, tab in zip(temporadas_ficha, tabs): 
+        tabs = st.tabs(lista_ordenada_riichi) 
+        for temporada, tab in zip(lista_ordenada_riichi, tabs): 
             with tab: 
                 st.subheader(temporada) 
                 mostrar_indicadores(jugador_id, "RIICHI", temporada) 
@@ -736,6 +748,7 @@ def mostrar_ficha(jugador_id):
                 st.divider() 
                 st.subheader("📋 Historial") 
                 mostrar_historial(jugador_id, "RIICHI", temporada)
+
 
 
     st.divider() 
