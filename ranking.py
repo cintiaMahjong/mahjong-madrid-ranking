@@ -707,43 +707,60 @@ def mostrar_ficha(jugador_id):
         st.warning("No se han encontrado temporadas en la tabla de partidas.") 
         return 
     
-    tab_mcr, tab_riichi = st.tabs(["🀄 MCR", "🀄 RIICHI"]) 
-    temporada_prioritaria = "Oct 2026 - Sept 2027"
-    lista_ordenada_mcr = temporadas_ficha.copy()
-    if temporada_prioritaria in lista_ordenada_mcr:
-        lista_ordenada_mcr.remove(temporada_prioritaria)
-        lista_ordenada_mcr.insert(0, temporada_prioritaria)
-        
-    with tab_mcr: 
-        # Streamlit siempre abre la primera de la lista por defecto
-        tabs = st.tabs(lista_ordenada_mcr) 
-        for temporada, tab in zip(lista_ordenada_mcr, tabs): 
-            with tab: 
-                st.subheader(temporada) 
-                mostrar_indicadores(jugador_id, "MCR", temporada) 
-                st.divider() 
-                mostrar_distribucion_posiciones(jugador_id, "MCR", temporada) 
-                st.divider() 
-                st.subheader("📋 Historial") 
-                mostrar_historial(jugador_id, "MCR", temporada) 
+    # 1. Inicializamos el estado de la temporada seleccionada si no existe
+    temporada_defecto = "Oct 2026 - Sept 2027"
+    if "temp_seleccionada_ficha" not in st.session_state:
+        if temporada_defecto in temporadas_ficha:
+            st.session_state.temp_seleccionada_ficha = temporada_defecto
+        elif temporadas_ficha:
+            st.session_state.temp_seleccionada_ficha = temporadas_ficha[0]
+        else:
+            st.session_state.temp_seleccionada_ficha = None
 
-    # 3. Hacemos exactamente lo mismo para la lista de RIICHI
-    lista_ordenada_riichi = temporadas_ficha.copy()
-    if temporada_prioritaria in lista_ordenada_riichi:
-        lista_ordenada_riichi.remove(temporada_prioritaria)
-        lista_ordenada_riichi.insert(0, temporada_prioritaria)
+    # 2. Selector visual compacto para cambiar de temporada (reemplaza a los sub-tabs problemáticos)
+    if temporadas_ficha:
+        idx_defecto = temporadas_ficha.index(st.session_state.temp_seleccionada_ficha) if st.session_state.temp_seleccionada_ficha in temporadas_ficha else 0
         
+        st.write("**Seleccionar Temporada:**")
+        temporada_activa = st.radio(
+            "Temporada Ficha",
+            temporadas_ficha,
+            index=idx_defecto,
+            horizontal=True,
+            label_visibility="collapsed",
+            key="radio_temporada_ficha"
+        )
+        st.session_state.temp_seleccionada_ficha = temporada_activa
+    else:
+        temporada_activa = None
+
+    # 3. Pestañas principales de modalidad de juego
+    tab_mcr, tab_riichi = st.tabs(["🀄 MCR", "🀄 RIICHI"]) 
+    
+    with tab_mcr: 
+        if temporada_activa:
+            st.subheader(temporada_activa) 
+            mostrar_indicadores(jugador_id, "MCR", temporada_activa) 
+            st.divider() 
+            mostrar_distribucion_posiciones(jugador_id, "MCR", temporada_activa) 
+            st.divider() 
+            st.subheader("📋 Historial") 
+            mostrar_historial(jugador_id, "MCR", temporada_activa) 
+        else:
+            st.info("No hay temporadas disponibles.")
+
     with tab_riichi: 
-        tabs = st.tabs(lista_ordenada_riichi) 
-        for temporada, tab in zip(lista_ordenada_riichi, tabs): 
-            with tab: 
-                st.subheader(temporada) 
-                mostrar_indicadores(jugador_id, "RIICHI", temporada) 
-                st.divider() 
-                mostrar_distribucion_posiciones(jugador_id, "RIICHI", temporada) 
-                st.divider() 
-                st.subheader("📋 Historial") 
-                mostrar_historial(jugador_id, "RIICHI", temporada)
+        if temporada_activa:
+            st.subheader(temporada_activa) 
+            mostrar_indicadores(jugador_id, "RIICHI", temporada_activa) 
+            st.divider() 
+            mostrar_distribucion_posiciones(jugador_id, "RIICHI", temporada_activa) 
+            st.divider() 
+            st.subheader("📋 Historial") 
+            mostrar_historial(jugador_id, "RIICHI", temporada_activa)
+        else:
+            st.info("No hay temporadas disponibles.")
+
 
 
 
