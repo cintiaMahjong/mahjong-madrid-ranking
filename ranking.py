@@ -706,64 +706,29 @@ def mostrar_ficha(jugador_id):
     if not temporadas_ficha: 
         st.warning("No se han encontrado temporadas en la tabla de partidas.") 
         return 
-    
-    # 1. Inicializamos el estado de la temporada seleccionada si no existe
-    temporada_defecto = "Oct 2026 - Sept 2027"
-    if "temp_seleccionada_ficha" not in st.session_state:
-        if temporada_defecto in temporadas_ficha:
-            st.session_state.temp_seleccionada_ficha = temporada_defecto
-        elif temporadas_ficha:
-            st.session_state.temp_seleccionada_ficha = temporadas_ficha[0]
-        else:
-            st.session_state.temp_seleccionada_ficha = None
-
-    # 2. Selector visual compacto para cambiar de temporada (reemplaza a los sub-tabs problemáticos)
-    if temporadas_ficha:
-        idx_defecto = temporadas_ficha.index(st.session_state.temp_seleccionada_ficha) if st.session_state.temp_seleccionada_ficha in temporadas_ficha else 0
-        
-        st.write("**Seleccionar Temporada:**")
-        temporada_activa = st.radio(
-            "Temporada Ficha",
-            temporadas_ficha,
-            index=idx_defecto,
-            horizontal=True,
-            label_visibility="collapsed",
-            key="radio_temporada_ficha"
-        )
-        st.session_state.temp_seleccionada_ficha = temporada_activa
-    else:
-        temporada_activa = None
-
-    # 3. Pestañas principales de modalidad de juego
     tab_mcr, tab_riichi = st.tabs(["🀄 MCR", "🀄 RIICHI"]) 
-    
     with tab_mcr: 
-        if temporada_activa:
-            st.subheader(temporada_activa) 
-            mostrar_indicadores(jugador_id, "MCR", temporada_activa) 
-            st.divider() 
-            mostrar_distribucion_posiciones(jugador_id, "MCR", temporada_activa) 
-            st.divider() 
-            st.subheader("📋 Historial") 
-            mostrar_historial(jugador_id, "MCR", temporada_activa) 
-        else:
-            st.info("No hay temporadas disponibles.")
-
+        tabs = st.tabs(temporadas_ficha) 
+        for temporada, tab in zip(temporadas_ficha, tabs): 
+            with tab: 
+                st.subheader(temporada) 
+                mostrar_indicadores(jugador_id, "MCR", temporada) 
+                st.divider() 
+                mostrar_distribucion_posiciones(jugador_id, "MCR", temporada) 
+                st.divider() 
+                st.subheader("📋 Historial") 
+                mostrar_historial(jugador_id, "MCR", temporada) 
     with tab_riichi: 
-        if temporada_activa:
-            st.subheader(temporada_activa) 
-            mostrar_indicadores(jugador_id, "RIICHI", temporada_activa) 
-            st.divider() 
-            mostrar_distribucion_posiciones(jugador_id, "RIICHI", temporada_activa) 
-            st.divider() 
-            st.subheader("📋 Historial") 
-            mostrar_historial(jugador_id, "RIICHI", temporada_activa)
-        else:
-            st.info("No hay temporadas disponibles.")
-
-
-
-
+        tabs = st.tabs(temporadas_ficha) 
+        for temporada, tab in zip(temporadas_ficha, tabs): 
+            with tab: 
+                st.subheader(temporada) 
+                mostrar_indicadores(jugador_id, "RIICHI", temporada) 
+                st.divider() 
+                mostrar_distribucion_posiciones(jugador_id, "RIICHI", temporada) 
+                st.divider() 
+                st.subheader("📋 Historial") 
+                mostrar_historial(jugador_id, "RIICHI", temporada) 
     st.divider() 
     if st.button("← Volver al ranking", key="volver_abajo", use_container_width=True): 
         st.session_state.jugador_seleccionado = None 
