@@ -706,9 +706,13 @@ def mostrar_ficha(jugador_id):
     if not temporadas_ficha: 
         st.warning("No se han encontrado temporadas en la tabla de partidas.") 
         return 
-    tab_mcr, tab_riichi = st.tabs(["🀄 MCR", "🀄 RIICHI"]) 
+        tab_mcr, tab_riichi = st.tabs(["🀄 MCR", "🀄 RIICHI"]) 
+    
+    # Definimos la temporada que queremos por defecto
+    temporada_defecto = "Oct 2026 - Sep 2027"
+    
     with tab_mcr: 
-        tabs = st.tabs(temporadas_ficha) 
+        tabs = st.tabs(temporadas_ficha, default_value=temporada_defecto) if temporada_defecto in temporadas_ficha else st.tabs(temporadas_ficha) 
         for temporada, tab in zip(temporadas_ficha, tabs): 
             with tab: 
                 st.subheader(temporada) 
@@ -719,7 +723,7 @@ def mostrar_ficha(jugador_id):
                 st.subheader("📋 Historial") 
                 mostrar_historial(jugador_id, "MCR", temporada) 
     with tab_riichi: 
-        tabs = st.tabs(temporadas_ficha) 
+        tabs = st.tabs(temporadas_ficha, default_value=temporada_defecto) if temporada_defecto in temporadas_ficha else st.tabs(temporadas_ficha) 
         for temporada, tab in zip(temporadas_ficha, tabs): 
             with tab: 
                 st.subheader(temporada) 
@@ -728,7 +732,8 @@ def mostrar_ficha(jugador_id):
                 mostrar_distribucion_posiciones(jugador_id, "RIICHI", temporada) 
                 st.divider() 
                 st.subheader("📋 Historial") 
-                mostrar_historial(jugador_id, "RIICHI", temporada) 
+                mostrar_historial(jugador_id, "RIICHI", temporada)
+
     st.divider() 
     if st.button("← Volver al ranking", key="volver_abajo", use_container_width=True): 
         st.session_state.jugador_seleccionado = None 
