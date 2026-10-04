@@ -709,7 +709,7 @@ def mostrar_ficha(jugador_id):
         tab_mcr, tab_riichi = st.tabs(["🀄 MCR", "🀄 RIICHI"]) 
     
     # Definimos la temporada que queremos por defecto
-    temporada_defecto = "Oct 2026 - Sep 2027"
+    temporada_defecto = "Oct 2026 - Sept 2027"
     
     with tab_mcr: 
         tabs = st.tabs(temporadas_ficha, default_value=temporada_defecto) if temporada_defecto in temporadas_ficha else st.tabs(temporadas_ficha) 
