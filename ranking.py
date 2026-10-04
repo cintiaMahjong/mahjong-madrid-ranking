@@ -464,7 +464,7 @@ def obtener_temporadas():
         .drop_duplicates() 
         .tolist() 
     ) 
-    return sorted(temporadas, key=ordenar_temporada) 
+    return sorted(temporadas, key=ordenar_temporada, reverse=True) 
 def crear_ranking(tipo_juego, temporada): 
     df = datos.copy() 
     df = df[ 
