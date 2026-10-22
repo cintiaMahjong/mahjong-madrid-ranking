@@ -805,7 +805,7 @@ def mostrar_ranking_torneo():
         '<div style="font-size:.95rem;font-weight:800;margin:8px 0 7px 2px;">Ranking de Torneo · Puntos y minipuntos</div>',
         unsafe_allow_html=True
     )
-    st.caption("Puntos por posición: 1.º = 4 · 2.º = 2 · 3.º = 1 · 4.º = 0. Los empates en puntos se ordenan por minipuntos.")
+   
 
     filas = []
     movil = es_dispositivo_movil()
