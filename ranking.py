@@ -836,11 +836,14 @@ def mostrar_ranking_torneo():
     st.markdown('<div class="torneo-ranking">' + ''.join(filas) + '</div>', unsafe_allow_html=True)
 
 def mostrar_ranking(tipo_juego, temporada, segundo_ranking=False):
-    # Excepción: la temporada MCR llamada exactamente "Torneo" usa su propio ranking.
-    if tipo_juego == "MCR" and str(temporada).strip().casefold() == "torneo":
+    # Excepción: es un "Torneo"
+    es_caso_torneo = tipo_juego == "MCR" and str(temporada).strip().lower() == "torneo"
+    
+    if es_caso_torneo:
         if not segundo_ranking:
             mostrar_ranking_torneo()
         return
+        
 
     ranking = crear_ranking(tipo_juego, temporada) 
     if ranking.empty: 
