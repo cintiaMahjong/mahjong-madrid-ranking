@@ -766,7 +766,7 @@ def crear_ranking_torneo():
     """Clasificación especial MCR para la temporada llamada Torneo."""
     df = datos[
         (datos["tipo_juego"] == "MCR") &
-        (datos["temporada"].astype(str).str.strip().str.casefold() == "torneo")
+        (datos["temporada"].astype(str).str.strip().str.lower().str.contains("torneo", na=False))
     ].copy()
     if df.empty:
         return pd.DataFrame()
