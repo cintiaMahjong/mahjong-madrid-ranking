@@ -837,7 +837,7 @@ def mostrar_ranking_torneo():
 
 def mostrar_ranking(tipo_juego, temporada, segundo_ranking=False):
     # Excepción: es un "Torneo"
-    es_caso_torneo = tipo_juego == "MCR" and str(temporada).strip().lower() == "torneo"
+    es_caso_torneo = tipo_juego == "MCR" and "torneo" in str(temporada).strip().lower()
     
     if es_caso_torneo:
         if not segundo_ranking:
