@@ -959,7 +959,7 @@ def mostrar_ranking(tipo_juego, temporada, segundo_ranking=False):
             posicion = int(fila["Posición"]) 
             jugador_id = str(fila["jugador_id"]) 
             nombre_base = str(fila["nombre_jugador"]).strip()[:15]
-            nombre = html.escape(f"{nombre_base} ({int(fila['Partidas'])})") 
+            nombre = html.escape(f"{nombre_base} ({int(fila['Partidas'])} part.)")
  
             if columna_orden == "Winrate": 
                 valor = f"{float(fila['Winrate']):.1f}%" 
