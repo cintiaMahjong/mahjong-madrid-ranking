@@ -817,7 +817,7 @@ def mostrar_ranking_torneo():
             pos = int(fila["Posición"])
             jugador_id = urllib.parse.quote(str(fila["jugador_id"]), safe="")
             nombre_base = str(fila["nombre_jugador"]).strip()
-           nombre = html.escape(f"{nombre_base} ({int(fila['Partidas'])} part.)")
+            nombre = html.escape(f"{nombre_base} ({int(fila['Partidas'])} part.)")
             filas.append(
                 f'<a class="torneo-mobile-row" href="?jugador_id={jugador_id}"><div class="torneo-num">{pos}</div><div class="torneo-mobile-name">{nombre}</div><div class="torneo-val">{int(fila["Puntos"])}</div><div class="torneo-val">{int(fila["Minipuntos"])}</div></a>'
             )
@@ -831,7 +831,7 @@ def mostrar_ranking_torneo():
         pos = int(fila["Posición"])
         jugador_id = urllib.parse.quote(str(fila["jugador_id"]), safe="")
         nombre_base = str(fila["nombre_jugador"]).strip()
-       nombre = html.escape(f"{nombre_base} ({int(fila['Partidas'])} part.)")
+        nombre = html.escape(f"{nombre_base} ({int(fila['Partidas'])} part.)")
         filas.append(
             f'<div class="torneo-row"><div class="torneo-num">{pos}</div><div><a class="torneo-player" href="?jugador_id={jugador_id}">{nombre}</a></div><div class="torneo-val">{int(fila["Puntos"])}</div><div class="torneo-val">{int(fila["Minipuntos"])}</div></div>'
         )
