@@ -816,7 +816,8 @@ def mostrar_ranking_torneo():
         for _, fila in ranking.iterrows():
             pos = int(fila["Posición"])
             jugador_id = urllib.parse.quote(str(fila["jugador_id"]), safe="")
-            nombre = html.escape(str(fila["nombre_jugador"]).strip())
+            nombre_base = str(fila["nombre_jugador"]).strip()
+            nombre = html.escape(f"{nombre_base} ({int(fila['Partidas'])})")
             filas.append(
                 f'<a class="torneo-mobile-row" href="?jugador_id={jugador_id}"><div class="torneo-num">{pos}</div><div class="torneo-mobile-name">{nombre}</div><div class="torneo-val">{int(fila["Puntos"])}</div><div class="torneo-val">{int(fila["Minipuntos"])}</div></a>'
             )
@@ -829,7 +830,8 @@ def mostrar_ranking_torneo():
     for _, fila in ranking.iterrows():
         pos = int(fila["Posición"])
         jugador_id = urllib.parse.quote(str(fila["jugador_id"]), safe="")
-        nombre = html.escape(str(fila["nombre_jugador"]).strip())
+        nombre_base = str(fila["nombre_jugador"]).strip()
+        nombre = html.escape(f"{nombre_base} ({int(fila['Partidas'])})")
         filas.append(
             f'<div class="torneo-row"><div class="torneo-num">{pos}</div><div><a class="torneo-player" href="?jugador_id={jugador_id}">{nombre}</a></div><div class="torneo-val">{int(fila["Puntos"])}</div><div class="torneo-val">{int(fila["Minipuntos"])}</div></div>'
         )
@@ -956,7 +958,8 @@ def mostrar_ranking(tipo_juego, temporada, segundo_ranking=False):
         for _, fila in ranking.iterrows(): 
             posicion = int(fila["Posición"]) 
             jugador_id = str(fila["jugador_id"]) 
-            nombre = html.escape(str(fila["nombre_jugador"]).strip()[:15]) 
+            nombre_base = str(fila["nombre_jugador"]).strip()[:15]
+            nombre = html.escape(f"{nombre_base} ({int(fila['Partidas'])})") 
  
             if columna_orden == "Winrate": 
                 valor = f"{float(fila['Winrate']):.1f}%" 
@@ -1014,9 +1017,10 @@ def mostrar_ranking(tipo_juego, temporada, segundo_ranking=False):
     for _, fila in ranking.iterrows(): 
         posicion = int(fila["Posición"]) 
         jugador_id = str(fila["jugador_id"]) 
-        nombre = html.escape(str(fila["nombre_jugador"]).strip()) 
+        nombre_base = str(fila["nombre_jugador"]).strip()
+        partidas = int(fila["Partidas"])
+        nombre = html.escape(f"{nombre_base} ({partidas})")
         puntos = int(fila["Puntos"]) 
-        partidas = int(fila["Partidas"]) 
         ganadas = int(fila["Ganadas"]) 
         winrate = float(fila["Winrate"]) 
         media = float(fila["Media"]) 
