@@ -903,7 +903,7 @@ def mostrar_ranking(tipo_juego, temporada, segundo_ranking=False):
         criterio = st.radio(
             "Criterio",
             ["📈 Winrate", "🏆 Puntos", "🎯 Media posición"],
-            index=0,
+            index=1,
             horizontal=True,
             label_visibility="collapsed",
             key=f"criterio_{tipo_juego}_{temporada}"
@@ -911,7 +911,7 @@ def mostrar_ranking(tipo_juego, temporada, segundo_ranking=False):
     else:
         criterio = st.session_state.get(
             f"criterio_{tipo_juego}_{temporada}",
-            "📈 Winrate"
+            "🏆 Puntos"
         )
 
     # Ranking principal: 6 o más partidas. Ranking secundario: 5 o menos.
