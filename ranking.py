@@ -486,83 +486,82 @@ def obtener_temporadas():
         .tolist() 
     ) 
     return sorted(temporadas, key=ordenar_temporada, reverse=True) 
-def crear_ranking(tipo_juego, temporada):
-    df = datos.copy()
-    df = df[
-        (df["tipo_juego"] == tipo_juego) &
-        (df["temporada"] == temporada)
-    ].copy()
-    if df.empty:
-        return pd.DataFrame()
-
-    # Una sola fila por jugador y partida.
-    df = df.drop_duplicates(subset=["partida_id", "jugador_id"]).copy()
-    df["puntuacion"] = pd.to_numeric(
-        df["puntuacion"], errors="coerce"
-    ).fillna(0)
-    df["posicion"] = pd.to_numeric(
-        df["posicion"], errors="coerce"
-    )
-
-    # Puntos de clasificación según la posición final:
-    # 1.º = 4, 2.º = 2, 3.º = 1, 4.º/5.º = 0.
-    puntos_por_posicion = {1: 4, 2: 2, 3: 1, 4: 0, 5: 0}
-    df["puntos_posicion"] = df["posicion"].map(puntos_por_posicion).fillna(0).astype(int)
+def crear_ranking(tipo_juego, temporada): 
+    df = datos.copy() 
+    df = df[ 
+        (df["tipo_juego"] == tipo_juego) & 
+        (df["temporada"] == temporada) 
+    ].copy() 
+    if df.empty: 
+        return pd.DataFrame() 
+    df = df.drop_duplicates(subset=["partida_id", "jugador_id"]).copy() 
+    df["puntuacion"] = pd.to_numeric( 
+        df["puntuacion"], errors="coerce" 
+    ).fillna(0) 
+    df["posicion"] = pd.to_numeric( 
+        df["posicion"], errors="coerce" 
+    ) 
+    # Minipuntos: suma de la puntuación original de las partidas.
+    # En MCR, Puntos se calcula por posición; en Riichi se mantiene
+    # el cálculo original (suma de puntuacion).
+    df["Minipuntos"] = df["puntuacion"]
+    if tipo_juego == "MCR":
+        puntos_por_posicion = {1: 4, 2: 2, 3: 1, 4: 0, 5: 0}
+        df["PuntosPosicion"] = df["posicion"].map(puntos_por_posicion).fillna(0)
+        columna_puntos = "PuntosPosicion"
+    else:
+        df["PuntosPosicion"] = df["puntuacion"]
+        columna_puntos = "PuntosPosicion"
 
     ranking = (
         df.groupby(["jugador_id", "nombre_jugador"], as_index=False)
         .agg(
-            Puntos=("puntos_posicion", "sum"),
-            Minipuntos=("puntuacion", "sum"),
+            Puntos=("PuntosPosicion", "sum"),
+            Minipuntos=("Minipuntos", "sum"),
             Partidas=("partida_id", "nunique"),
             Media=("puntuacion", "mean"),
             PuntuacionMaxima=("puntuacion", "max")
         )
-    )
-
-    ganadas = (
-        df[df["posicion"] == 1]
-        .groupby("jugador_id")["partida_id"]
-        .nunique()
-        .reset_index(name="Ganadas")
-    )
-    ranking = ranking.merge(ganadas, on="jugador_id", how="left")
-    ranking["Ganadas"] = ranking["Ganadas"].fillna(0).astype(int)
-    ranking["Winrate"] = (
-        ranking["Ganadas"] / ranking["Partidas"] * 100
-    ).fillna(0).round(1)
-
-    posiciones = (
-        df.groupby("jugador_id")
-        .agg(SumaPosiciones=("posicion", "sum"))
-        .reset_index()
-    )
-    ranking = ranking.merge(posiciones, on="jugador_id", how="left")
-    ranking["MediaPosicion"] = (
-        ranking["SumaPosiciones"] / ranking["Partidas"]
-    ).round(2)
-
-    ranking["Puntos"] = ranking["Puntos"].astype(int)
+    ) 
+    ganadas = ( 
+        df[df["posicion"] == 1] 
+        .groupby("jugador_id")["partida_id"] 
+        .nunique() 
+        .reset_index(name="Ganadas") 
+    ) 
+    ranking = ranking.merge(ganadas, on="jugador_id", how="left") 
+    ranking["Ganadas"] = ranking["Ganadas"].fillna(0).astype(int) 
+    ranking["Winrate"] = ( 
+        ranking["Ganadas"] / ranking["Partidas"] * 100 
+    ).fillna(0).round(1) 
+    posiciones = ( 
+        df.groupby("jugador_id") 
+        .agg(SumaPosiciones=("posicion", "sum")) 
+        .reset_index() 
+    ) 
+    ranking = ranking.merge(posiciones, on="jugador_id", how="left") 
+    ranking["MediaPosicion"] = ( 
+        ranking["SumaPosiciones"] / ranking["Partidas"] 
+    ).round(2) 
+    ranking["Puntos"] = ranking["Puntos"].round().astype(int)
     ranking["Minipuntos"] = ranking["Minipuntos"].round().astype(int)
-    ranking["Media"] = ranking["Media"].round(1)
-    ranking["PuntuacionMaxima"] = ranking["PuntuacionMaxima"].round().astype(int)
-    ranking["MediaPosicion"] = ranking["MediaPosicion"].fillna(0).round(2)
-
-    # Desempate del ranking de puntos: primero puntos por posición,
-    # después minipuntos (suma de puntuaciones de las partidas).
-    ranking = ranking.sort_values(
-        ["Puntos", "Minipuntos", "nombre_jugador"],
-        ascending=[False, False, True],
-        kind="mergesort"
-    ).reset_index(drop=True)
-    ranking["Posición"] = ranking.index + 1
-
-    return ranking[[
+    ranking["Media"] = ranking["Media"].round(1) 
+    ranking["PuntuacionMaxima"] = ranking["PuntuacionMaxima"].round().astype(int) 
+    ranking["MediaPosicion"] = ranking["MediaPosicion"].fillna(0).round(2) 
+    if tipo_juego == "MCR":
+        ranking = ranking.sort_values(
+            ["Puntos", "Minipuntos"], ascending=[False, False], kind="mergesort"
+        ).reset_index(drop=True)
+    else:
+        ranking = ranking.sort_values(
+            "Puntos", ascending=False, kind="mergesort"
+        ).reset_index(drop=True) 
+    ranking["Posición"] = ranking.index + 1 
+    return ranking[[ 
         "Posición", "jugador_id", "nombre_jugador", "Puntos", "Minipuntos",
-        "Partidas", "Ganadas", "Winrate", "Media",
-        "PuntuacionMaxima", "MediaPosicion"
-    ]]
-
+        "Partidas", "Ganadas", "Winrate", "Media", 
+        "PuntuacionMaxima", "MediaPosicion" 
+    ]] 
 def es_dispositivo_movil(): 
     try: 
         user_agent = st.context.headers.get("User-Agent", "").lower() 
@@ -942,11 +941,18 @@ def mostrar_ranking(tipo_juego, temporada, segundo_ranking=False):
         columna_orden = "MediaPosicion" 
         ascendente = True 
  
-    ranking = ranking.sort_values( 
-        columna_orden, 
-        ascending=ascendente, 
-        kind="mergesort" 
-    ).reset_index(drop=True) 
+    if tipo_juego == "MCR" and columna_orden == "Puntos":
+        ranking = ranking.sort_values(
+            ["Puntos", "Minipuntos"],
+            ascending=[False, False],
+            kind="mergesort"
+        ).reset_index(drop=True)
+    else:
+        ranking = ranking.sort_values(
+            columna_orden,
+            ascending=ascendente,
+            kind="mergesort"
+        ).reset_index(drop=True) 
     ranking["Posición"] = ranking.index + 1 
  
     nombre_valor = limpiar_criterio(criterio) 
@@ -971,7 +977,7 @@ def mostrar_ranking(tipo_juego, temporada, segundo_ranking=False):
             f'''<div class="mobile-ranking-header"> 
                     <div style="text-align:center;">POS.</div> 
                     <div>JUGADOR</div> 
-                    <div style="text-align:right;">{nombre_valor.upper()}</div> 
+                    <div style="text-align:right;">{"PUNTOS" if tipo_juego == "MCR" else nombre_valor.upper()}</div> 
                 </div>''' 
         ] 
  
@@ -981,11 +987,13 @@ def mostrar_ranking(tipo_juego, temporada, segundo_ranking=False):
             nombre_base = str(fila["nombre_jugador"]).strip()[:15]
             nombre = html.escape(f"{nombre_base} ({int(fila['Partidas'])} part.)")
  
-            if columna_orden == "Winrate": 
-                valor = f"{float(fila['Winrate']):.1f}%" 
-            elif columna_orden == "Puntos":
+            if tipo_juego == "MCR":
                 valor = f"{int(fila['Puntos'])} ({int(fila['Minipuntos'])})"
-            else: 
+            elif columna_orden == "Winrate":
+                valor = f"{float(fila['Winrate']):.1f}%"
+            elif columna_orden == "Puntos":
+                valor = f"{int(fila['Puntos'])}"
+            else:
                 valor = f"{float(fila['MediaPosicion']):.2f}" 
  
             if posicion == 1: 
@@ -1024,7 +1032,7 @@ def mostrar_ranking(tipo_juego, temporada, segundo_ranking=False):
         '''<div class="ranking-header"> 
             <div style="text-align:center;">Pos.</div> 
             <div>Jugador</div> 
-            <div style="text-align:center;">Puntos</div>
+            <div style="text-align:center;">Puntos</div> 
             <div style="text-align:center;">Part.</div> 
             <div style="text-align:center;">Gan.</div> 
             <div style="text-align:center;">Winrate</div> 
@@ -1042,11 +1050,8 @@ def mostrar_ranking(tipo_juego, temporada, segundo_ranking=False):
         nombre = html.escape(f"{nombre_base} ({partidas})")
         puntos = int(fila["Puntos"])
         minipuntos = int(fila["Minipuntos"])
-        puntos_mostrar = (
-            f"{puntos} ({minipuntos})" if columna_orden == "Puntos"
-            else str(puntos)
-        )
-        ganadas = int(fila["Ganadas"])
+        puntos_mostrados = f"{puntos} ({minipuntos})" if tipo_juego == "MCR" else str(puntos)
+        ganadas = int(fila["Ganadas"]) 
         winrate = float(fila["Winrate"]) 
         media = float(fila["Media"]) 
         maxima = int(fila["PuntuacionMaxima"]) 
@@ -1059,7 +1064,7 @@ def mostrar_ranking(tipo_juego, temporada, segundo_ranking=False):
                 <div class="ranking-cell"> 
                     <a class="ranking-player-link" href="?jugador_id={jugador_url}">{nombre}</a> 
                 </div> 
-                <div class="ranking-cell ranking-value">{puntos_mostrar}</div>
+                <div class="ranking-cell ranking-value">{puntos_mostrados}</div> 
                 <div class="ranking-cell ranking-value">{partidas}</div> 
                 <div class="ranking-cell ranking-value">{ganadas}</div> 
                 <div class="ranking-cell ranking-value">{winrate:.1f}%</div> 
