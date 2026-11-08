@@ -1190,7 +1190,7 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
                     '</div>'
 
                     '<div class="rival-card-subtitle">'
-                        'Partidas compartidas / Total jugadas'
+                        'Partidas  / Total jugadas'
                     '</div>'
 
                     + crear_filas(mas_frecuentes) +
@@ -1204,7 +1204,7 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
                     '</div>'
 
                     '<div class="rival-card-subtitle">'
-                        'Partidas por delante / Total jugadas'
+                        'Partidas / Total jugadas'
                     '</div>'
 
                     + crear_filas(mas_derrotas) +
@@ -1218,7 +1218,7 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
                     '</div>'
 
                     '<div class="rival-card-subtitle">'
-                        'Partidas por delante / Total jugadas'
+                        'Partidas  / Total jugadas'
                     '</div>'
 
                     + crear_filas(mas_victorias) +
