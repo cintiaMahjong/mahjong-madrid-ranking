@@ -500,7 +500,16 @@ div[role="radiogroup"] label {
     font-size: .82rem;
     padding: 8px 0;
 }
+.rival-name {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
 
+.rival-name:hover {
+    color: #b08d45;
+    text-decoration: underline;
+}
 @media (max-width: 700px) {
     .player-stats-card,
     .rivals-section {
@@ -1119,7 +1128,7 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
 
     # Crear filas HTML
 
-    def crear_filas(serie):
+        def crear_filas(serie):
 
         if serie.empty:
             return (
@@ -1134,12 +1143,17 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
 
             resultado += (
                 '<div class="rival-row">'
-                    '<span class="rival-name">'
+
+                    '<a class="rival-name" '
+                    f'href="?jugador_id={html.escape(str(id_rival))}" '
+                    'target="_self">'
                         f'{html.escape(str(nombre))}'
-                    '</span>'
+                    '</a>'
+
                     '<strong class="rival-count">'
                         f'{int(cantidad)} / {total_partidas}'
                     '</strong>'
+
                 '</div>'
             )
 
