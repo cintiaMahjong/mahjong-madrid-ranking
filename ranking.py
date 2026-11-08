@@ -1069,7 +1069,9 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
     # TOP 5: jugadores con los que más partidas comparte
 
     mas_frecuentes = (
-        rivales.groupby("nombre_jugador")["partida_id"]
+        rivales.groupby(
+            ["jugador_id", "nombre_jugador"]
+        )["partida_id"]
         .nunique()
         .sort_values(ascending=False)
         .head(5)
@@ -1084,82 +1086,89 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
     ]
 
     mas_derrotas = (
-        derrotas.groupby("nombre_jugador")["partida_id"]
+        derrotas.groupby(
+            ["jugador_id", "nombre_jugador"]
+        )["partida_id"]
         .nunique()
         .sort_values(ascending=False)
         .head(5)
     )
 
+    # Crear filas HTML
+
     def crear_filas(serie):
 
         if serie.empty:
-            return """
-                <div class="rival-empty">
-                    Todavía no hay datos suficientes.
-                </div>
-            """
+            return (
+                '<div class="rival-empty">'
+                'Todavía no hay datos suficientes.'
+                '</div>'
+            )
 
         resultado = ""
 
-        for nombre, cantidad in serie.items():
+        for (id_rival, nombre), cantidad in serie.items():
 
-            resultado += f"""
-                <div class="rival-row">
-
-                    <span class="rival-name">
-                        {html.escape(str(nombre))}
-                    </span>
-
-                    <strong class="rival-count">
-                        {int(cantidad)}
-                    </strong>
-
-                </div>
-            """
+            resultado += (
+                '<div class="rival-row">'
+                    '<span class="rival-name">'
+                        f'{html.escape(str(nombre))}'
+                    '</span>'
+                    '<strong class="rival-count">'
+                        f'{int(cantidad)}'
+                    '</strong>'
+                '</div>'
+            )
 
         return resultado
 
-    st.markdown(f"""
-        <div class="rivals-section">
+    # Construir HTML completo
 
-            <div class="rivals-title">
-                🤝 Rivales habituales
-            </div>
+    contenido = (
+        '<div class="rivals-section">'
 
-            <div class="rivals-grid">
+            '<div class="rivals-title">'
+                '🤝 Rivales habituales'
+            '</div>'
 
-                <div class="rival-card">
+            '<div class="rivals-grid">'
 
-                    <div class="rival-card-title">
-                        Con quien más juega
-                    </div>
+                '<div class="rival-card">'
 
-                    <div class="rival-card-subtitle">
-                        Partidas compartidas · Top 5
-                    </div>
+                    '<div class="rival-card-title">'
+                        'Con quien más juega'
+                    '</div>'
 
-                    {crear_filas(mas_frecuentes)}
+                    '<div class="rival-card-subtitle">'
+                        'Partidas compartidas · Top 5'
+                    '</div>'
 
-                </div>
+                    + crear_filas(mas_frecuentes) +
 
-                <div class="rival-card">
+                '</div>'
 
-                    <div class="rival-card-title">
-                        Quien más veces le gana
-                    </div>
+                '<div class="rival-card">'
 
-                    <div class="rival-card-subtitle">
-                        Veces que acaba por delante · Top 5
-                    </div>
+                    '<div class="rival-card-title">'
+                        'Quien más veces le gana'
+                    '</div>'
 
-                    {crear_filas(mas_derrotas)}
+                    '<div class="rival-card-subtitle">'
+                        'Veces que acaba por delante · Top 5'
+                    '</div>'
 
-                </div>
+                    + crear_filas(mas_derrotas) +
 
-            </div>
+                '</div>'
 
-        </div>
-    """, unsafe_allow_html=True)
+            '</div>'
+
+        '</div>'
+    )
+
+    st.markdown(contenido, unsafe_allow_html=True)
+
+
 
 
 def crear_ranking_torneo():
