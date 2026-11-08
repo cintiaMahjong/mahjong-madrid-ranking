@@ -925,6 +925,241 @@ def limpiar_criterio(criterio):
         .replace("🎯 ", "") 
     ) 
 
+def mostrar_distribucion_posiciones(jugador_id, tipo_juego, temporada):
+
+    df = datos[
+        (datos["jugador_id"].astype(str) == str(jugador_id)) &
+        (datos["tipo_juego"] == tipo_juego) &
+        (datos["temporada"] == temporada)
+    ].copy()
+
+    if df.empty:
+        return
+
+    df = df.drop_duplicates(
+        subset=["partida_id", "jugador_id"]
+    )
+
+    df["posicion"] = pd.to_numeric(
+        df["posicion"], errors="coerce"
+    )
+
+    df = df[df["posicion"].between(1, 5)]
+
+    if df.empty:
+        return
+
+    total = len(df)
+    conteo = df["posicion"].value_counts().to_dict()
+
+    barras = []
+
+    for posicion in range(1, 6):
+
+        cantidad = int(conteo.get(posicion, 0))
+
+        porcentaje = cantidad / total * 100
+
+        porcentaje_txt = f"{porcentaje:.2f}".replace(".", ",")
+
+        barras.append(f"""
+            <div class="stats-position-row">
+
+                <div class="stats-position-label">
+                    {posicion}.º
+                </div>
+
+                <div class="stats-bar-track">
+                    <div class="stats-bar-fill stats-bar-{posicion}"
+                         style="width:{porcentaje:.2f}%">
+                    </div>
+                </div>
+
+                <div class="stats-position-percent">
+                    {porcentaje_txt} %
+                </div>
+
+            </div>
+        """)
+
+    st.markdown(f"""
+        <div class="player-stats-card">
+
+            <div class="player-stats-title">
+                Estadísticas
+            </div>
+
+            <div class="player-stats-subtitle">
+                Todo el historial · Todas las partidas ·
+                {total} en {html.escape(tipo_juego)}
+            </div>
+
+            {''.join(barras)}
+
+        </div>
+    """, unsafe_allow_html=True)
+
+
+def mostrar_rivales(jugador_id, tipo_juego, temporada):
+
+    jugador_id = str(jugador_id)
+
+    df_jugador = datos[
+        (datos["jugador_id"].astype(str) == jugador_id) &
+        (datos["tipo_juego"] == tipo_juego) &
+        (datos["temporada"] == temporada)
+    ].copy()
+
+    if df_jugador.empty:
+        return
+
+    df_jugador = df_jugador.drop_duplicates(
+        subset=["partida_id", "jugador_id"]
+    )
+
+    ids_partidas = df_jugador["partida_id"].dropna().unique()
+
+    enfrentamientos = datos[
+        (datos["partida_id"].isin(ids_partidas)) &
+        (datos["tipo_juego"] == tipo_juego) &
+        (datos["temporada"] == temporada)
+    ].copy()
+
+    enfrentamientos = enfrentamientos.drop_duplicates(
+        subset=["partida_id", "jugador_id"]
+    )
+
+    enfrentamientos["posicion"] = pd.to_numeric(
+        enfrentamientos["posicion"],
+        errors="coerce"
+    )
+
+    posiciones_jugador = df_jugador[
+        ["partida_id", "posicion"]
+    ].copy()
+
+    posiciones_jugador["posicion"] = pd.to_numeric(
+        posiciones_jugador["posicion"],
+        errors="coerce"
+    )
+
+    posiciones_jugador = posiciones_jugador.rename(
+        columns={"posicion": "posicion_jugador"}
+    )
+
+    rivales = enfrentamientos[
+        enfrentamientos["jugador_id"].astype(str) != jugador_id
+    ].merge(
+        posiciones_jugador,
+        on="partida_id",
+        how="inner"
+    )
+
+    if rivales.empty:
+        return
+
+    rivales["nombre_jugador"] = (
+        rivales["nombre_jugador"]
+        .fillna("Jugador")
+        .astype(str)
+    )
+
+    # TOP 5: jugadores con los que más partidas comparte
+
+    mas_frecuentes = (
+        rivales.groupby("nombre_jugador")["partida_id"]
+        .nunique()
+        .sort_values(ascending=False)
+        .head(5)
+    )
+
+    # TOP 5: jugadores que terminan por delante más veces
+
+    derrotas = rivales[
+        rivales["posicion"].notna() &
+        rivales["posicion_jugador"].notna() &
+        (rivales["posicion"] < rivales["posicion_jugador"])
+    ]
+
+    mas_derrotas = (
+        derrotas.groupby("nombre_jugador")["partida_id"]
+        .nunique()
+        .sort_values(ascending=False)
+        .head(5)
+    )
+
+    def crear_filas(serie):
+
+        if serie.empty:
+            return """
+                <div class="rival-empty">
+                    Todavía no hay datos suficientes.
+                </div>
+            """
+
+        resultado = ""
+
+        for nombre, cantidad in serie.items():
+
+            resultado += f"""
+                <div class="rival-row">
+
+                    <span class="rival-name">
+                        {html.escape(str(nombre))}
+                    </span>
+
+                    <strong class="rival-count">
+                        {int(cantidad)}
+                    </strong>
+
+                </div>
+            """
+
+        return resultado
+
+    st.markdown(f"""
+        <div class="rivals-section">
+
+            <div class="rivals-title">
+                🤝 Rivales habituales
+            </div>
+
+            <div class="rivals-grid">
+
+                <div class="rival-card">
+
+                    <div class="rival-card-title">
+                        Con quien más juega
+                    </div>
+
+                    <div class="rival-card-subtitle">
+                        Partidas compartidas · Top 5
+                    </div>
+
+                    {crear_filas(mas_frecuentes)}
+
+                </div>
+
+                <div class="rival-card">
+
+                    <div class="rival-card-title">
+                        Quien más veces le gana
+                    </div>
+
+                    <div class="rival-card-subtitle">
+                        Veces que acaba por delante · Top 5
+                    </div>
+
+                    {crear_filas(mas_derrotas)}
+
+                </div>
+
+            </div>
+
+        </div>
+    """, unsafe_allow_html=True)
+
+
 def crear_ranking_torneo():
     """Clasificación especial MCR para la temporada llamada Torneo."""
     df = datos[
