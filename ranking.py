@@ -1136,11 +1136,11 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
                 '<div class="rival-card">'
 
                     '<div class="rival-card-title">'
-                        'Con quien más juega'
+                        'Con quien juega más'
                     '</div>'
 
                     '<div class="rival-card-subtitle">'
-                        'Partidas compartidas · Top 5'
+                        'Top 5'
                     '</div>'
 
                     + crear_filas(mas_frecuentes) +
@@ -1154,7 +1154,7 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
                     '</div>'
 
                     '<div class="rival-card-subtitle">'
-                        'Veces que acaba por delante · Top 5'
+                        'Top 5'
                     '</div>'
 
                     + crear_filas(mas_derrotas) +
