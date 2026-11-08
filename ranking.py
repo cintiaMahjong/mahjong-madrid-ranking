@@ -984,15 +984,18 @@ def mostrar_distribucion_posiciones(jugador_id, tipo_juego, temporada):
             </div>
         """)
 
-   st.markdown("""
-    <div style="
-        background-color: #14532d;
-        color: white;
-        padding: 15px;
-        border-radius: 10px;
-        font-size: 20px;
-    ">
-        Estadísticas
+  st.markdown(f"""
+    <div class="player-stats-card">
+        <div class="player-stats-title">
+            Estadísticas
+        </div>
+
+        <div class="player-stats-subtitle">
+            Todo el historial · Todas las partidas ·
+            {total} en {html.escape(tipo_juego)}
+        </div>
+
+        {''.join(barras)}
     </div>
 """, unsafe_allow_html=True)
 
