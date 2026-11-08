@@ -374,7 +374,7 @@ div[role="radiogroup"] label {
 }
 
 /* =========================================
-   ESTADÍSTICAS DEL JUGADOR
+    DEL JUGADOR
 ========================================= */
 
 .player-stats-card,
@@ -938,20 +938,24 @@ def mostrar_distribucion_posiciones(jugador_id, tipo_juego, temporada):
     if df.empty:
         return
 
+    # Evitar duplicados
     df = df.drop_duplicates(
         subset=["partida_id", "jugador_id"]
     )
 
+    # Convertir posiciones a números
     df["posicion"] = pd.to_numeric(
         df["posicion"], errors="coerce"
     )
 
+    # Mantener posiciones del 1 al 5
     df = df[df["posicion"].between(1, 5)]
 
     if df.empty:
         return
 
     total = len(df)
+
     conteo = df["posicion"].value_counts().to_dict()
 
     barras = []
@@ -964,40 +968,38 @@ def mostrar_distribucion_posiciones(jugador_id, tipo_juego, temporada):
 
         porcentaje_txt = f"{porcentaje:.2f}".replace(".", ",")
 
-        barras.append(f"""
-            <div class="stats-position-row">
+        barra = (
+            '<div class="stats-position-row">'
+                '<div class="stats-position-label">'
+                    f'{posicion}.º'
+                '</div>'
+                '<div class="stats-bar-track">'
+                    f'<div class="stats-bar-fill stats-bar-{posicion}" '
+                    f'style="width:{porcentaje:.2f}%;">'
+                    '</div>'
+                '</div>'
+                '<div class="stats-position-percent">'
+                    f'{porcentaje_txt} %'
+                '</div>'
+            '</div>'
+        )
 
-                <div class="stats-position-label">
-                    {posicion}.º
-                </div>
+        barras.append(barra)
 
-                <div class="stats-bar-track">
-                    <div class="stats-bar-fill stats-bar-{posicion}"
-                         style="width:{porcentaje:.2f}%">
-                    </div>
-                </div>
+    contenido = (
+        '<div class="player-stats-card">'
+            '<div class="player-stats-title">'
+                'Estadísticas'
+            '</div>'
+            '<div class="player-stats-subtitle">'
+                'Todo el historial · Todas las partidas · '
+                f'{total} en {html.escape(str(tipo_juego))}'
+            '</div>'
+            + ''.join(barras) +
+        '</div>'
+    )
 
-                <div class="stats-position-percent">
-                    {porcentaje_txt} %
-                </div>
-
-            </div>
-        """)
-
-  st.markdown(f"""
-    <div class="player-stats-card">
-        <div class="player-stats-title">
-            Estadísticas
-        </div>
-
-        <div class="player-stats-subtitle">
-            Todo el historial · Todas las partidas ·
-            {total} en {html.escape(tipo_juego)}
-        </div>
-
-        {''.join(barras)}
-    </div>
-""", unsafe_allow_html=True)
+    st.markdown(contenido, unsafe_allow_html=True)
 
 
 def mostrar_rivales(jugador_id, tipo_juego, temporada):
