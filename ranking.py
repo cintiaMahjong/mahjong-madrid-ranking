@@ -900,6 +900,7 @@ def mostrar_ficha(jugador_id):
                 st.divider() 
                 mostrar_distribucion_posiciones(jugador_id, "MCR", temporada) 
                 st.divider() 
+                mostrar_rivales( jugador_id, "MCR", temporada)
                 st.subheader("📋 Historial") 
                 mostrar_historial(jugador_id, "MCR", temporada) 
     with tab_riichi: 
@@ -909,6 +910,7 @@ def mostrar_ficha(jugador_id):
                 st.subheader(temporada) 
                 mostrar_indicadores(jugador_id, "RIICHI", temporada) 
                 st.divider() 
+                mostrar_rivales( jugador_id, "RIICHI", temporada)
                 mostrar_distribucion_posiciones(jugador_id, "RIICHI", temporada) 
                 st.divider() 
                 st.subheader("📋 Historial") 
