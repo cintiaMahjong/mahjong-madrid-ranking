@@ -1019,6 +1019,12 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
         subset=["partida_id", "jugador_id"]
     )
 
+    # Total de partidas del jugador
+    total_partidas = df_jugador["partida_id"].nunique()
+
+    if total_partidas == 0:
+        return
+
     ids_partidas = df_jugador["partida_id"].dropna().unique()
 
     enfrentamientos = datos[
@@ -1066,7 +1072,7 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
         .astype(str)
     )
 
-    # TOP 5: jugadores con los que más partidas comparte
+    # 1. TOP 5: jugadores con los que más partidas comparte
 
     mas_frecuentes = (
         rivales.groupby(
@@ -1077,7 +1083,7 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
         .head(5)
     )
 
-    # TOP 5: jugadores que terminan por delante más veces
+    # 2. TOP 5: jugadores que terminan por delante
 
     derrotas = rivales[
         rivales["posicion"].notna() &
@@ -1087,6 +1093,23 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
 
     mas_derrotas = (
         derrotas.groupby(
+            ["jugador_id", "nombre_jugador"]
+        )["partida_id"]
+        .nunique()
+        .sort_values(ascending=False)
+        .head(5)
+    )
+
+    # 3. TOP 5: jugadores a los que gana más veces
+
+    victorias = rivales[
+        rivales["posicion"].notna() &
+        rivales["posicion_jugador"].notna() &
+        (rivales["posicion_jugador"] < rivales["posicion"])
+    ]
+
+    mas_victorias = (
+        victorias.groupby(
             ["jugador_id", "nombre_jugador"]
         )["partida_id"]
         .nunique()
@@ -1115,7 +1138,7 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
                         f'{html.escape(str(nombre))}'
                     '</span>'
                     '<strong class="rival-count">'
-                        f'{int(cantidad)}'
+                        f'{int(cantidad)} / {total_partidas}'
                     '</strong>'
                 '</div>'
             )
@@ -1136,11 +1159,11 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
                 '<div class="rival-card">'
 
                     '<div class="rival-card-title">'
-                        'Con quien juega más'
+                        'Con quién juega más'
                     '</div>'
 
                     '<div class="rival-card-subtitle">'
-                        'Top 5'
+                        'Partidas compartidas / Total jugadas'
                     '</div>'
 
                     + crear_filas(mas_frecuentes) +
@@ -1150,14 +1173,28 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
                 '<div class="rival-card">'
 
                     '<div class="rival-card-title">'
-                        'Quien le gana más veces'
+                        'Quién más veces le gana'
                     '</div>'
 
                     '<div class="rival-card-subtitle">'
-                        'Top 5'
+                        'Partidas por delante / Total jugadas'
                     '</div>'
 
                     + crear_filas(mas_derrotas) +
+
+                '</div>'
+
+                '<div class="rival-card">'
+
+                    '<div class="rival-card-title">'
+                        'A quién gana más'
+                    '</div>'
+
+                    '<div class="rival-card-subtitle">'
+                        'Partidas por delante / Total jugadas'
+                    '</div>'
+
+                    + crear_filas(mas_victorias) +
 
                 '</div>'
 
