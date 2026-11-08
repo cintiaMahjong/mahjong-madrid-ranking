@@ -373,6 +373,150 @@ div[role="radiogroup"] label {
  .torneo-row { font-size:.78rem; }
 }
 
+/* =========================================
+   ESTADÍSTICAS DEL JUGADOR
+========================================= */
+
+.player-stats-card,
+.rivals-section {
+    border: 1px solid #dedede;
+    border-radius: 9px;
+    background: #ffffff;
+    padding: 18px 20px;
+    margin: 10px 0 16px;
+}
+
+.player-stats-title {
+    color: #17612e;
+    font-size: 1.18rem;
+    font-weight: 800;
+}
+
+.player-stats-subtitle {
+    color: #777;
+    font-size: .82rem;
+    margin-bottom: 18px;
+}
+
+.stats-position-row {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr) 72px;
+    gap: 9px;
+    align-items: center;
+    margin: 13px 0;
+}
+
+.stats-position-label {
+    color: #111;
+    font-size: .88rem;
+    font-weight: 600;
+}
+
+.stats-bar-track {
+    height: 16px;
+    background: #f0eee8;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.stats-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+}
+
+.stats-bar-1 { background: #c49a35; }
+.stats-bar-2 { background: #929da3; }
+.stats-bar-3 { background: #b4774c; }
+.stats-bar-4 { background: #a84f57; }
+.stats-bar-5 { background: #668b70; }
+
+.stats-position-percent {
+    color: #111;
+    font-size: .86rem;
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* =========================================
+   RIVALES HABITUALES
+========================================= */
+
+.rivals-title {
+    color: #17612e;
+    font-size: 1.08rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+}
+
+.rivals-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.rival-card {
+    min-width: 0;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    padding: 11px 12px;
+    background: #fcfcfb;
+}
+
+.rival-card-title {
+    color: #222;
+    font-size: .91rem;
+    font-weight: 800;
+}
+
+.rival-card-subtitle {
+    color: #777;
+    font-size: .73rem;
+    margin: 2px 0 9px;
+}
+
+.rival-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 0;
+    border-top: 1px solid #ededed;
+    font-size: .84rem;
+}
+
+.rival-name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    color: #222;
+}
+
+.rival-count {
+    color: #17612e;
+    white-space: nowrap;
+}
+
+.rival-empty {
+    color: #777;
+    font-size: .82rem;
+    padding: 8px 0;
+}
+
+@media (max-width: 700px) {
+    .player-stats-card,
+    .rivals-section {
+        padding: 14px 12px;
+    }
+
+    .rivals-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-position-row {
+        grid-template-columns: 27px minmax(0, 1fr) 66px;
+        gap: 7px;
+    }
+}
+
 </style> 
 """, unsafe_allow_html=True) 
 def supabase_get(tabla, parametros=None): 
