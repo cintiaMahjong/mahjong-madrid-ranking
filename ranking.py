@@ -1034,6 +1034,7 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
     if total_partidas == 0:
         return
 
+    # Obtener partidas compartidas
     ids_partidas = df_jugador["partida_id"].dropna().unique()
 
     enfrentamientos = datos[
@@ -1051,6 +1052,7 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
         errors="coerce"
     )
 
+    # Posición del jugador seleccionado
     posiciones_jugador = df_jugador[
         ["partida_id", "posicion"]
     ].copy()
@@ -1064,6 +1066,7 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
         columns={"posicion": "posicion_jugador"}
     )
 
+    # Obtener rivales de las mismas partidas
     rivales = enfrentamientos[
         enfrentamientos["jugador_id"].astype(str) != jugador_id
     ].merge(
@@ -1081,7 +1084,9 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
         .astype(str)
     )
 
+    # --------------------------------------------------
     # 1. TOP 5: jugadores con los que más partidas comparte
+    # --------------------------------------------------
 
     mas_frecuentes = (
         rivales.groupby(
@@ -1092,7 +1097,9 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
         .head(5)
     )
 
+    # --------------------------------------------------
     # 2. TOP 5: jugadores que terminan por delante
+    # --------------------------------------------------
 
     derrotas = rivales[
         rivales["posicion"].notna() &
@@ -1109,7 +1116,9 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
         .head(5)
     )
 
+    # --------------------------------------------------
     # 3. TOP 5: jugadores a los que gana más veces
+    # --------------------------------------------------
 
     victorias = rivales[
         rivales["posicion"].notna() &
@@ -1126,9 +1135,11 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
         .head(5)
     )
 
-    # Crear filas HTML
+    # --------------------------------------------------
+    # CREAR FILAS HTML
+    # --------------------------------------------------
 
-        def crear_filas(serie):
+    def crear_filas(serie):
 
         if serie.empty:
             return (
@@ -1159,7 +1170,9 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
 
         return resultado
 
-    # Construir HTML completo
+    # --------------------------------------------------
+    # CONSTRUIR HTML COMPLETO
+    # --------------------------------------------------
 
     contenido = (
         '<div class="rivals-section">'
@@ -1218,7 +1231,6 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
     )
 
     st.markdown(contenido, unsafe_allow_html=True)
-
 
 
 
