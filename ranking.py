@@ -1150,7 +1150,7 @@ def mostrar_rivales(jugador_id, tipo_juego, temporada):
                 '<div class="rival-card">'
 
                     '<div class="rival-card-title">'
-                        'Quien más veces le gana'
+                        'Quien le gana más veces'
                     '</div>'
 
                     '<div class="rival-card-subtitle">'
